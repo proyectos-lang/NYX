@@ -1,0 +1,28 @@
+{
+  "name": "nyx",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NYX — sitio de sublimacion y personalizacion + panel de administracion. Maquetas estaticas y esquema de base de datos.",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy",
+    "deploy:prod": "vercel deploy --prod",
+    "env:pull": "vercel env pull .env.local",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:status": "supabase status",
+    "db:reset": "supabase db reset",
+    "db:link": "supabase link",
+    "db:push": "supabase db push",
+    "db:pull": "supabase db pull",
+    "db:diff": "supabase db diff -f",
+    "db:types": "supabase gen types typescript --linked > supabase/types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^2.0.0",
+    "vercel": "^48.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

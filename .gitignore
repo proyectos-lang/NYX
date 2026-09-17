@@ -1,0 +1,45 @@
+# --- Dependencias ---
+node_modules/
+.pnp/
+.pnp.js
+
+# --- Entorno / secretos ---
+# Nunca subir claves reales. La plantilla versionada es .env.example
+.env
+.env.*
+!.env.example
+
+# --- Vercel ---
+.vercel/
+
+# --- Supabase ---
+# Estado local del CLI (contenedores, claves de dev, temporales)
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# --- Build / cache ---
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# --- Editor de diseño (DC) ---
+# Miniatura WebP que regenera la herramienta en cada guardado
+.thumbnail
+
+# --- Sistema operativo / editores ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-error.log*

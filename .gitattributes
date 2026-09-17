@@ -1,0 +1,22 @@
+# Normaliza los finales de linea: LF en el repositorio, nativo al hacer checkout.
+# Evita diffs falsos al trabajar desde Windows.
+* text=auto eol=lf
+
+*.html  text eol=lf
+*.js    text eol=lf
+*.css   text eol=lf
+*.json  text eol=lf
+*.sql   text eol=lf
+*.md    text eol=lf
+*.toml  text eol=lf
+
+# Binarios: git no debe tocarlos ni intentar hacer diff de texto
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.svg   binary
+*.mp4   binary
+*.pdf   binary
+*.ico   binary

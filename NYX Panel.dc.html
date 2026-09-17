@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EFEFEF;font-family:Montserrat,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#8a6b1c;text-decoration:none}
+a:hover{color:#C99A2E}
+input,textarea,select,button{font-family:Montserrat,system-ui,sans-serif}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<sc-if value="{{ logoutOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:28px;background:rgba(6,6,6,.88);animation:panelIn .25s ease both">
+    <div style="width:min(380px,100%);background:#0F0F0F;border:1px solid rgba(201,154,46,.35);padding:30px">
+      <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#C99A2E">Sesión</div>
+      <h2 style="margin:13px 0 0;font:400 22px/1.25 'Playfair Display',serif;color:#fff">¿Cerrar sesión?</h2>
+      <p style="margin:12px 0 0;font:300 12px/1.7 Montserrat,sans-serif;color:#A7A7A7">Los cambios guardados se mantienen. Los que no hayas publicado quedarán como borrador.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px">
+        <a href="NYX Web.dc.html" style="flex:1;min-width:130px;text-align:center;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);padding:15px" style-hover="color:#080808;filter:brightness(1.07)">Cerrar sesión</a>
+        <button onClick="{{ cancelLogout }}" style="flex:1;min-width:130px;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#A7A7A7;background:none;border:1px solid rgba(255,255,255,.18);padding:15px;cursor:pointer" style-hover="color:#ffffff">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<div style="min-height:100vh;display:grid;grid-template-columns:{{ shellCols }};background:#EFEFEF">
+
+  <aside style="background:#0B0B0B;padding:26px 18px;display:flex;flex-direction:column;gap:30px;min-width:0">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px">
+      <img src="assets/nyx-logo-dark.png" alt="NYX" style="height:34px;width:auto;display:block">
+      <div>
+        <div style="font:600 10px/1 Montserrat,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#fff">Panel</div>
+        <div style="margin-top:5px;font:400 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#7d7d7d">Administración</div>
+      </div>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <button onClick="{{ n.go }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:13px 14px;border:none;border-left:2px solid {{ n.line }};background:{{ n.bg }};color:{{ n.fg }};font:500 12.5px/1.2 Montserrat,sans-serif;cursor:pointer" style-hover="background:#161616;color:#ffffff">
+          <span>{{ n.label }}</span>
+          <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}">
+            <span style="flex:none;min-width:20px;text-align:center;font:600 9.5px/1 Montserrat,sans-serif;padding:5px 6px;background:#C99A2E;color:#080808">{{ n.badge }}</span>
+          </sc-if>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:14px">
+      <a href="NYX Web.dc.html" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border:1px solid rgba(201,154,46,.5);color:#E2BD63;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase" style-hover="background:rgba(201,154,46,.12);color:#ffffff">
+        <span>Ver la web</span>
+        <span style="font:400 14px/1 Montserrat,sans-serif">↗</span>
+      </a>
+      <div style="padding:16px;border:1px solid rgba(255,255,255,.1)">
+        <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#C99A2E">Estructura protegida</div>
+        <p style="margin:11px 0 0;font:300 11px/1.65 Montserrat,sans-serif;color:#9a9a9a">Puedes editar textos, fotos, precios y categorías. El diseño y la disposición de las secciones no se modifican desde aquí.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:0 4px">
+        <span style="flex:none;width:32px;height:32px;border-radius:50%;background:#C99A2E;color:#080808;display:flex;align-items:center;justify-content:center;font:600 11px/1 Montserrat,sans-serif">AM</span>
+        <div style="min-width:0;flex:1">
+          <div style="font:500 11.5px/1.2 Montserrat,sans-serif;color:#fff">Ana Martínez</div>
+          <div style="margin-top:4px;font:400 10px/1 Montserrat,sans-serif;color:#7d7d7d">Administradora</div>
+        </div>
+        <button onClick="{{ askLogout }}" title="Cerrar sesión" style="flex:none;font:600 9.5px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#A7A7A7;background:none;border:1px solid rgba(255,255,255,.16);padding:9px 10px;cursor:pointer" style-hover="border-color:#C99A2E;color:#E2BD63">Salir</button>
+      </div>
+    </div>
+  </aside>
+
+  <main style="min-width:0;padding:{{ mainPad }}">
+    <header style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid rgba(0,0,0,.1)">
+      <div>
+        <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#8a6b1c">{{ screenKicker }}</div>
+        <h1 style="margin:14px 0 0;font:400 {{ h1Size }}/1.1 'Playfair Display',serif;color:#080808">{{ screenTitle }}</h1>
+        <p style="margin:10px 0 0;max-width:620px;font:300 12.5px/1.7 Montserrat,sans-serif;color:#5c5c5c">{{ screenHint }}</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font:500 10.5px/1.2 Montserrat,sans-serif;color:#0a5c2b;background:#dff3e4;padding:9px 12px"><span style="width:5px;height:5px;border-radius:50%;background:#0a5c2b;display:block"></span>{{ savedLabel }}</span>
+        <button onClick="{{ save }}" style="white-space:nowrap;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:14px 22px;cursor:pointer" style-hover="filter:brightness(1.07)">Publicar cambios</button>
+      </div>
+    </header>
+
+    <!-- ORDERS -->
+    <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ true }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <div style="display:grid;grid-template-columns:{{ statCols }};gap:14px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:20px">
+            <div style="font:500 9.5px/1.3 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6f6f6f">{{ s.label }}</div>
+            <div style="margin-top:14px;font:400 30px/1 'Playfair Display',serif;color:#080808">{{ s.value }}</div>
+            <div style="margin-top:9px;font:400 11px/1.5 Montserrat,sans-serif;color:#8a6b1c">{{ s.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ ordersCols }};gap:18px;margin-top:20px;align-items:start">
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.08);min-width:0">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 18px;border-bottom:1px solid rgba(0,0,0,.08)">
+            <sc-for list="{{ orderFilters }}" as="f" hint-placeholder-count="4">
+              <button onClick="{{ f.go }}" style="white-space:nowrap;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:10px 13px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};cursor:pointer">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ orders }}" as="o" hint-placeholder-count="6">
+              <button onClick="{{ o.pick }}" style="display:grid;grid-template-columns:{{ rowCols }};gap:14px;align-items:center;text-align:left;padding:16px 18px;border:none;border-bottom:1px solid rgba(0,0,0,.06);border-left:3px solid {{ o.line }};background:{{ o.bg }};cursor:pointer" style-hover="background:#FBF7EE">
+                <div style="min-width:0">
+                  <div style="font:600 11px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em;color:#8a6b1c">{{ o.ref }}</div>
+                  <div style="margin-top:7px;font:500 13px/1.3 Montserrat,sans-serif;color:#080808">{{ o.client }}</div>
+                  <div style="margin-top:5px;font:400 11.5px/1.4 Montserrat,sans-serif;color:#6f6f6f">{{ o.summary }}</div>
+                </div>
+                <div style="text-align:right;white-space:nowrap">
+                  <span style="display:inline-flex;align-items:center;white-space:nowrap;font:600 9.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;padding:6px 9px;background:{{ o.chipBg }};color:{{ o.chipFg }}">{{ o.status }}</span>
+                  <div style="margin-top:9px;font:400 11px/1 Montserrat,sans-serif;color:#6f6f6f">{{ o.date }}</div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:22px;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="font:600 11px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em;color:#8a6b1c">{{ sel.ref }}</div>
+            <span style="display:inline-flex;align-items:center;white-space:nowrap;font:600 9.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;padding:6px 9px;background:{{ sel.chipBg }};color:{{ sel.chipFg }}">{{ sel.status }}</span>
+          </div>
+          <h2 style="margin:14px 0 0;font:400 22px/1.2 'Playfair Display',serif;color:#080808">{{ sel.client }}</h2>
+          <div style="margin-top:6px;font:400 11.5px/1.6 Montserrat,sans-serif;color:#6f6f6f">{{ sel.contact }}</div>
+
+          <div style="display:flex;gap:14px;margin-top:20px;padding:14px;background:#F7F7F7;border:1px solid rgba(0,0,0,.06)">
+            <div style="flex:none;width:72px;height:72px;overflow:hidden;background:#EFEFEF">
+              <div style="width:100%;height:100%;background-size:cover;background-position:center;{{ sel.bg }}"></div>
+            </div>
+            <div style="min-width:0">
+              <div style="font:500 13px/1.3 Montserrat,sans-serif;color:#080808">{{ sel.product }}</div>
+              <div style="margin-top:6px;font:400 11.5px/1.6 Montserrat,sans-serif;color:#6f6f6f">{{ sel.specs }}</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:0;margin-top:18px">
+            <sc-for list="{{ sel.fields }}" as="f" hint-placeholder-count="5">
+              <div style="display:flex;gap:14px;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.07)">
+                <span style="font:600 9.5px/1.4 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f">{{ f.k }}</span>
+                <span style="text-align:right;font:400 12px/1.5 Montserrat,sans-serif;color:#080808">{{ f.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-top:18px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f">Archivo del cliente</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:13px 14px;border:1px dashed rgba(201,154,46,.8);background:#FBF7EE">
+              <span style="min-width:0;font:400 11.5px/1.4 ui-monospace,Menlo,monospace;color:#8a6b1c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sel.file }}</span>
+              <span style="flex:none;font:600 10px/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#080808">Descargar</span>
+            </div>
+          </div>
+
+          <div style="margin-top:18px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f">Cambiar estado</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+              <sc-for list="{{ statusOptions }}" as="s" hint-placeholder-count="4">
+                <button onClick="{{ s.go }}" style="white-space:nowrap;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:10px 12px;border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};cursor:pointer">{{ s.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px">
+            <button style="flex:1;min-width:150px;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:#080808;border:none;padding:15px;cursor:pointer" style-hover="color:#E2BD63">Enviar cotización</button>
+            <button style="flex:1;min-width:150px;font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:none;border:1px solid rgba(0,0,0,.2);padding:15px;cursor:pointer" style-hover="border-color:#C99A2E">Responder WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- CATALOG -->
+    <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ catFilters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.go }}" style="white-space:nowrap;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:10px 13px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};cursor:pointer">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <span style="font:400 11.5px/1 Montserrat,sans-serif;color:#6f6f6f">{{ catCountLabel }}</span>
+          <button onClick="{{ openLink }}" style="white-space:nowrap;font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:none;border:1px solid {{ linkBtnBorder }};padding:13px 18px;cursor:pointer" style-hover="border-color:#C99A2E">{{ linkBtnLabel }}</button>
+          <button onClick="{{ openProd }}" style="white-space:nowrap;font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:#080808;border:none;padding:13px 18px;cursor:pointer" style-hover="color:#E2BD63">+ Nuevo producto</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ prodOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:16px;background:#fff;border:1px solid #C99A2E;padding:24px">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:space-between">
+            <div>
+              <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8a6b1c">Nuevo producto</div>
+              <div style="margin-top:10px;font:400 20px/1.25 'Playfair Display',serif;color:#080808">Ficha del producto</div>
+            </div>
+            <button onClick="{{ closeProd }}" style="font:300 22px/1 Montserrat,sans-serif;color:#6f6f6f;background:none;border:none;cursor:pointer" style-hover="color:#080808">×</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:{{ prodCols }};gap:20px;margin-top:20px;align-items:start">
+            <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px;min-width:0">
+              <div style="grid-column:1 / -1">
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Nombre del producto</label>
+                <input value="{{ npName }}" onChange="{{ setNpName }}" placeholder="Mochila urbana NYX" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Categoría</label>
+                <select value="{{ npCat }}" onChange="{{ setNpCat }}" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+                  <sc-for list="{{ catNames }}" as="c" hint-placeholder-count="6">
+                    <option value="{{ c }}">{{ c }}</option>
+                  </sc-for>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Precio de referencia</label>
+                <input value="{{ npPrice }}" onChange="{{ setNpPrice }}" placeholder="24.90" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Stock</label>
+                <input value="{{ npStock }}" onChange="{{ setNpStock }}" placeholder="20 en stock" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Tipo</label>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ npTypes }}" as="t" hint-placeholder-count="2">
+                    <button onClick="{{ t.go }}" style="flex:1 1 120px;min-width:0;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:13px 10px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};cursor:pointer">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="grid-column:1 / -1">
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Descripción</label>
+                <textarea value="{{ npDesc }}" onChange="{{ setNpDesc }}" placeholder="Material, medidas, acabado y usos recomendados." style="width:100%;min-height:82px;resize:vertical;font:400 12.5px/1.6 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none"></textarea>
+              </div>
+            </div>
+            <div style="min-width:0">
+              <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Fotos del producto</label>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(201,154,46,.8);background:#FBF7EE;font:600 9.5px/1.4 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8a6b1c;text-align:center;cursor:pointer">Foto<br>principal</div>
+                <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(0,0,0,.2);background:#FAFAFA;font:400 20px/1 Montserrat,sans-serif;color:#6f6f6f;cursor:pointer">+</div>
+              </div>
+              <p style="margin:10px 0 0;font:300 11px/1.6 Montserrat,sans-serif;color:#6f6f6f">JPG o PNG, mínimo 1200 px. La primera foto es la de portada en el catálogo.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,0,0,.08)">
+            <button onClick="{{ saveProd }}" style="font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:15px 24px;cursor:pointer">Guardar producto</button>
+            <button onClick="{{ closeProd }}" style="font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#4d4d4d;background:none;border:1px solid rgba(0,0,0,.18);padding:15px 24px;cursor:pointer">Cancelar</button>
+            <span style="align-self:center;font:300 11px/1.6 Montserrat,sans-serif;color:#6f6f6f">{{ prodHint }}</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="background:#fff;border:1px solid rgba(0,0,0,.08);overflow:hidden">
+        <div style="display:grid;grid-template-columns:{{ tableCols }};gap:14px;padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.09);background:#FAFAFA">
+          <div style="display:flex;align-items:center;gap:12px;min-width:0">
+            <button onClick="{{ pickAll }}" title="Seleccionar todos" style="flex:none;width:20px;height:20px;border:1px solid {{ allCheckBorder }};background:{{ allCheckBg }};color:#080808;font:700 11px/1 Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ allCheckMark }}</button>
+            <span style="font:600 9.5px/1.3 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f">{{ headFirst }}</span>
+          </div>
+          <sc-for list="{{ tableHeadRest }}" as="h" hint-placeholder-count="5">
+            <span style="font:600 9.5px/1.3 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f">{{ h }}</span>
+          </sc-for>
+        </div>
+        <sc-for list="{{ catRows }}" as="r" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:{{ tableCols }};gap:14px;align-items:center;padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.06);background:{{ r.bg }}" style-hover="background:#FBF7EE">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0">
+              <button onClick="{{ r.pick }}" title="Incluir en enlace" style="flex:none;width:20px;height:20px;border:1px solid {{ r.checkBorder }};background:{{ r.checkBg }};color:#080808;font:700 11px/1 Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ r.checkMark }}</button>
+              <div style="flex:none;width:46px;height:46px;overflow:hidden;background:#EFEFEF;position:relative">
+                <div style="position:absolute;inset:0;background-size:cover;background-position:center;{{ r.bg2 }}"></div>
+                <span style="position:absolute;inset:auto 0 0 0;text-align:center;font:600 8px/1.6 Montserrat,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(8,8,8,.68)">Cambiar</span>
+              </div>
+              <div style="min-width:0">
+                <div style="font:500 12.5px/1.3 Montserrat,sans-serif;color:#080808;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</div>
+                <div style="margin-top:5px;font:400 10.5px/1.4 ui-monospace,Menlo,monospace;color:#6f6f6f">{{ r.meta }}</div>
+              </div>
+            </div>
+            <sc-if value="{{ showCat }}" hint-placeholder-val="{{ true }}">
+              <span style="font:400 11.5px/1.3 Montserrat,sans-serif;color:#4d4d4d">{{ r.cat }}</span>
+            </sc-if>
+            <span style="font:500 12.5px/1.3 Montserrat,sans-serif;color:#080808">{{ r.price }}</span>
+            <sc-if value="{{ showType }}" hint-placeholder-val="{{ true }}">
+              <span style="justify-self:start;display:inline-flex;align-items:center;white-space:nowrap;font:600 9px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;background:{{ r.typeBg }};color:{{ r.typeFg }}">{{ r.type }}</span>
+            </sc-if>
+            <sc-if value="{{ showStock }}" hint-placeholder-val="{{ true }}">
+              <span style="font:400 11.5px/1.3 Montserrat,sans-serif;color:#4d4d4d">{{ r.stock }}</span>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end">
+              <button onClick="{{ r.toggle }}" title="Visible en la web" style="width:38px;height:22px;border-radius:999px;border:none;padding:3px;background:{{ r.switchBg }};cursor:pointer;display:flex;justify-content:{{ r.switchJustify }}">
+                <span style="width:16px;height:16px;border-radius:50%;background:#fff;display:block"></span>
+              </button>
+              <button style="font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8a6b1c;background:none;border:none;cursor:pointer" style-hover="color:#080808">Editar</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ linkOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;margin-top:18px;background:#0B0B0B;border:1px solid rgba(201,154,46,.4);padding:24px">
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between">
+            <div style="flex:1 1 0;min-width:0;padding-right:28px">
+              <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#C99A2E">Enlace para cliente</div>
+              <div style="margin-top:10px;font:400 20px/1.25 'Playfair Display',serif;color:#fff">Selección privada · {{ pickedCount }}</div>
+              <p style="margin:9px 0 0;max-width:520px;font:300 11.5px/1.7 Montserrat,sans-serif;color:#A7A7A7">Se abre como una página del sitio con solo estos productos. No requiere que el cliente navegue el catálogo completo.</p>
+            </div>
+            <button onClick="{{ closeLink }}" style="position:absolute;top:16px;right:16px;font:300 22px/1 Montserrat,sans-serif;color:#A7A7A7;background:none;border:none;cursor:pointer" style-hover="color:#ffffff">×</button>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:20px">
+            <sc-for list="{{ pickedItems }}" as="p" hint-placeholder-count="3">
+              <span style="display:inline-flex;align-items:center;gap:9px;white-space:nowrap;font:400 11px/1.2 Montserrat,sans-serif;color:#fff;border:1px solid rgba(255,255,255,.18);padding:9px 12px">
+                {{ p.name }}
+                <button onClick="{{ p.remove }}" style="font:400 13px/1 Montserrat,sans-serif;color:#C99A2E;background:none;border:none;cursor:pointer;padding:0">×</button>
+              </span>
+            </sc-for>
+            <sc-if value="{{ noPicks }}" hint-placeholder-val="{{ false }}">
+              <span style="font:300 11.5px/1.6 Montserrat,sans-serif;color:#7d7d7d">Marca los productos en la tabla para incluirlos.</span>
+            </sc-if>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+            <button onClick="{{ pickAllVisible }}" style="font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#E2BD63;background:none;border:1px solid rgba(201,154,46,.45);padding:11px 14px;cursor:pointer" style-hover="background:rgba(201,154,46,.12);color:#ffffff">{{ pickAllLabel }}</button>
+            <button onClick="{{ clearPicks }}" style="font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#A7A7A7;background:none;border:1px solid rgba(255,255,255,.18);padding:11px 14px;cursor:pointer" style-hover="color:#ffffff">Quitar todos</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:{{ linkCols }};gap:16px;margin-top:22px;align-items:end">
+            <div>
+              <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8f8f8f;margin-bottom:9px">Enlace generado</label>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;min-width:0;font:400 12px/1.5 ui-monospace,Menlo,monospace;color:#E2BD63;background:#151515;border:1px solid rgba(255,255,255,.14);padding:13px 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ linkUrl }}</div>
+                <button onClick="{{ copyLink }}" style="white-space:nowrap;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:0 18px;cursor:pointer">{{ copyLabel }}</button>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8f8f8f;margin-bottom:9px">Vence en</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <sc-for list="{{ expiryOptions }}" as="e" hint-placeholder-count="3">
+                  <button onClick="{{ e.go }}" style="flex:1 1 92px;min-width:0;white-space:nowrap;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:13px 10px;border:1px solid {{ e.border }};background:{{ e.bg }};color:{{ e.fg }};cursor:pointer">{{ e.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:22px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.1)">
+            <sc-for list="{{ linkOpts }}" as="o" hint-placeholder-count="2">
+              <button onClick="{{ o.toggle }}" style="display:flex;align-items:center;gap:11px;background:none;border:none;cursor:pointer;padding:0;text-align:left">
+                <span style="flex:none;width:38px;height:22px;border-radius:999px;padding:3px;background:{{ o.switchBg }};display:flex;justify-content:{{ o.switchJustify }}"><span style="width:16px;height:16px;border-radius:50%;background:#fff;display:block"></span></span>
+                <span style="font:400 11.5px/1.4 Montserrat,sans-serif;color:#d6d6d6">{{ o.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:20px">
+            <button style="font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:15px 24px;cursor:pointer">Enviar por WhatsApp</button>
+            <button style="font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:none;border:1px solid rgba(255,255,255,.22);padding:15px 24px;cursor:pointer" style-hover="border-color:#C99A2E">Enviar por correo</button>
+          </div>
+        </div>
+      </sc-if>
+      <p style="margin:14px 0 0;font:300 11.5px/1.7 Montserrat,sans-serif;color:#6f6f6f">Cada fila edita nombre, categoría, precio, tipo, stock, colores y fotos del producto. El diseño de la ficha en la web permanece igual.</p>
+    </section>
+    </sc-if>
+
+    <!-- CATEGORIES -->
+    <sc-if value="{{ isCats }}" hint-placeholder-val="{{ false }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;margin-bottom:18px;background:#fff;border:1px solid #C99A2E;padding:24px">
+          <button onClick="{{ closeEdit }}" style="position:absolute;top:16px;right:16px;font:300 22px/1 Montserrat,sans-serif;color:#6f6f6f;background:none;border:none;cursor:pointer" style-hover="color:#080808">×</button>
+          <div style="padding-right:30px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#8a6b1c">Editar categoría</div>
+            <div style="margin-top:10px;font:400 21px/1.25 'Playfair Display',serif;color:#080808">{{ editing.name }}</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:{{ editCols }};gap:22px;margin-top:22px;align-items:start">
+            <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px;min-width:0">
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Nombre (ES)</label>
+                <input value="{{ editing.name }}" onChange="{{ setEditName }}" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Nombre (EN)</label>
+                <input value="{{ editing.en }}" onChange="{{ setEditEn }}" style="width:100%;font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none">
+              </div>
+              <div style="grid-column:1 / -1">
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Descripción en la web</label>
+                <textarea value="{{ editing.desc }}" onChange="{{ setEditDesc }}" placeholder="Una línea que acompaña el nombre de la categoría en el catálogo." style="width:100%;min-height:72px;resize:vertical;font:400 12.5px/1.6 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px;outline:none"></textarea>
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Posición en la web</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button onClick="{{ moveUp }}" style="font:400 15px/1 Montserrat,sans-serif;color:#8a6b1c;background:none;border:1px solid rgba(0,0,0,.16);padding:11px 14px;cursor:pointer" style-hover="border-color:#C99A2E">↑</button>
+                  <span style="font:500 13px/1 Montserrat,sans-serif;color:#080808">#{{ editing.order }}</span>
+                  <button onClick="{{ moveDown }}" style="font:400 15px/1 Montserrat,sans-serif;color:#8a6b1c;background:none;border:1px solid rgba(0,0,0,.16);padding:11px 14px;cursor:pointer" style-hover="border-color:#C99A2E">↓</button>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Productos asignados</label>
+                <div style="font:400 13px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:13px 14px">{{ editing.count }} productos</div>
+              </div>
+            </div>
+
+            <div style="min-width:0">
+              <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Portada de la categoría</label>
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#EFEFEF;border:1px solid rgba(0,0,0,.1)">
+                <div style="position:absolute;inset:0;background-size:cover;background-position:center;{{ editing.bg }}"></div>
+              </div>
+              <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin:16px 0 9px">Fotos de la categoría · toca una para usarla de portada</label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px">
+                <sc-for list="{{ editPhotos }}" as="p" hint-placeholder-count="4">
+                  <div style="position:relative;aspect-ratio:1;overflow:hidden;background:#EFEFEF;border:2px solid {{ p.border }}">
+                    <button onClick="{{ p.makeCover }}" title="Usar como portada" style="position:absolute;inset:0;width:100%;height:100%;padding:0;border:none;background-size:cover;background-position:center;cursor:pointer;{{ p.bg }}"></button>
+                    <button onClick="{{ p.remove }}" title="Quitar foto" style="position:absolute;top:3px;right:3px;width:18px;height:18px;font:400 11px/1 Montserrat,sans-serif;color:#fff;background:rgba(8,8,8,.72);border:none;cursor:pointer">×</button>
+                    <sc-if value="{{ p.isCover }}" hint-placeholder-val="{{ false }}">
+                      <span style="position:absolute;inset:auto 0 0 0;text-align:center;font:600 8px/1.8 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#080808;background:#C99A2E">Portada</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <button onClick="{{ addPhoto }}" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font:300 20px/1 Montserrat,sans-serif;color:#8a6b1c;background:#FBF7EE;border:1px dashed rgba(201,154,46,.8);cursor:pointer">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,0,0,.08)">
+            <button onClick="{{ closeEdit }}" style="font:600 11px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:15px 24px;cursor:pointer">Listo</button>
+            <span style="align-self:center;font:300 11px/1.6 Montserrat,sans-serif;color:#6f6f6f">Los cambios se reflejan en la web al publicar.</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:{{ catGridCols }};gap:16px">
+        <sc-for list="{{ categories }}" as="c" hint-placeholder-count="8">
+          <div style="background:#fff;border:1px solid rgba(0,0,0,.08);overflow:hidden">
+            <div style="position:relative;aspect-ratio:16/10;background:#EFEFEF">
+              <div style="position:absolute;inset:0;background-size:cover;background-position:center;{{ c.bg }}"></div>
+              <span style="position:absolute;top:10px;left:10px;font:600 9px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#080808;background:rgba(255,255,255,.92);padding:6px 8px">Cambiar foto</span>
+              <span style="position:absolute;top:10px;right:10px;font:500 10px/1.2 ui-monospace,Menlo,monospace;color:#fff;background:rgba(8,8,8,.7);padding:6px 8px">#{{ c.order }}</span>
+            </div>
+            <div style="padding:14px 16px 16px">
+              <div style="font:500 13px/1.3 Montserrat,sans-serif;color:#080808">{{ c.name }}</div>
+              <div style="margin-top:6px;font:400 11px/1.4 Montserrat,sans-serif;color:#6f6f6f">{{ c.en }}</div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,.07)">
+                <span style="font:400 11px/1.4 Montserrat,sans-serif;color:#6f6f6f">{{ c.count }} · {{ c.photoCount }}</span>
+                <div style="display:flex;gap:10px">
+                  <button onClick="{{ c.edit }}" style="font:600 10px/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8a6b1c;background:none;border:none;cursor:pointer" style-hover="color:#080808">Editar</button>
+                  <button onClick="{{ c.remove }}" style="font:600 10px/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#9a3a3a;background:none;border:none;cursor:pointer" style-hover="color:#080808">Quitar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px solid #C99A2E;padding:18px;display:flex;flex-direction:column;gap:12px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">Nueva categoría</div>
+            <div>
+              <label style="display:block;font:600 9px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:7px">Nombre (ES)</label>
+              <input value="{{ newEs }}" onChange="{{ setEs }}" placeholder="Mochilas" style="width:100%;font:400 12.5px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:11px 12px;outline:none">
+            </div>
+            <div>
+              <label style="display:block;font:600 9px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:7px">Nombre (EN)</label>
+              <input value="{{ newEn }}" onChange="{{ setEn }}" placeholder="Backpacks" style="width:100%;font:400 12.5px/1.4 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.16);padding:11px 12px;outline:none">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:2px">
+              <button onClick="{{ addCat }}" style="flex:1;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:linear-gradient(180deg,#E2BD63,#C99A2E);border:none;padding:12px;cursor:pointer">Guardar</button>
+              <button onClick="{{ closeAdd }}" style="flex:1;font:600 10px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#4d4d4d;background:none;border:1px solid rgba(0,0,0,.18);padding:12px;cursor:pointer">Cancelar</button>
+            </div>
+            <p style="margin:0;font:300 10.5px/1.6 Montserrat,sans-serif;color:#6f6f6f">La foto de portada se asigna después desde la tarjeta.</p>
+          </div>
+        </sc-if>
+        <button onClick="{{ openAdd }}" style="min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:none;border:1px dashed rgba(0,0,0,.25);cursor:pointer" style-hover="border-color:#C99A2E;background:#FBF7EE">
+          <span style="font:300 26px/1 Montserrat,sans-serif;color:#8a6b1c">+</span>
+          <span style="font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#4d4d4d">Nueva categoría</span>
+        </button>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- CONTENT -->
+    <sc-if value="{{ isContent }}" hint-placeholder-val="{{ false }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="display:flex;gap:6px;padding:3px;background:#fff;border:1px solid rgba(0,0,0,.1)">
+          <sc-for list="{{ langTabs }}" as="l" hint-placeholder-count="2">
+            <button onClick="{{ l.go }}" style="font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.14em;padding:10px 16px;border:none;background:{{ l.bg }};color:{{ l.fg }};cursor:pointer">{{ l.label }}</button>
+          </sc-for>
+        </div>
+        <span style="font:400 11.5px/1.6 Montserrat,sans-serif;color:#6f6f6f">Editas el contenido de cada bloque; el orden y la maqueta están fijos.</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:22px">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.08)">
+              <div>
+                <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">{{ b.section }}</div>
+                <div style="margin-top:9px;font:500 14px/1.2 Montserrat,sans-serif;color:#080808">{{ b.title }}</div>
+              </div>
+              <span style="display:inline-flex;align-items:center;white-space:nowrap;font:600 9px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;background:#F1F1F1;color:#6f6f6f">{{ b.lock }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:{{ blockCols }};gap:18px;margin-top:18px">
+              <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+                <sc-for list="{{ b.fields }}" as="f" hint-placeholder-count="3">
+                  <div>
+                    <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">{{ f.label }}</label>
+                    <div style="font:400 12.5px/1.6 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.14);padding:{{ f.pad }}">{{ f.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="min-width:0">
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">{{ b.mediaLabel }}</label>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                  <sc-for list="{{ b.media }}" as="mm" hint-placeholder-count="2">
+                    <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#EFEFEF;border:1px solid rgba(0,0,0,.08)">
+                      <div style="position:absolute;inset:0;background-size:cover;background-position:center;{{ mm.bg }}"></div>
+                      <span style="position:absolute;inset:auto 0 0 0;text-align:center;font:600 8.5px/1.9 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:rgba(8,8,8,.7)">Reemplazar</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <p style="margin:10px 0 0;font:300 11px/1.6 Montserrat,sans-serif;color:#6f6f6f">{{ b.mediaHint }}</p>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- FAQ -->
+    <sc-if value="{{ isFaq }}" hint-placeholder-val="{{ false }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;gap:6px;padding:3px;background:#fff;border:1px solid rgba(0,0,0,.1)">
+          <sc-for list="{{ langTabs }}" as="l" hint-placeholder-count="2">
+            <button onClick="{{ l.go }}" style="font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.14em;padding:10px 16px;border:none;background:{{ l.bg }};color:{{ l.fg }};cursor:pointer">{{ l.label }}</button>
+          </sc-for>
+        </div>
+        <button style="white-space:nowrap;font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:#080808;border:none;padding:13px 18px;cursor:pointer" style-hover="color:#E2BD63">+ Nueva pregunta</button>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(0,0,0,.08)">
+        <sc-for list="{{ faqRows }}" as="f" hint-placeholder-count="7">
+          <div style="border-bottom:1px solid rgba(0,0,0,.07)">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 18px">
+              <button onClick="{{ f.toggle }}" style="flex:1;min-width:200px;display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;cursor:pointer;padding:0">
+                <span style="flex:none;font:500 10.5px/1 ui-monospace,Menlo,monospace;color:#6f6f6f">{{ f.n }}</span>
+                <span style="font:500 13px/1.4 Montserrat,sans-serif;color:#080808">{{ f.q }}</span>
+              </button>
+              <div style="display:flex;gap:12px;align-items:center">
+                <span style="font:400 10.5px/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#6f6f6f">Orden</span>
+                <span style="font:500 14px/1 Montserrat,sans-serif;color:#8a6b1c;cursor:pointer">↑</span>
+                <span style="font:500 14px/1 Montserrat,sans-serif;color:#8a6b1c;cursor:pointer">↓</span>
+                <button style="font:600 10px/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#9a3a3a;background:none;border:none;cursor:pointer" style-hover="color:#080808">Quitar</button>
+              </div>
+            </div>
+            <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px;padding:0 18px 20px">
+                <div>
+                  <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Pregunta</label>
+                  <div style="font:400 12.5px/1.6 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.14);padding:13px 14px">{{ f.q }}</div>
+                </div>
+                <div>
+                  <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">Respuesta</label>
+                  <div style="font:400 12.5px/1.6 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.14);padding:13px 14px">{{ f.a }}</div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- CONTACT -->
+    <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+    <section style="padding-top:26px;animation:panelIn .4s ease both">
+      <div style="display:grid;grid-template-columns:{{ contactCols }};gap:16px;align-items:start">
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:22px">
+          <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">Datos de contacto</div>
+          <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px;margin-top:18px">
+            <sc-for list="{{ contactFields }}" as="f" hint-placeholder-count="6">
+              <div style="grid-column:{{ f.span }}">
+                <label style="display:block;font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6f6f6f;margin-bottom:9px">{{ f.label }}</label>
+                <div style="font:400 12.5px/1.5 Montserrat,sans-serif;color:#080808;background:#FAFAFA;border:1px solid rgba(0,0,0,.14);padding:13px 14px">{{ f.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,0,0,.08)">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">Notificaciones de pedidos</div>
+            <div style="display:flex;flex-direction:column;gap:2px;margin-top:14px">
+              <sc-for list="{{ notif }}" as="n" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid rgba(0,0,0,.06)">
+                  <div style="min-width:0">
+                    <div style="font:500 12.5px/1.3 Montserrat,sans-serif;color:#080808">{{ n.label }}</div>
+                    <div style="margin-top:5px;font:400 11px/1.5 Montserrat,sans-serif;color:#6f6f6f">{{ n.hint }}</div>
+                  </div>
+                  <button onClick="{{ n.toggle }}" style="flex:none;width:38px;height:22px;border-radius:999px;border:none;padding:3px;background:{{ n.switchBg }};cursor:pointer;display:flex;justify-content:{{ n.switchJustify }}">
+                    <span style="width:16px;height:16px;border-radius:50%;background:#fff;display:block"></span>
+                  </button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:22px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">Logotipo del sitio</div>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:16px;padding:16px;background:#0B0B0B">
+              <img src="assets/nyx-logo-dark.png" alt="NYX" style="height:42px;width:auto;display:block">
+              <span style="font:400 11px/1.5 Montserrat,sans-serif;color:#9a9a9a">PNG con fondo transparente · usado en cabecera y pie</span>
+            </div>
+            <button style="width:100%;margin-top:12px;font:600 10.5px/1.2 Montserrat,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#080808;background:none;border:1px solid rgba(0,0,0,.2);padding:13px;cursor:pointer" style-hover="border-color:#C99A2E">Reemplazar logotipo</button>
+          </div>
+          <div style="background:#fff;border:1px solid rgba(0,0,0,.08);padding:22px">
+            <div style="font:600 9.5px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8a6b1c">Idiomas publicados</div>
+            <div style="display:flex;flex-direction:column;gap:2px;margin-top:14px">
+              <sc-for list="{{ langRows }}" as="l" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid rgba(0,0,0,.06)">
+                  <div>
+                    <div style="font:500 12.5px/1.3 Montserrat,sans-serif;color:#080808">{{ l.name }}</div>
+                    <div style="margin-top:5px;font:400 11px/1.5 Montserrat,sans-serif;color:#6f6f6f">{{ l.hint }}</div>
+                  </div>
+                  <span style="display:inline-flex;align-items:center;white-space:nowrap;font:600 9px/1.2 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;background:{{ l.chipBg }};color:{{ l.chipFg }}">{{ l.state }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#C99A2E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#C99A2E&quot;,&quot;#E2BD63&quot;,&quot;#B8862B&quot;],&quot;section&quot;:&quot;Marca&quot;},&quot;narrow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Vista&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'orders', order: 0, ofilter: 'all', cfilter: 'all',
+    lang: 'es', faq: 0, hidden: [], notif: [true, true, false],
+    vw: 1280, statuses: {}, published: false, logoutOpen: false,
+    catList: null, addOpen: false, newEs: '', newEn: '', editCat: -1,
+    picked: [], linkOpen: false, expiry: '7 días', linkPrices: true, linkQuote: true, copied: false,
+    prodOpen: false, extra: [],
+    np: { name: '', cat: 'Camisas', price: '', stock: '', type: 'Personalizable', desc: '' }
+  };
+
+  setNp(k, v) { this.setState(st => ({ np: { ...st.np, [k]: v } })); }
+
+  defaultCats() {
+    return [
+      ['Camisas', 'Shirts', 24, 'tee-oasis.jpeg'], ['Buzos', 'Hoodies', 11, 'hoodie-gray.jpeg'],
+      ['Termos y botellas', 'Tumblers & bottles', 18, 'bottle-create.jpeg'], ['Gorras', 'Caps', 9, 'cap-blue.jpeg'],
+      ['Tazas', 'Mugs', 14, 'mug-photos.jpeg'], ['Libretas y kits', 'Notebooks & kits', 12, 'kit-blue.jpeg'],
+      ['Pulseras', 'Wristbands', 8, 'prod/p012.jpg'], ['Llaveros', 'Keychains', 6, 'prod/p009.jpg']
+    ].map(([name, en, count, img]) => ({ name, en, count, img, desc: '', photos: img ? [img] : [] }));
+  }
+
+  componentDidMount() {
+    this.onResize = () => {
+      const w = window.innerWidth;
+      if (w !== this.state.vw) this.setState({ vw: w });
+    };
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+  }
+
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); }
+
+  bgOf(url) { return url ? 'background-image:url("' + url + '")' : ''; }
+
+  renderVals() {
+    const A = 'assets/';
+    const accent = this.props.accent ?? '#C99A2E';
+    const vw = this.state.vw;
+    const narrow = (this.props.narrow ?? false) || vw < 900;
+    const showCat = !narrow && vw >= 1180;
+    const showStock = !narrow && vw >= 1320;
+    const showType = !narrow && vw >= 1040;
+    const s = this.state;
+
+    const STATUS = {
+      'Nuevo': ['#FBF0D6', '#7a5a08'],
+      'En revisión': ['#E4ECF7', '#2c4a78'],
+      'En producción': ['#EDE4F7', '#4a2c78'],
+      'Entregado': ['#dff3e4', '#0a5c2b']
+    };
+    const chip = st => ({ chipBg: STATUS[st][0], chipFg: STATUS[st][1] });
+
+    const ordersAll = [
+      { ref: 'NYX-P-0148', client: 'Distribuidora Andes', contact: 'compras@andes.ec · +593 99 812 4410',
+        product: 'Termo Signature 750 ml', specs: '50 unidades · negro · logo frontal centrado',
+        summary: '50 × Termo Signature 750 ml', status: 'Nuevo', date: 'Hoy, 09:14', img: 'prod/p003.jpg',
+        file: 'logo-andes-vector.svg · 240 KB',
+        fields: [['Cantidad', '50 unidades'], ['Entrega requerida', '24 / 09 / 2026'], ['Método', 'Envío nacional'], ['Referencia de precio', '$18.50 c/u'], ['Observaciones', 'Empaque individual con etiqueta.']] },
+      { ref: 'NYX-P-0147', client: 'Camila Ríos', contact: 'camila.rios@gmail.com · +593 98 220 7731',
+        product: 'Taza cerámica con nombre', specs: '12 unidades · interior azul · nombres individuales',
+        summary: '12 × Taza cerámica con nombre', status: 'Nuevo', date: 'Hoy, 08:02', img: 'prod/p007.jpg',
+        file: 'nombres-lista.pdf · 88 KB',
+        fields: [['Cantidad', '12 unidades'], ['Entrega requerida', '21 / 09 / 2026'], ['Método', 'Retiro en taller'], ['Referencia de precio', '$7.20 c/u'], ['Observaciones', 'Un nombre por taza, tipografía script.']] },
+      { ref: 'NYX-P-0146', client: 'Colegio San Marcos', contact: 'admin@sanmarcos.edu.ec · +593 2 244 8890',
+        product: 'Camisa oversize NYX', specs: '120 unidades · blanco · tallas S a XL',
+        summary: '120 × Camisa oversize', status: 'En revisión', date: 'Ayer, 17:40', img: 'prod/p001.jpg',
+        file: 'escudo-colegio.ai · 1.8 MB',
+        fields: [['Cantidad', '120 unidades'], ['Entrega requerida', '02 / 10 / 2026'], ['Método', 'Entrega local coordinada'], ['Referencia de precio', '$13.40 c/u'], ['Observaciones', 'Escudo en pecho izquierdo, nombre atrás.']] },
+      { ref: 'NYX-P-0145', client: 'Estudio Ferra', contact: 'hola@estudioferra.com · +593 99 031 2288',
+        product: 'Libretas y kits', specs: '30 kits · libreta + termo + bolígrafo',
+        summary: '30 × Kit corporativo', status: 'En producción', date: '12 sep, 11:20', img: 'prod/p010.jpg',
+        file: 'kit-ferra-manual.pdf · 3.4 MB',
+        fields: [['Cantidad', '30 kits'], ['Entrega requerida', '19 / 09 / 2026'], ['Método', 'Envío nacional'], ['Referencia de precio', '$34.00 c/u'], ['Observaciones', 'Caja negra con cinta dorada.']] },
+      { ref: 'NYX-P-0144', client: 'Gimnasio Pulso', contact: 'info@pulsogym.ec · +593 98 774 1203',
+        product: 'Botella deportiva 500 ml', specs: '80 unidades · azul · grabado láser',
+        summary: '80 × Botella deportiva', status: 'En producción', date: '11 sep, 15:55', img: 'prod/p005.jpg',
+        file: 'pulso-logo.png · 620 KB',
+        fields: [['Cantidad', '80 unidades'], ['Entrega requerida', '18 / 09 / 2026'], ['Método', 'Retiro en taller'], ['Referencia de precio', '$11.20 c/u'], ['Observaciones', 'Grabado en una sola cara.']] },
+      { ref: 'NYX-P-0143', client: 'Bodas Lía & Tomás', contact: 'lia.tomas@gmail.com · +593 99 660 5512',
+        product: 'Pulsera de silicona', specs: '200 unidades · beige · texto grabado',
+        summary: '200 × Pulsera de silicona', status: 'Entregado', date: '08 sep, 10:05', img: 'prod/p012.jpg',
+        file: 'texto-pulseras.txt · 2 KB',
+        fields: [['Cantidad', '200 unidades'], ['Entrega requerida', '14 / 09 / 2026'], ['Método', 'Entrega local coordinada'], ['Referencia de precio', '$1.40 c/u'], ['Observaciones', 'Entregado el 13 de septiembre.']] }
+    ].map(o => {
+      const status = s.statuses[o.ref] || o.status;
+      return { ...o, status, ...chip(status), bg: this.bgOf(A + o.img), fields: o.fields.map(([k, v]) => ({ k, v })) };
+    });
+
+    const ofilters = [['all', 'Todos'], ['Nuevo', 'Nuevos'], ['En revisión', 'En revisión'], ['En producción', 'En producción'], ['Entregado', 'Entregados']];
+    const shown = s.ofilter === 'all' ? ordersAll : ordersAll.filter(o => o.status === s.ofilter);
+    const selIndex = Math.min(s.order, Math.max(0, shown.length - 1));
+    const sel = shown[selIndex] || ordersAll[0];
+
+    const prods = [...s.extra, 
+      ['Camisa oversize NYX', 'NYX-001', 'Camisas', '$13.40', 'Personalizable', '24 en stock', 'prod/p001.jpg'],
+      ['Buzo con capucha', 'NYX-002', 'Buzos', '$28.00', 'Personalizable', 'Bajo pedido', 'prod/p002.jpg'],
+      ['Termo Signature 750 ml', 'NYX-003', 'Termos y botellas', '$18.50', 'Personalizable', '18 en stock', 'prod/p003.jpg'],
+      ['Botella pixel 500 ml', 'NYX-004', 'Termos y botellas', '$11.20', 'Entrega inmediata', '32 en stock', 'prod/p005.jpg'],
+      ['Taza cerámica con nombre', 'NYX-005', 'Tazas', '$7.20', 'Personalizable', '40 en stock', 'prod/p007.jpg'],
+      ['Gorra bordada', 'NYX-006', 'Gorras', '$8.40', 'Entrega inmediata', '14 en stock', 'prod/p008.jpg'],
+      ['Libreta ejecutiva A5', 'NYX-007', 'Libretas y kits', '$9.20', 'Personalizable', '26 en stock', 'prod/p010.jpg'],
+      ['Pulsera de silicona', 'NYX-008', 'Pulseras', '$1.40', 'Entrega inmediata', '180 en stock', 'prod/p012.jpg']
+    ].map((row, i) => {
+      const [name, sku, cat, price, type, stock, img] = row;
+      const on = !s.hidden.includes(i);
+      return {
+        name, sku, cat, price, type, stock,
+        meta: [sku, showCat ? null : cat, showStock ? null : stock, showType ? null : type].filter(Boolean).join(' · '),
+        bg: i % 2 ? '#FCFCFC' : '#fff',
+        bg2: this.bgOf(A + img),
+        typeBg: type === 'Entrega inmediata' ? '#dff3e4' : '#FBF0D6',
+        typeFg: type === 'Entrega inmediata' ? '#0a5c2b' : '#7a5a08',
+        pick: () => this.setState(st => ({
+          picked: st.picked.includes(sku) ? st.picked.filter(x => x !== sku) : [...st.picked, sku],
+          copied: false
+        })),
+        checkBg: s.picked.includes(sku) ? accent : '#fff',
+        checkBorder: s.picked.includes(sku) ? accent : 'rgba(0,0,0,.28)',
+        checkMark: s.picked.includes(sku) ? '✓' : '',
+        switchBg: on ? accent : '#D6D6D6',
+        switchJustify: on ? 'flex-end' : 'flex-start',
+        toggle: () => this.setState(st => ({ hidden: st.hidden.includes(i) ? st.hidden.filter(x => x !== i) : [...st.hidden, i] }))
+      };
+    });
+    const cfilters = [['all', 'Todos'], ['Personalizable', 'Personalizables'], ['Entrega inmediata', 'Entrega inmediata'], ['off', 'Ocultos']];
+    const catRows = s.cfilter === 'all' ? prods
+      : s.cfilter === 'off' ? prods.filter(p => p.switchJustify === 'flex-start')
+      : prods.filter(p => p.type === s.cfilter);
+
+    const catData = s.catList || this.defaultCats();
+    const categories = catData.map((c, i) => ({
+      name: c.name, en: c.en, order: i + 1,
+      count: c.count + ' productos',
+      bg: this.bgOf(c.img ? A + c.img : ''),
+      photoCount: (c.photos || []).length + ' fotos',
+      edit: () => this.setState({ editCat: i, addOpen: false }),
+      remove: () => this.setState(st => ({ catList: catData.filter((_, j) => j !== i), editCat: st.editCat === i ? -1 : st.editCat }))
+    }));
+    const ei = s.editCat;
+    const ec = ei >= 0 ? catData[ei] : null;
+    const setCat = (patch) => this.setState({ catList: catData.map((c, j) => j === ei ? { ...c, ...patch } : c) });
+    const pool = ['prod/p014.jpg', 'prod/p015.jpg', 'prod/p016.jpg', 'prod/p019.jpg', 'prod/p020.jpg', 'prod/p022.jpg'];
+
+    const es = s.lang === 'es';
+    const blocks = [
+      { section: 'Portada', title: 'Banner principal', lock: 'Maqueta fija',
+        fields: [
+          ['Etiqueta', es ? 'Sublimación NYX' : 'NYX sublimation', '13px 14px'],
+          ['Titular', es ? 'Todo lo que imagines, personalizado' : 'Anything you imagine, personalized', '13px 14px'],
+          ['Texto de apoyo', es ? 'Camisas · Tazas · Termos · Gorras · Kits' : 'Shirts · Mugs · Tumblers · Caps · Kits', '13px 14px'],
+          ['Botones', es ? 'Ver catálogo / Solicitar cotización' : 'View catalog / Request a quote', '13px 14px']
+        ],
+        mediaLabel: 'Fotos de portada (3)', media: ['tee-newplan.jpeg', 'bottle-create.jpeg'],
+        mediaHint: 'En móvil se muestra solo la primera foto.' },
+      { section: 'Cómo funciona', title: 'Cuatro pasos del proceso', lock: '4 pasos fijos',
+        fields: [
+          ['Paso 01', es ? 'Elige tu producto' : 'Choose your product', '13px 14px'],
+          ['Paso 02', es ? 'Carga tu logotipo o diseño' : 'Upload your logo or design', '13px 14px'],
+          ['Paso 03', es ? 'Indica cantidad, colores y detalles' : 'Set quantity, colors and details', '13px 14px'],
+          ['Paso 04', es ? 'Recibe la confirmación de NYX' : 'Get NYX confirmation', '13px 14px']
+        ],
+        mediaLabel: 'Video y foto del proceso', media: ['prod/p004.jpg', 'prod/p006.jpg'],
+        mediaHint: 'Acepta MP4 hasta 40 MB o una foto de reemplazo.' },
+      { section: 'Empresas', title: 'Bloque corporativo', lock: 'Maqueta fija',
+        fields: [
+          ['Titular', es ? 'Personalizamos la identidad de tu empresa' : 'We personalize your company identity', '13px 14px'],
+          ['Párrafo', es ? 'Creamos productos corporativos personalizados para fortalecer tu marca, reconocer a tu equipo o destacar en cada evento.' : 'We create personalized corporate products to strengthen your brand, recognize your team or stand out at every event.', '13px 14px 44px'],
+          ['Etiquetas', es ? 'Uniformes, Kits de bienvenida, Eventos, Reconocimientos' : 'Uniforms, Welcome kits, Events, Awards', '13px 14px']
+        ],
+        mediaLabel: 'Media del bloque', media: ['kit-blue.jpeg', 'prod/p011.jpg'],
+        mediaHint: 'La primera ranura admite video; la segunda, foto.' },
+      { section: 'Nosotros', title: 'Historia y cifras', lock: '2 cifras fijas',
+        fields: [
+          ['Titular', es ? 'Detalle, oficio y renacimiento' : 'Detail, craft and rebirth', '13px 14px'],
+          ['Párrafo', es ? 'NYX nace del oficio de la sublimación: convertir una idea en un objeto que se usa, se regala y se recuerda.' : 'NYX was born from the craft of sublimation: turning an idea into an object that is used, gifted and remembered.', '13px 14px 30px'],
+          ['Cifras', es ? '6 años de experiencia / 1 a 1 revisión de diseño' : '6 years of experience / 1 to 1 design review', '13px 14px']
+        ],
+        mediaLabel: 'Foto del taller', media: ['prod/p002.jpg', 'prod/p013.jpg'],
+        mediaHint: 'Formato vertical 4:5 recomendado.' }
+    ].map(b => ({ ...b, fields: b.fields.map(([label, value, pad]) => ({ label, value, pad })), media: b.media.map(x => ({ bg: this.bgOf(A + x) })) }));
+
+    const faqEs = [
+      ['¿Cuánto tarda un pedido?', 'Entre 3 y 7 días hábiles según cantidad y complejidad. Los productos de entrega inmediata se retiran el mismo día.'],
+      ['¿Cuál es la cantidad mínima?', 'No hay mínimo para productos individuales. Para pedidos corporativos con diseño exclusivo el mínimo referencial es de 10 unidades.'],
+      ['¿Puedo enviar mi propio diseño?', 'Sí. PNG, JPG, PDF, AI o SVG. Recomendamos alta resolución o vectores.'],
+      ['¿Realizan pedidos empresariales?', 'Sí, kits corporativos, uniformes, reconocimientos y artículos para eventos con cotización dedicada.'],
+      ['¿Hacen entregas o envíos?', 'Entregas locales coordinadas y envíos nacionales por courier.'],
+      ['¿Cómo se confirma el precio?', 'El precio de la web es referencial; NYX confirma el valor final según cantidad, material y acabado.'],
+      ['¿Qué métodos de pago aceptan?', 'Transferencia bancaria y efectivo al retirar.']
+    ];
+    const faqEn = [
+      ['How long does an order take?', '3 to 7 business days depending on quantity and complexity. Ready-to-ship items can be picked up the same day.'],
+      ['What is the minimum quantity?', 'No minimum for individual products. Corporate orders with exclusive artwork start at 10 units.'],
+      ['Can I send my own design?', 'Yes. PNG, JPG, PDF, AI or SVG. High resolution or vectors recommended.'],
+      ['Do you handle corporate orders?', 'Yes — corporate kits, uniforms, awards and event items with a dedicated quote.'],
+      ['Do you deliver or ship?', 'Scheduled local delivery and nationwide courier shipping.'],
+      ['How is the price confirmed?', 'Website prices are for reference; NYX confirms the final amount by quantity, material and finish.'],
+      ['Which payment methods do you accept?', 'Bank transfer and cash on pickup.']
+    ];
+    const faqRows = (es ? faqEs : faqEn).map(([q, a], i) => ({
+      n: String(i + 1).padStart(2, '0'), q, a,
+      open: s.faq === i,
+      toggle: () => this.setState(st => ({ faq: st.faq === i ? -1 : i }))
+    }));
+
+    const screens = {
+      orders: ['Bandeja', 'Pedidos recibidos', 'Cada solicitud enviada desde la web llega aquí con producto, cantidad, archivo del cliente y fecha requerida.'],
+      catalog: ['Catálogo', 'Productos y precios', 'Edita nombre, categoría, precio, tipo, stock y fotos. El interruptor controla si el producto se ve en la web.'],
+      cats: ['Catálogo', 'Categorías', 'Nombre en español e inglés, foto de portada y orden en el que aparecen en la web.'],
+      content: ['Contenido', 'Textos e imágenes del sitio', 'Cada bloque de la web tiene sus propios campos. El orden de las secciones y el diseño están bloqueados.'],
+      faq: ['Contenido', 'Preguntas frecuentes', 'Añade, reordena o elimina preguntas en ambos idiomas.'],
+      contact: ['Ajustes', 'Contacto y notificaciones', 'Datos que aparecen en el pie de página y a dónde llegan los avisos de pedidos nuevos.']
+    };
+    const sc = screens[s.screen];
+    const newCount = ordersAll.filter(o => o.status === 'Nuevo').length;
+
+    const navItems = [
+      ['orders', 'Pedidos', newCount ? String(newCount) : ''], ['catalog', 'Catálogo', ''], ['cats', 'Categorías', ''],
+      ['content', 'Contenido', ''], ['faq', 'Preguntas', ''], ['contact', 'Contacto y ajustes', '']
+    ];
+
+    return {
+      nav: navItems.map(([id, label, badge]) => ({
+        label, badge,
+        go: () => this.setState({ screen: id }),
+        bg: s.screen === id ? '#161616' : 'transparent',
+        fg: s.screen === id ? '#ffffff' : '#A7A7A7',
+        line: s.screen === id ? accent : 'transparent'
+      })),
+      shellCols: narrow ? '1fr' : 'minmax(212px,236px) minmax(0,1fr)',
+      mainPad: narrow ? '26px 20px 56px' : '34px 38px 64px',
+      h1Size: narrow ? '28px' : '34px',
+      statCols: narrow ? 'repeat(2,1fr)' : 'repeat(4,1fr)',
+      ordersCols: narrow ? '1fr' : 'minmax(0,1.35fr) minmax(0,1fr)',
+      rowCols: 'minmax(0,1fr) auto',
+      showCat, showStock, showType,
+      tableCols: [
+        'minmax(0,2.2fr)',
+        showCat ? 'minmax(0,1.1fr)' : null,
+        'minmax(64px,.7fr)',
+        showType ? 'minmax(120px,1fr)' : null,
+        showStock ? 'minmax(84px,.9fr)' : null,
+        'minmax(132px,auto)'
+      ].filter(Boolean).join(' '),
+      tableHeadRest: [ showCat ? 'Categoría' : null, 'Precio', showType ? 'Tipo' : null, showStock ? 'Stock' : null, narrow ? 'Editar' : 'Visible']
+        .filter(Boolean),
+      headFirst: 'Producto',
+      catGridCols: narrow ? 'repeat(auto-fill,minmax(150px,1fr))' : 'repeat(auto-fill,minmax(200px,1fr))',
+      blockCols: narrow ? '1fr' : 'minmax(0,1.5fr) minmax(0,1fr)',
+      contactCols: narrow ? '1fr' : 'minmax(0,1.4fr) minmax(0,1fr)',
+      formCols: narrow ? '1fr' : '1fr 1fr',
+
+      screenKicker: sc[0], screenTitle: sc[1], screenHint: sc[2],
+      logoutOpen: s.logoutOpen,
+      askLogout: () => this.setState({ logoutOpen: true }),
+      cancelLogout: () => this.setState({ logoutOpen: false }),
+      savedLabel: s.published ? 'Publicado ahora' : 'Guardado hace 2 min',
+      save: () => this.setState({ published: true }),
+
+      isOrders: s.screen === 'orders', isCatalog: s.screen === 'catalog', isCats: s.screen === 'cats',
+      isContent: s.screen === 'content', isFaq: s.screen === 'faq', isContact: s.screen === 'contact',
+
+      stats: [
+        { label: 'Pedidos nuevos', value: String(newCount), note: 'Sin responder' },
+        { label: 'En producción', value: String(ordersAll.filter(o => o.status === 'En producción').length), note: 'Entrega esta semana' },
+        { label: 'Solicitudes del mes', value: '37', note: '+9 vs. agosto' },
+        { label: 'Valor estimado', value: '$4.2k', note: 'Pendiente de confirmar' }
+      ],
+      orderFilters: ofilters.map(([id, label]) => ({
+        label, go: () => this.setState({ ofilter: id, order: 0 }),
+        bg: s.ofilter === id ? '#080808' : '#fff',
+        fg: s.ofilter === id ? '#ffffff' : '#4d4d4d',
+        border: s.ofilter === id ? '#080808' : 'rgba(0,0,0,.14)'
+      })),
+      orders: shown.map((o, i) => ({
+        ...o, pick: () => this.setState({ order: i }),
+        bg: i === selIndex ? '#FBF7EE' : '#fff',
+        line: i === selIndex ? accent : 'transparent'
+      })),
+      sel,
+      statusOptions: Object.keys(STATUS).map(label => ({
+        label, go: () => this.setState(st => ({ statuses: { ...st.statuses, [sel.ref]: label } })),
+        bg: sel.status === label ? '#080808' : '#fff',
+        fg: sel.status === label ? '#ffffff' : '#4d4d4d',
+        border: sel.status === label ? '#080808' : 'rgba(0,0,0,.14)'
+      })),
+
+      catFilters: cfilters.map(([id, label]) => ({
+        label, go: () => this.setState({ cfilter: id }),
+        bg: s.cfilter === id ? '#080808' : '#fff',
+        fg: s.cfilter === id ? '#ffffff' : '#4d4d4d',
+        border: s.cfilter === id ? '#080808' : 'rgba(0,0,0,.14)'
+      })),
+      catRows,
+      catCountLabel: catRows.length + ' de ' + prods.length + ' productos',
+      prodOpen: s.prodOpen,
+      openProd: () => this.setState({ prodOpen: true }),
+      closeProd: () => this.setState({ prodOpen: false }),
+      prodCols: vw < 1040 ? '1fr' : 'minmax(0,1.7fr) minmax(220px,1fr)',
+      npName: s.np.name, npCat: s.np.cat, npPrice: s.np.price, npStock: s.np.stock, npDesc: s.np.desc,
+      setNpName: e => this.setNp('name', e.target.value),
+      setNpCat: e => this.setNp('cat', e.target.value),
+      setNpPrice: e => this.setNp('price', e.target.value),
+      setNpStock: e => this.setNp('stock', e.target.value),
+      setNpDesc: e => this.setNp('desc', e.target.value),
+      catNames: catData.map(c => c.name),
+      npTypes: ['Personalizable', 'Entrega inmediata'].map(label => ({
+        label, go: () => this.setNp('type', label),
+        bg: s.np.type === label ? '#080808' : '#fff',
+        fg: s.np.type === label ? '#ffffff' : '#4d4d4d',
+        border: s.np.type === label ? '#080808' : 'rgba(0,0,0,.16)'
+      })),
+      prodHint: s.np.name.trim() ? 'Se añade al inicio de la tabla y a la web al publicar.' : 'Escribe al menos el nombre del producto.',
+      saveProd: () => {
+        const np = s.np, name = np.name.trim();
+        if (!name) return;
+        const sku = 'NYX-' + String(101 + s.extra.length);
+        const price = np.price.trim() ? (np.price.trim().startsWith('$') ? np.price.trim() : '$' + np.price.trim()) : 'A cotizar';
+        this.setState({
+          extra: [[name, sku, np.cat, price, np.type, np.stock.trim() || 'Bajo pedido', ''], ...s.extra],
+          prodOpen: false,
+          np: { name: '', cat: np.cat, price: '', stock: '', type: np.type, desc: '' }
+        });
+      },
+      pickAll: () => this.setState(st => {
+        const skus = catRows.map(r => r.sku);
+        const allOn = skus.every(x => st.picked.includes(x));
+        return { picked: allOn ? st.picked.filter(x => !skus.includes(x)) : [...new Set([...st.picked, ...skus])], copied: false };
+      }),
+      allCheckBg: catRows.length && catRows.every(r => s.picked.includes(r.sku)) ? accent : '#fff',
+      allCheckBorder: catRows.length && catRows.every(r => s.picked.includes(r.sku)) ? accent : 'rgba(0,0,0,.28)',
+      allCheckMark: catRows.length && catRows.every(r => s.picked.includes(r.sku)) ? '✓' : (s.picked.length ? '–' : ''),
+      pickAllVisible: () => this.setState({ picked: catRows.map(r => r.sku), copied: false }),
+      clearPicks: () => this.setState({ picked: [], copied: false }),
+      pickAllLabel: 'Seleccionar los ' + catRows.length + ' visibles',
+      linkOpen: s.linkOpen,
+      openLink: () => this.setState({ linkOpen: true }),
+      closeLink: () => this.setState({ linkOpen: false }),
+      linkBtnLabel: s.picked.length ? 'Enlace (' + s.picked.length + ')' : 'Enlace para cliente',
+      linkBtnBorder: s.picked.length ? '#C99A2E' : 'rgba(0,0,0,.2)',
+      pickedCount: s.picked.length + (s.picked.length === 1 ? ' producto' : ' productos'),
+      noPicks: s.picked.length === 0,
+      pickedItems: prods.filter(p => s.picked.includes(p.sku)).map(p => ({
+        name: p.name,
+        remove: () => this.setState(st => ({ picked: st.picked.filter(x => x !== p.sku), copied: false }))
+      })),
+      linkUrl: 'nyx.com/s/' + (s.picked.length ? s.picked.map(x => x.replace('NYX-', '')).join('') + 'K9' : 'nueva'),
+      copyLabel: s.copied ? 'Copiado' : 'Copiar',
+      copyLink: () => this.setState({ copied: true }),
+      linkCols: vw < 1120 ? '1fr' : 'minmax(0,1.6fr) minmax(320px,1fr)',
+      expiryOptions: ['7 días', '15 días', 'Sin caducidad'].map(label => ({
+        label, go: () => this.setState({ expiry: label }),
+        bg: s.expiry === label ? accent : 'transparent',
+        fg: s.expiry === label ? '#080808' : '#A7A7A7',
+        border: s.expiry === label ? accent : 'rgba(255,255,255,.18)'
+      })),
+      linkOpts: [
+        { key: 'linkPrices', label: 'Mostrar precios de referencia' },
+        { key: 'linkQuote', label: 'Permitir solicitar cotización desde el enlace' }
+      ].map(o => ({
+        label: o.label,
+        switchBg: s[o.key] ? accent : 'rgba(255,255,255,.22)',
+        switchJustify: s[o.key] ? 'flex-end' : 'flex-start',
+        toggle: () => this.setState(st => ({ [o.key]: !st[o.key] }))
+      })),
+
+      categories,
+      editing: ec ? { name: ec.name, en: ec.en, desc: ec.desc || '', count: ec.count, order: ei + 1, bg: this.bgOf(ec.img ? A + ec.img : '') } : null,
+      editCols: vw < 1040 ? '1fr' : 'minmax(0,1.3fr) minmax(260px,1fr)',
+      closeEdit: () => this.setState({ editCat: -1 }),
+      setEditName: e => setCat({ name: e.target.value }),
+      setEditEn: e => setCat({ en: e.target.value }),
+      setEditDesc: e => setCat({ desc: e.target.value }),
+      moveUp: () => { if (ei <= 0) return; const l = [...catData]; [l[ei - 1], l[ei]] = [l[ei], l[ei - 1]]; this.setState({ catList: l, editCat: ei - 1 }); },
+      moveDown: () => { if (ei < 0 || ei >= catData.length - 1) return; const l = [...catData]; [l[ei + 1], l[ei]] = [l[ei], l[ei + 1]]; this.setState({ catList: l, editCat: ei + 1 }); },
+      editPhotos: (ec ? ec.photos || [] : []).map(img => ({
+        bg: this.bgOf(A + img),
+        isCover: img === ec.img,
+        border: img === ec.img ? '#C99A2E' : 'rgba(0,0,0,.1)',
+        makeCover: () => setCat({ img }),
+        remove: () => setCat({ photos: ec.photos.filter(x => x !== img), img: ec.img === img ? (ec.photos.filter(x => x !== img)[0] || '') : ec.img })
+      })),
+      addPhoto: () => {
+        if (!ec) return;
+        const next = pool.find(p => !(ec.photos || []).includes(p)) || pool[0];
+        setCat({ photos: [...(ec.photos || []), next], img: ec.img || next });
+      },
+      addOpen: s.addOpen,
+      newEs: s.newEs, newEn: s.newEn,
+      setEs: e => this.setState({ newEs: e.target.value }),
+      setEn: e => this.setState({ newEn: e.target.value }),
+      openAdd: () => this.setState({ addOpen: true }),
+      closeAdd: () => this.setState({ addOpen: false, newEs: '', newEn: '' }),
+      addCat: () => {
+        const name = s.newEs.trim();
+        if (!name) return;
+        this.setState({
+          catList: [...catData, { name, en: s.newEn.trim() || name, count: 0, img: '', desc: '', photos: [] }],
+          addOpen: false, newEs: '', newEn: ''
+        });
+      },
+      langTabs: [['es', 'Español'], ['en', 'English']].map(([id, label]) => ({
+        label, go: () => this.setState({ lang: id }),
+        bg: s.lang === id ? '#080808' : 'transparent',
+        fg: s.lang === id ? '#ffffff' : '#6f6f6f'
+      })),
+      blocks, faqRows,
+
+      contactFields: [
+        ['WhatsApp', '+593 99 000 0000', 'auto'], ['Correo', 'hola@nyx.com', 'auto'],
+        ['Ciudad', 'Quito, Ecuador', 'auto'], ['Horario', 'Lun–Vie 9:00–18:00 · Sáb 9:00–13:00', 'auto'],
+        ['Instagram', '@nyx.sublimacion', 'auto'], ['Facebook', 'facebook.com/nyx', 'auto'],
+        ['Dirección del taller', 'Av. Principal 123 y Segunda · referencia: junto a la plaza', '1 / -1']
+      ].map(([label, value, span]) => ({ label, value, span })),
+      notif: [
+        { label: 'Correo al recibir un pedido', hint: 'hola@nyx.com' },
+        { label: 'Aviso por WhatsApp', hint: '+593 99 000 0000' },
+        { label: 'Resumen semanal', hint: 'Lunes 8:00' }
+      ].map((n, i) => ({
+        ...n,
+        switchBg: s.notif[i] ? accent : '#D6D6D6',
+        switchJustify: s.notif[i] ? 'flex-end' : 'flex-start',
+        toggle: () => this.setState(st => ({ notif: st.notif.map((v, j) => j === i ? !v : v) }))
+      })),
+      langRows: [
+        { name: 'Español', hint: 'Idioma principal', state: 'Publicado', chipBg: '#dff3e4', chipFg: '#0a5c2b' },
+        { name: 'English', hint: 'Traducción completa', state: 'Publicado', chipBg: '#dff3e4', chipFg: '#0a5c2b' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

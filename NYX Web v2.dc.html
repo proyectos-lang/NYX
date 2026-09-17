@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E0E0E;font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#0E0E0E;text-decoration:none}
+a:hover{color:#8A6B1C}
+@keyframes nyxIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#0E0E0E">
+
+<div style="position:sticky;top:0;z-index:99;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:9px 16px;background:#0E0E0E;border-bottom:1px solid #262626">
+  <span style="font:400 10px/1 ui-monospace,Menlo,monospace;color:#6E6A64;letter-spacing:.06em">NYX / maqueta · contenido de demostración</span>
+  <div style="display:flex;flex-wrap:wrap;gap:18px">
+    <sc-for list="{{ pages }}" as="p" hint-placeholder-count="4">
+      <button onClick="{{ p.go }}" style="font:400 11px/1 ui-monospace,Menlo,monospace;padding:4px 0;border:none;border-bottom:1px solid {{ p.line }};background:none;color:{{ p.fg }};cursor:pointer">{{ p.label }}</button>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:16px">
+    <sc-for list="{{ devices }}" as="d" hint-placeholder-count="3">
+      <button onClick="{{ d.go }}" style="font:400 11px/1 ui-monospace,Menlo,monospace;padding:4px 0;border:none;border-bottom:1px solid {{ d.line }};background:none;color:{{ d.fg }};cursor:pointer">{{ d.label }}</button>
+    </sc-for>
+  </div>
+</div>
+
+<div style="display:flex;justify-content:center;padding:0 0 70px">
+<div style="width:{{ frameW }};max-width:100%;background:#F2F0EC;overflow:hidden">
+
+<header style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:{{ navPad }};background:#F2F0EC;border-bottom:1px solid #0E0E0E">
+  <span style="font:400 22px/1 'Instrument Serif',Georgia,serif;letter-spacing:.3em;color:#0E0E0E;padding-left:.3em">NYX</span>
+  <nav style="display:{{ navDisplay }};align-items:center;gap:22px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+      <a href="#" style="font:400 12.5px/1 Archivo,sans-serif;color:#3A3733" style-hover="color:#0E0E0E;text-decoration:underline;text-underline-offset:5px">{{ n }}</a>
+    </sc-for>
+    <a href="#" style="font:500 12px/1 Archivo,sans-serif;color:#F2F0EC;background:#0E0E0E;padding:13px 18px" style-hover="color:#E9C877;background:#0E0E0E">Cotizar</a>
+  </nav>
+  <button onClick="{{ toggleMenu }}" style="display:{{ burgerDisplay }};align-items:center;gap:9px;padding:10px 12px;background:none;border:1px solid #0E0E0E;cursor:pointer">
+    <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#0E0E0E">menú</span>
+  </button>
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:100%;left:0;right:0;z-index:30;display:flex;flex-direction:column;background:#F2F0EC;border-bottom:1px solid #0E0E0E">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+        <a href="#" style="font:400 15px/1 Archivo,sans-serif;color:#0E0E0E;padding:16px 20px;border-top:1px solid #DEDAD3">{{ n }}</a>
+      </sc-for>
+      <a href="#" style="font:500 13px/1 Archivo,sans-serif;color:#F2F0EC;background:#0E0E0E;padding:17px 20px;text-align:center" style-hover="color:#E9C877">Solicitar cotización</a>
+    </div>
+  </sc-if>
+</header>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<main style="background:#F2F0EC">
+
+  <section style="display:grid;grid-template-columns:{{ heroCols }};border-bottom:1px solid #0E0E0E">
+    <div style="padding:{{ heroPad }};display:flex;flex-direction:column;justify-content:space-between;gap:44px;border-right:1px solid {{ vRule }}">
+      <div>
+        <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:{{ heroGap }}">Sublimación · Quito, Ecuador · desde 2019</div>
+        <h1 style="margin:0;font:400 {{ h1Size }}/.95 'Instrument Serif',Georgia,serif;color:#0E0E0E;letter-spacing:-.015em">Tu idea,<br>impresa en<br><em style="font-style:italic">algo que se usa</em></h1>
+        <p style="margin:26px 0 0;max-width:44ch;font:400 {{ leadSize }}/1.6 Archivo,sans-serif;color:#4A4741">Camisas, tazas, termos, gorras y kits corporativos personalizados uno por uno. Cotizamos por pedido; nada se produce sin tu visto bueno.</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;background:#C99A2E;padding:16px 26px" style-hover="color:#0E0E0E;background:#E9C877">Ver catálogo</a>
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;border:1px solid #0E0E0E;padding:16px 26px" style-hover="color:#F2F0EC;background:#0E0E0E">Solicitar cotización</a>
+      </div>
+    </div>
+    <div style="position:relative;min-height:{{ heroImgH }};border-top:1px solid {{ hRule }}">
+      <img src="assets/tee-newplan.jpeg" alt="Camiseta personalizada" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+      <span style="position:absolute;left:0;bottom:0;font:400 10px/1 ui-monospace,Menlo,monospace;color:#0E0E0E;background:#F2F0EC;padding:8px 10px">demo · camiseta serigrafiada</span>
+    </div>
+  </section>
+
+  <section style="border-bottom:1px solid #0E0E0E">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:{{ headPad }}">
+      <h2 style="margin:0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">Qué personalizamos</h2>
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">01 / catálogo</span>
+    </div>
+    <div style="display:grid;grid-template-columns:{{ catCols }};border-top:1px solid #CFCAC2">
+      <sc-for list="{{ cats }}" as="c" hint-placeholder-count="8">
+        <a href="#" style="display:flex;gap:14px;align-items:center;padding:14px 16px;border-right:1px solid #CFCAC2;border-bottom:1px solid #CFCAC2;background:#F2F0EC;transition:background .2s" style-hover="background:#E7E3DB;color:#0E0E0E">
+          <img src="{{ c.img }}" alt="{{ c.name }}" style="flex:none;width:60px;height:60px;object-fit:cover;display:block">
+          <div style="flex:1;min-width:0">
+            <div style="font:500 14px/1.2 Archivo,sans-serif;color:#0E0E0E">{{ c.name }}</div>
+            <div style="margin-top:5px;font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">{{ c.count }} refs.</div>
+          </div>
+          <span style="font:400 13px/1 Archivo,sans-serif;color:#8A8580">↗</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="background:#0E0E0E;color:#F2F0EC">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:{{ headPad }};border-bottom:1px solid #2A2A2A">
+      <h2 style="margin:0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#F2F0EC">Selección de temporada</h2>
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#6E6A64">02 / destacados</span>
+    </div>
+    <div style="display:grid;grid-template-columns:{{ prodCols }}">
+      <sc-for list="{{ products }}" as="p" hint-placeholder-count="6">
+        <div style="border-right:1px solid #2A2A2A;border-bottom:1px solid #2A2A2A;padding:16px;animation:nyxIn .6s ease both;animation-timeline:view();animation-range:entry 0% cover 16%">
+          <div style="position:relative;aspect-ratio:1;overflow:hidden;background:#151515">
+            <img src="{{ p.img }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,.8,.3,1)" style-hover="transform:scale(1.05)">
+          </div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:14px">
+            <span style="font:500 14.5px/1.3 Archivo,sans-serif;color:#F2F0EC">{{ p.name }}</span>
+            <span style="font:400 13px/1 ui-monospace,Menlo,monospace;color:#E9C877">{{ p.price }}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px">
+            <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">{{ p.cat }}</span>
+            <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:{{ p.tagFg }}">· {{ p.tag }}</span>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:12px">
+            <sc-for list="{{ p.colors }}" as="col" hint-placeholder-count="4">
+              <span style="width:12px;height:12px;background:{{ col }};border:1px solid #3A3733;display:block"></span>
+            </sc-for>
+          </div>
+          <a href="#" style="display:inline-block;margin-top:16px;font:400 11.5px/1 Archivo,sans-serif;color:#F2F0EC;border-bottom:1px solid #C99A2E;padding-bottom:4px" style-hover="color:#E9C877">Ver producto</a>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:grid;grid-template-columns:{{ heroCols }};border-bottom:1px solid #0E0E0E">
+    <div style="padding:{{ heroPad }};border-right:1px solid {{ vRule }}">
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">03 / proceso</span>
+      <h2 style="margin:14px 0 30px;font:400 {{ h2Size }}/1.05 'Instrument Serif',Georgia,serif;color:#0E0E0E">Cuatro pasos, sin sorpresas</h2>
+      <div>
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:36px 1fr;gap:14px;padding:18px 0;border-top:1px solid #CFCAC2">
+            <span style="font:400 11px/1.5 ui-monospace,Menlo,monospace;color:#8A8580">{{ s.n }}</span>
+            <div>
+              <div style="font:500 14.5px/1.35 Archivo,sans-serif;color:#0E0E0E">{{ s.t }}</div>
+              <div style="margin-top:6px;max-width:46ch;font:400 13px/1.6 Archivo,sans-serif;color:#4A4741">{{ s.d }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <a href="#" style="display:inline-block;margin-top:28px;font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;background:#C99A2E;padding:16px 26px" style-hover="color:#0E0E0E;background:#E9C877">Comenzar mi pedido</a>
+    </div>
+    <div style="position:relative;min-height:{{ heroImgH }};border-top:1px solid {{ hRule }}">
+      <img src="assets/tee-max.jpeg" alt="Vista previa del logotipo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;aspect-ratio:1;border:1px dashed #E9C877;display:flex;align-items:center;justify-content:center;background:rgba(14,14,14,.45)">
+        <span style="font:400 10.5px/1.5 ui-monospace,Menlo,monospace;color:#E9C877;text-align:center">tu logotipo<br>aquí</span>
+      </div>
+      <span style="position:absolute;left:0;bottom:0;max-width:100%;font:400 10px/1.5 ui-monospace,Menlo,monospace;color:#0E0E0E;background:#F2F0EC;padding:8px 10px">vista previa referencial · NYX aprueba el arte final</span>
+    </div>
+  </section>
+
+  <section style="border-bottom:1px solid #0E0E0E">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:{{ headPad }}">
+      <h2 style="margin:0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">En stock, sin espera</h2>
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">04 / entrega inmediata</span>
+    </div>
+    <div style="display:grid;grid-template-columns:{{ prodCols }};border-top:1px solid #CFCAC2">
+      <sc-for list="{{ ready }}" as="r" hint-placeholder-count="6">
+        <div style="display:flex;gap:14px;padding:16px;border-right:1px solid #CFCAC2;border-bottom:1px solid #CFCAC2">
+          <img src="{{ r.img }}" alt="{{ r.name }}" style="flex:none;width:96px;height:120px;object-fit:cover;display:block">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:10px">
+            <div>
+              <div style="font:500 14px/1.3 Archivo,sans-serif;color:#0E0E0E">{{ r.name }}</div>
+              <div style="margin-top:6px;font:400 12px/1.5 Archivo,sans-serif;color:#4A4741">{{ r.variants }}</div>
+              <div style="margin-top:8px;font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A6B1C">{{ r.stock }}</div>
+            </div>
+            <a href="#" style="align-self:flex-start;font:400 11.5px/1 Archivo,sans-serif;color:#0E0E0E;border-bottom:1px solid #C99A2E;padding-bottom:4px" style-hover="color:#8A6B1C">Pedir por WhatsApp</a>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:grid;grid-template-columns:{{ splitCols }};background:#0E0E0E;color:#F2F0EC">
+    <div style="position:relative;min-height:{{ heroImgH }}">
+      <img src="assets/kit-blue.jpeg" alt="Kit corporativo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+    </div>
+    <div style="padding:{{ heroPad }};display:flex;flex-direction:column;justify-content:center">
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#6E6A64">05 / empresas</span>
+      <h2 style="margin:14px 0 0;font:400 {{ h2Size }}/1.05 'Instrument Serif',Georgia,serif;color:#F2F0EC">Kits corporativos que la gente sí usa</h2>
+      <p style="margin:20px 0 0;max-width:46ch;font:400 {{ leadSize }}/1.6 Archivo,sans-serif;color:#B4AFA7">Uniformes, bienvenidas, eventos y reconocimientos. Producción por lotes con control de color y muestra física antes de escalar.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:24px">
+        <sc-for list="{{ corpTags }}" as="t" hint-placeholder-count="5">
+          <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#B4AFA7;border:1px solid #3A3733;padding:9px 12px">{{ t }}</span>
+        </sc-for>
+      </div>
+      <a href="#" style="align-self:flex-start;margin-top:28px;font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;background:#C99A2E;padding:16px 26px" style-hover="color:#0E0E0E;background:#E9C877">Cotización empresarial</a>
+    </div>
+  </section>
+
+  <section style="display:grid;grid-template-columns:{{ splitCols }};border-bottom:1px solid #0E0E0E">
+    <div style="position:relative;min-height:{{ heroImgH }};border-right:1px solid {{ vRule }}">
+      <video src="assets/nyx-proceso.mp4" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" controls="{{ true }}" preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></video>
+    </div>
+    <div style="padding:{{ heroPad }}">
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">06 / taller</span>
+      <h2 style="margin:14px 0 0;font:400 {{ h2Size }}/1.05 'Instrument Serif',Georgia,serif;color:#0E0E0E">Somos un taller, no un catálogo</h2>
+      <p style="margin:20px 0 0;max-width:48ch;font:400 {{ leadSize }}/1.6 Archivo,sans-serif;color:#4A4741">Sublimamos, revisamos y empacamos en el mismo lugar. Si un color no calza o una prenda sale corrida, se repite: preferimos perder una pieza antes que entregarla mal.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:32px;border-top:1px solid #CFCAC2">
+        <sc-for list="{{ facts }}" as="fa" hint-placeholder-count="4">
+          <div style="padding:16px 16px 16px 0;border-bottom:1px solid #CFCAC2">
+            <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">{{ fa.k }}</div>
+            <div style="margin-top:8px;font:400 15px/1.3 Archivo,sans-serif;color:#0E0E0E">{{ fa.v }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:1px solid #0E0E0E">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:{{ headPad }}">
+      <h2 style="margin:0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">Preguntas</h2>
+      <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">07 / faq</span>
+    </div>
+    <div style="padding:{{ faqPad }}">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="7">
+        <div style="border-top:1px solid #CFCAC2">
+          <button onClick="{{ f.toggle }}" style="width:100%;display:grid;grid-template-columns:36px 1fr 24px;gap:12px;align-items:baseline;padding:18px 0;background:none;border:none;cursor:pointer;text-align:left">
+            <span style="font:400 11px/1.4 ui-monospace,Menlo,monospace;color:#8A8580">{{ f.n }}</span>
+            <span style="font:400 {{ faqSize }}/1.4 Archivo,sans-serif;color:#0E0E0E">{{ f.q }}</span>
+            <span style="font:400 13px/1.4 ui-monospace,Menlo,monospace;color:#8A8580;text-align:right">{{ f.icon }}</span>
+          </button>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 48px 22px 48px;max-width:70ch;font:400 13.5px/1.7 Archivo,sans-serif;color:#4A4741">{{ f.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="background:#C99A2E;padding:{{ ctaPad }}">
+    <div style="display:grid;grid-template-columns:{{ ctaCols }};gap:{{ heroGap }};align-items:end">
+      <h2 style="margin:0;font:400 {{ h2Size }}/1.05 'Instrument Serif',Georgia,serif;color:#0E0E0E">Cuéntanos qué quieres personalizar</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#F2F0EC;background:#0E0E0E;padding:16px 26px" style-hover="color:#E9C877">Solicitar cotización</a>
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;border:1px solid #0E0E0E;padding:16px 26px" style-hover="color:#F2F0EC;background:#0E0E0E">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<sc-if value="{{ isCatalog }}" hint-placeholder-val="{{ false }}">
+<main style="background:#F2F0EC">
+  <div style="padding:{{ headPad }};border-bottom:1px solid #0E0E0E">
+    <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">inicio / catálogo</div>
+    <h1 style="margin:14px 0 0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">Catálogo</h1>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;max-width:520px">
+      <input placeholder="Buscar producto o código" style="flex:1;min-width:200px;font:400 13px/1 Archivo,sans-serif;color:#0E0E0E;background:transparent;border:1px solid #0E0E0E;padding:15px 16px;outline:none">
+      <button style="font:500 12px/1 Archivo,sans-serif;color:#F2F0EC;background:#0E0E0E;border:none;padding:0 22px;cursor:pointer">Buscar</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ catalogCols }}">
+    <aside style="padding:22px;border-right:1px solid #CFCAC2;border-bottom:1px solid #CFCAC2">
+      <sc-for list="{{ filters }}" as="g" hint-placeholder-count="4">
+        <div style="padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid #CFCAC2">
+          <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">{{ g.title }}</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="4">
+              <span style="font:400 12.5px/1.2 Archivo,sans-serif;color:#3A3733;cursor:pointer" style-hover="color:#0E0E0E;text-decoration:underline;text-underline-offset:4px">{{ o }}</span>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Color</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">
+        <sc-for list="{{ swatches }}" as="s" hint-placeholder-count="8">
+          <span style="width:20px;height:20px;background:{{ s }};border:1px solid #CFCAC2;cursor:pointer;display:block"></span>
+        </sc-for>
+      </div>
+    </aside>
+    <div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #CFCAC2">
+        <div style="display:flex;gap:16px">
+          <sc-for list="{{ typeTabs }}" as="t" hint-placeholder-count="3">
+            <span style="font:400 12px/1 Archivo,sans-serif;color:{{ t.fg }};border-bottom:1px solid {{ t.line }};padding-bottom:4px;cursor:pointer">{{ t.label }}</span>
+          </sc-for>
+        </div>
+        <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">16 de 128</span>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ prodCols }}">
+        <sc-for list="{{ catalogItems }}" as="p" hint-placeholder-count="12">
+          <div style="padding:14px;border-right:1px solid #CFCAC2;border-bottom:1px solid #CFCAC2">
+            <div style="position:relative;aspect-ratio:1;overflow:hidden;background:#E7E3DB">
+              <img src="{{ p.img }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,.8,.3,1)" style-hover="transform:scale(1.05)">
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:12px">
+              <span style="font:500 13.5px/1.3 Archivo,sans-serif;color:#0E0E0E">{{ p.name }}</span>
+              <span style="font:400 12px/1 ui-monospace,Menlo,monospace;color:#0E0E0E">{{ p.price }}</span>
+            </div>
+            <div style="margin-top:7px;font:400 11px/1.4 ui-monospace,Menlo,monospace;color:#8A8580">{{ p.cat }} · {{ p.tag }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:20px 16px">
+        <button style="font:500 12px/1 Archivo,sans-serif;color:#0E0E0E;background:none;border:1px solid #0E0E0E;padding:15px 28px;cursor:pointer" style-hover="background:#0E0E0E;color:#F2F0EC">Ver más</button>
+        <div style="display:flex;gap:14px">
+          <sc-for list="{{ pagination }}" as="n" hint-placeholder-count="5">
+            <span style="font:400 12px/1 ui-monospace,Menlo,monospace;color:{{ n.fg }};border-bottom:1px solid {{ n.line }};padding-bottom:3px;cursor:pointer">{{ n.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+<main style="background:#F2F0EC">
+  <div style="padding:{{ headPad }};border-bottom:1px solid #CFCAC2;font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">inicio / catálogo / termo signature 750 ml</div>
+  <div style="display:grid;grid-template-columns:{{ heroCols }}">
+    <div style="border-right:1px solid {{ vRule }}">
+      <div style="position:relative;aspect-ratio:1;overflow:hidden;background:#E7E3DB">
+        <img src="{{ mainImg }}" alt="Termo NYX Signature" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+        <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="4">
+          <div onClick="{{ g.pick }}" style="aspect-ratio:1;overflow:hidden;border-top:1px solid #CFCAC2;border-right:1px solid #CFCAC2;opacity:{{ g.op }};cursor:pointer">
+            <img src="{{ g.img }}" alt="{{ g.label }}" style="width:100%;height:100%;object-fit:cover;display:block">
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="padding:{{ heroPad }}">
+      <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">termos y botellas · personalizable · 18 en stock</div>
+      <h1 style="margin:14px 0 0;font:400 {{ h2Size }}/1.05 'Instrument Serif',Georgia,serif;color:#0E0E0E">Termo Signature 750 ml</h1>
+      <p style="margin:18px 0 0;max-width:52ch;font:400 14px/1.7 Archivo,sans-serif;color:#4A4741">Acero inoxidable de doble pared, acabado mate y sublimación de alta durabilidad. Para kits corporativos, eventos y regalos.</p>
+      <div style="display:flex;align-items:baseline;gap:12px;margin:24px 0 0">
+        <span style="font:400 28px/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">$18.50</span>
+        <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">referencial · varía por cantidad</span>
+      </div>
+
+      <div style="margin-top:28px;border-top:1px solid #CFCAC2">
+        <div style="padding:18px 0;border-bottom:1px solid #CFCAC2">
+          <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Color</div>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ pColors }}" as="c" hint-placeholder-count="5">
+              <span style="width:26px;height:26px;background:{{ c.hex }};border:1px solid {{ c.border }};cursor:pointer;display:block"></span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding:18px 0;border-bottom:1px solid #CFCAC2">
+          <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Capacidad</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ pSizes }}" as="s" hint-placeholder-count="4">
+              <span style="font:400 12px/1 Archivo,sans-serif;padding:10px 14px;border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};cursor:pointer">{{ s.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:{{ formCols }};gap:18px;padding:18px 0;border-bottom:1px solid #CFCAC2">
+          <div>
+            <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Cantidad</div>
+            <div style="display:flex;align-items:center;border:1px solid #0E0E0E;width:fit-content">
+              <button onClick="{{ dec }}" style="font:400 15px/1 Archivo,sans-serif;padding:11px 15px;background:none;border:none;cursor:pointer;color:#0E0E0E">−</button>
+              <span style="font:400 13px/1 ui-monospace,Menlo,monospace;padding:0 14px;color:#0E0E0E">{{ qty }}</span>
+              <button onClick="{{ inc }}" style="font:400 15px/1 Archivo,sans-serif;padding:11px 15px;background:none;border:none;cursor:pointer;color:#0E0E0E">+</button>
+            </div>
+          </div>
+          <div>
+            <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Fecha requerida</div>
+            <input placeholder="dd / mm / aaaa" style="width:100%;font:400 13px/1 Archivo,sans-serif;padding:13px;border:1px solid #CFCAC2;background:transparent;outline:none;color:#0E0E0E">
+          </div>
+        </div>
+        <div style="padding:18px 0;border-bottom:1px solid #CFCAC2">
+          <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Tu logotipo</div>
+          <div style="display:flex;gap:14px;align-items:center;border:1px dashed #8A6B1C;padding:16px">
+            <div style="flex:none;width:56px;height:56px;background:#E7E3DB;display:flex;align-items:center;justify-content:center;font:400 9px/1 ui-monospace,Menlo,monospace;color:#8A8580">logo</div>
+            <div>
+              <div style="font:400 13px/1.3 Archivo,sans-serif;color:#0E0E0E">Arrastra tu archivo o selecciónalo</div>
+              <div style="margin-top:5px;font:400 11px/1.5 ui-monospace,Menlo,monospace;color:#8A8580">png · jpg · pdf · ai · svg — hasta 20 MB</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:18px 0;border-bottom:1px solid #CFCAC2">
+          <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:12px">Observaciones</div>
+          <textarea placeholder="Ubicación del logotipo, colores de referencia, texto adicional…" style="width:100%;min-height:80px;resize:vertical;font:400 13px/1.6 Archivo,sans-serif;padding:13px;border:1px solid #CFCAC2;background:transparent;outline:none;color:#0E0E0E"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:22px">
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#F2F0EC;background:#0E0E0E;padding:16px 26px" style-hover="color:#E9C877">Agregar a solicitud</a>
+        <a href="#" style="font:500 12.5px/1 Archivo,sans-serif;color:#0E0E0E;border:1px solid #0E0E0E;padding:16px 26px" style-hover="color:#F2F0EC;background:#0E0E0E">WhatsApp</a>
+      </div>
+      <p style="margin:16px 0 0;font:400 11px/1.6 ui-monospace,Menlo,monospace;color:#8A8580">Sin pagos en línea. NYX confirma precio y fecha antes de producir.</p>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isQuote }}" hint-placeholder-val="{{ false }}">
+<main style="background:#F2F0EC">
+  <div style="padding:{{ headPad }};border-bottom:1px solid #0E0E0E">
+    <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580">solicitud de cotización</div>
+    <h1 style="margin:14px 0 0;font:400 {{ h2Size }}/1 'Instrument Serif',Georgia,serif;color:#0E0E0E">Ocho pasos</h1>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ catalogCols }}">
+    <aside style="border-right:1px solid #CFCAC2;border-bottom:1px solid #CFCAC2">
+      <sc-for list="{{ quoteSteps }}" as="s" hint-placeholder-count="8">
+        <button onClick="{{ s.go }}" style="width:100%;display:grid;grid-template-columns:32px 1fr;gap:10px;text-align:left;padding:14px 16px;background:{{ s.bg }};border:none;border-bottom:1px solid #CFCAC2;cursor:pointer">
+          <span style="font:400 11px/1.3 ui-monospace,Menlo,monospace;color:{{ s.numColor }}">0{{ s.n }}</span>
+          <span style="font:400 12.5px/1.35 Archivo,sans-serif;color:{{ s.fg }}">{{ s.label }}</span>
+        </button>
+      </sc-for>
+    </aside>
+    <div style="padding:{{ heroPad }}">
+      <h2 style="margin:0;font:400 24px/1.2 'Instrument Serif',Georgia,serif;color:#0E0E0E">{{ stepTitle }}</h2>
+      <p style="margin:10px 0 26px;max-width:56ch;font:400 13px/1.6 Archivo,sans-serif;color:#4A4741">{{ stepHint }}</p>
+      <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px">
+        <sc-for list="{{ stepFields }}" as="fl" hint-placeholder-count="4">
+          <div style="grid-column:{{ fl.span }}">
+            <label style="display:block;font:400 11px/1 ui-monospace,Menlo,monospace;color:#8A8580;margin-bottom:9px">{{ fl.label }}</label>
+            <div style="font:400 13px/1.5 Archivo,sans-serif;color:#8A8580;border-bottom:1px solid #CFCAC2;padding:0 0 12px">{{ fl.ph }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:32px;padding-top:20px;border-top:1px solid #CFCAC2">
+        <button onClick="{{ prevStep }}" style="font:400 12px/1 Archivo,sans-serif;color:#4A4741;background:none;border:1px solid #CFCAC2;padding:14px 24px;cursor:pointer" style-hover="color:#0E0E0E;border-color:#0E0E0E">Atrás</button>
+        <button onClick="{{ nextStep }}" style="font:500 12px/1 Archivo,sans-serif;color:#0E0E0E;background:#C99A2E;border:none;padding:14px 26px;cursor:pointer">{{ nextLabel }}</button>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<footer style="background:#0E0E0E;padding:{{ footPad }}">
+  <div style="display:grid;grid-template-columns:{{ footCols }};gap:36px">
+    <div>
+      <div style="font:400 22px/1 'Instrument Serif',Georgia,serif;letter-spacing:.3em;color:#F2F0EC;padding-left:.3em">NYX</div>
+      <p style="margin:16px 0 0;max-width:34ch;font:400 12.5px/1.7 Archivo,sans-serif;color:#8A8580">Sublimación y productos personalizados. Cotización por pedido, sin carrito ni pagos en línea.</p>
+    </div>
+    <sc-for list="{{ footCols3 }}" as="col" hint-placeholder-count="3">
+      <div>
+        <div style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#6E6A64;margin-bottom:14px">{{ col.title }}</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ col.items }}" as="i" hint-placeholder-count="5">
+            <a href="#" style="font:400 12.5px/1.4 Archivo,sans-serif;color:#B4AFA7" style-hover="color:#E9C877">{{ i }}</a>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;margin-top:40px;padding-top:18px;border-top:1px solid #2A2A2A">
+    <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#6E6A64">© 2026 NYX</span>
+    <span style="font:400 11px/1 ui-monospace,Menlo,monospace;color:#6E6A64">lun–vie 9:00–18:00 · sáb 9:00–13:00</span>
+  </div>
+</footer>
+
+</div>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#C99A2E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#C99A2E&quot;,&quot;#E9C877&quot;,&quot;#0E0E0E&quot;],&quot;section&quot;:&quot;Marca&quot;}}">
+class Component extends DCLogic {
+  state = { page: 'home', device: 'desktop', menuOpen: false, faq: -1, qty: 50, step: 1, size: 1, color: 0, gal: 0 };
+
+  renderVals() {
+    const A = 'assets/';
+    const d = this.state.device, m = d === 'mobile', t = d === 'tablet';
+    const pg = this.state.page;
+    const mk = (list, key) => list.map(x => ({
+      ...x, go: () => this.setState({ [key]: x.id, menuOpen: false }),
+      fg: this.state[key] === x.id ? '#F2F0EC' : '#6E6A64',
+      line: this.state[key] === x.id ? '#C99A2E' : 'transparent'
+    }));
+
+    const cats = [['Camisas','tee-oasis.jpeg',24],['Buzos','hoodie-gray.jpeg',11],['Termos y botellas','bottle-create.jpeg',12],['Gorras','cap-pastel.jpeg',9],
+      ['Tazas','mug-photos.jpeg',18],['Pulseras','band-kura.jpeg',21],['Llaveros','key-charms.jpeg',16],['Libretas y kits','kit-indcom.jpeg',14]]
+      .map(([name, img, count]) => ({ name, count, img: A + img }));
+
+    const P = { tag: 'personalizable', tagFg: '#E9C877' };
+    const I = { tag: 'entrega inmediata', tagFg: '#9BBF9B' };
+    const products = [
+      { name: 'Camisa oversize', cat: 'Camisas', price: '$12.90', img: A + 'tee-oasis.jpeg', colors: ['#0E0E0E','#F2F0EC','#3a5a8c','#8c2f2f'], ...P },
+      { name: 'Buzo con capucha', cat: 'Buzos', price: '$28.00', img: A + 'hoodie-gray.jpeg', colors: ['#0E0E0E','#3f3f3f','#c9c9c9'], ...P },
+      { name: 'Termo Signature 750 ml', cat: 'Termos', price: '$18.50', img: A + 'bottle-create.jpeg', colors: ['#0E0E0E','#c9c9c9','#1f3d2e','#C99A2E'], ...P },
+      { name: 'Botella deportiva 500 ml', cat: 'Botellas', price: '$11.20', img: A + 'bottle-pixel.jpeg', colors: ['#0E0E0E','#F2F0EC','#2438c9'], ...I },
+      { name: 'Taza con nombre', cat: 'Tazas', price: '$6.50', img: A + 'mug-gift.jpeg', colors: ['#F2F0EC','#cfe1f2','#0E0E0E'], ...P },
+      { name: 'Gorra bordada', cat: 'Gorras', price: '$8.40', img: A + 'cap-blue.jpeg', colors: ['#2438c9','#f2c9d4','#e0a33a','#0E0E0E'], ...P }
+    ];
+
+    const ready = [
+      { name: 'Pulsera de silicona', img: A + 'band-kura.jpeg', variants: 'Negro, turquesa, azul · talla única', stock: '32 disponibles' },
+      { name: 'Llavero acrílico', img: A + 'key-charms.jpeg', variants: 'Charms surtidos · mosquetón', stock: '14 disponibles' },
+      { name: 'Camisa estampada', img: A + 'tee-max.jpeg', variants: 'Negro · S–XL', stock: '26 disponibles' },
+      { name: 'Botella pixel 500 ml', img: A + 'bottle-pixel.jpeg', variants: 'Negro, azul, blanco', stock: '9 disponibles' },
+      { name: 'Taza infantil con fotos', img: A + 'mug-photos.jpeg', variants: 'Interior azul, rojo o amarillo', stock: '21 disponibles' },
+      { name: 'Gorra pastel bordada', img: A + 'cap-pastel.jpeg', variants: 'Rosa, mango, café, crema', stock: '12 disponibles' }
+    ];
+
+    const faqData = [
+      ['¿Cuánto tarda un pedido?', 'Personalizados: 3 a 7 días hábiles según cantidad y complejidad. Entrega inmediata: el mismo día.'],
+      ['¿Cuál es la cantidad mínima?', 'No hay mínimo para piezas individuales. Para diseño exclusivo corporativo, 10 unidades.'],
+      ['¿Puedo enviar mi propio diseño?', 'Sí: PNG, JPG, PDF, AI o SVG. Vectores o alta resolución dan el mejor resultado.'],
+      ['¿Realizan pedidos empresariales?', 'Sí. Kits, uniformes, reconocimientos y artículos de evento con cotización dedicada.'],
+      ['¿Hacen entregas o envíos?', 'Entrega local coordinada y envío nacional por courier; el costo se confirma en la cotización.'],
+      ['¿Cómo se confirma el precio?', 'El valor mostrado es referencial. Revisamos tu solicitud y confirmamos según cantidad, material y acabado.'],
+      ['¿Qué métodos de pago aceptan?', 'Transferencia bancaria y efectivo al retirar. No procesamos pagos en línea.']
+    ];
+    const faqs = faqData.map(([q, a], i) => ({
+      q, a, n: String(i + 1).padStart(2, '0'),
+      open: this.state.faq === i, icon: this.state.faq === i ? '−' : '+',
+      toggle: () => this.setState(s => ({ faq: s.faq === i ? -1 : i }))
+    }));
+
+    const catalogItems = [
+      ['Camisa oversize','Camisas','$12.90','tee-oasis.jpeg',0],
+      ['Buzo con capucha','Buzos','$28.00','hoodie-gray.jpeg',0],
+      ['Termo Signature 750 ml','Termos y botellas','$18.50','bottle-create.jpeg',0],
+      ['Llavero acrílico','Llaveros','$4.80','key-drivo.jpeg',1],
+      ['Pulsera de silicona','Pulseras','$2.90','band-kura.jpeg',1],
+      ['Camisa estampada','Camisas','$13.40','tee-max.jpeg',1],
+      ['Botella pixel 500 ml','Termos y botellas','$11.20','bottle-pixel.jpeg',1],
+      ['Set de pulseras','Pulseras','$34.00','band-chetko.jpeg',0],
+      ['Llavero naranja','Llaveros','$5.60','key-studio.jpeg',0],
+      ['Taza con nombre','Tazas','$6.50','mug-gift.jpeg',0],
+      ['Gorra bordada','Gorras','$8.40','cap-blue.jpeg',0],
+      ['Kit corporativo','Libretas y kits','$46.00','kit-yellow.jpeg',0],
+      ['Set de botellas','Termos y botellas','$74.00','kit-bottles.jpeg',1],
+      ['Libreta kraft + bolsa','Libretas y kits','$16.80','kit-indcom.jpeg',1],
+      ['Gorra con pines','Gorras','$9.90','cap-green.jpeg',1],
+      ['Gorras bordadas','Gorras','$8.90','cap-stack.jpeg',0]
+    ].map(([name, cat, price, img, r]) => ({ name, cat, price, img: A + img, tag: r ? 'entrega inmediata' : 'personalizable' }));
+
+    const quoteLabels = ['Datos personales','Producto seleccionado','Cantidad, colores y tallas','Carga de logotipo','Fecha requerida','Método de entrega','Indicaciones adicionales','Enviar solicitud'];
+    const stepFieldsAll = {
+      1: [['Nombre completo','Ana Martínez','1'],['Empresa (opcional)','NYX Studio S.A.','1'],['Correo electrónico','ana@empresa.com','1'],['Teléfono / WhatsApp','+593 99 000 0000','1']],
+      2: [['Categoría','Termos y botellas','1'],['Producto','Termo Signature 750 ml','1'],['Tipo','Personalizable','2']],
+      3: [['Cantidad','50 unidades','1'],['Colores','Negro, acero','1'],['Tallas / capacidad','750 ml','2']],
+      4: [['Archivo de diseño','logo-empresa.svg · 240 KB','2'],['Ubicación','Frontal centrado','2']],
+      5: [['Fecha requerida','14 / 09 / 2026','1'],['Flexibilidad','± 2 días','1']],
+      6: [['Método de entrega','Envío nacional','1'],['Dirección','Av. Principal 123, Quito','1']],
+      7: [['Indicaciones adicionales','Empaque individual con etiqueta de la empresa.','2']],
+      8: [['Resumen','50 × Termo Signature 750 ml · negro · 14/09/2026','2'],['Confirmación','NYX responde en máximo 24 horas hábiles.','2']]
+    };
+    const st = this.state.step;
+    const galleryImgs = [A + 'bottle-create.jpeg', A + 'bottle-pixel.jpeg', A + 'kit-bottles.jpeg', A + 'kit-blue.jpeg'];
+
+    return {
+      pages: mk([{ id: 'home', label: 'inicio' }, { id: 'catalog', label: 'catálogo' }, { id: 'product', label: 'producto' }, { id: 'quote', label: 'cotización' }], 'page'),
+      devices: mk([{ id: 'desktop', label: 'desktop' }, { id: 'tablet', label: 'tablet' }, { id: 'mobile', label: 'móvil' }], 'device'),
+      frameW: m ? '390px' : t ? '834px' : '1440px',
+      isHome: pg === 'home', isCatalog: pg === 'catalog', isProduct: pg === 'product', isQuote: pg === 'quote',
+
+      nav: ['Inicio', 'Catálogo', 'Personalizables', 'Entrega inmediata', 'Nosotros', 'FAQ', 'Contacto'],
+      navDisplay: d === 'desktop' ? 'flex' : 'none',
+      burgerDisplay: d === 'desktop' ? 'none' : 'flex',
+      navPad: m ? '14px 20px' : '18px 28px',
+      menuOpen: this.state.menuOpen,
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+
+      heroPad: m ? '36px 20px 44px' : t ? '44px 28px' : '64px 48px',
+      headPad: m ? '32px 20px 22px' : '48px 48px 26px',
+      faqPad: m ? '0 20px 34px' : '0 48px 44px',
+      ctaPad: m ? '44px 20px' : '72px 48px',
+      footPad: m ? '40px 20px 26px' : '64px 48px 30px',
+      heroCols: m || t ? '1fr' : '1.02fr .98fr',
+      splitCols: m || t ? '1fr' : '1fr 1fr',
+      ctaCols: m ? '1fr' : '1.4fr .6fr',
+      catalogCols: m ? '1fr' : t ? '240px 1fr' : '260px 1fr',
+      catCols: m ? '1fr' : t ? 'repeat(2,1fr)' : 'repeat(4,1fr)',
+      prodCols: m ? '1fr' : t ? 'repeat(2,1fr)' : 'repeat(3,1fr)',
+      formCols: m ? '1fr' : '1fr 1fr',
+      footCols: m ? '1fr' : t ? 'repeat(2,1fr)' : '1.6fr 1fr 1fr 1fr',
+      heroImgH: m ? '340px' : t ? '420px' : '560px',
+      heroGap: m ? '24px' : '34px',
+      h1Size: m ? '46px' : t ? '64px' : '86px',
+      h2Size: m ? '30px' : t ? '36px' : '46px',
+      leadSize: m ? '14px' : '15px',
+      faqSize: m ? '14.5px' : '16px',
+      vRule: m || t ? 'transparent' : '#0E0E0E',
+      hRule: m || t ? '#0E0E0E' : 'transparent',
+
+      cats, products, ready, faqs, catalogItems,
+      steps: [
+        { n: '01', t: 'Elige tu producto', d: 'Explora el catálogo y selecciona el artículo base.' },
+        { n: '02', t: 'Sube tu logotipo o diseño', d: 'Archivo en alta resolución, o cuéntanos la idea y la armamos.' },
+        { n: '03', t: 'Define cantidades y detalles', d: 'Tallas, colores, ubicación del arte y fecha.' },
+        { n: '04', t: 'Recibe la confirmación', d: 'Revisamos el arte, confirmamos precio y tiempo de entrega.' }
+      ],
+      corpTags: ['uniformes', 'kits de bienvenida', 'eventos', 'reconocimientos', 'merch'],
+      facts: [
+        { k: 'fundado', v: '2019, Quito' }, { k: 'producción', v: 'lotes de 1 a 500' },
+        { k: 'muestra física', v: 'antes de escalar' }, { k: 'respuesta', v: '24 h hábiles' }
+      ],
+
+      filters: [
+        { title: 'categoría', opts: ['Camisas', 'Buzos', 'Gorras', 'Tazas', 'Termos y botellas', 'Pulseras', 'Llaveros', 'Libretas y kits'] },
+        { title: 'tipo', opts: ['Personalizable', 'Entrega inmediata'] },
+        { title: 'talla', opts: ['S', 'M', 'L', 'XL', 'Única'] },
+        { title: 'disponibilidad', opts: ['En stock', 'Bajo pedido'] }
+      ],
+      swatches: ['#0E0E0E', '#F2F0EC', '#C99A2E', '#c9c9c9', '#3a5a8c', '#1f3d2e', '#8c2f2f', '#6b4a2f'],
+      typeTabs: [
+        { label: 'Todos', fg: '#0E0E0E', line: '#C99A2E' },
+        { label: 'Personalizables', fg: '#4A4741', line: 'transparent' },
+        { label: 'Entrega inmediata', fg: '#4A4741', line: 'transparent' }
+      ],
+      pagination: [1, 2, 3, '…', 11].map((n, i) => ({ label: String(n), fg: i === 0 ? '#0E0E0E' : '#8A8580', line: i === 0 ? '#0E0E0E' : 'transparent' })),
+
+      gallery: galleryImgs.map((img, i) => ({
+        img, label: 'vista ' + (i + 1), pick: () => this.setState({ gal: i }),
+        op: i === this.state.gal ? 1 : 0.55
+      })),
+      mainImg: galleryImgs[this.state.gal],
+      pColors: ['#0E0E0E', '#c9c9c9', '#1f3d2e', '#8c2f2f', '#C99A2E'].map((hex, i) => ({
+        hex, border: i === this.state.color ? '#0E0E0E' : '#CFCAC2'
+      })),
+      pSizes: ['500 ml', '750 ml', '1 L', 'Personalizada'].map((label, i) => ({
+        label, border: i === this.state.size ? '#0E0E0E' : '#CFCAC2',
+        bg: i === this.state.size ? '#0E0E0E' : 'transparent', fg: i === this.state.size ? '#F2F0EC' : '#3A3733'
+      })),
+      qty: this.state.qty,
+      inc: () => this.setState(s => ({ qty: s.qty + 10 })),
+      dec: () => this.setState(s => ({ qty: Math.max(10, s.qty - 10) })),
+
+      quoteSteps: quoteLabels.map((label, i) => {
+        const n = i + 1, active = n === st;
+        return {
+          n, label, go: () => this.setState({ step: n }),
+          bg: active ? '#E7E3DB' : 'transparent',
+          fg: active ? '#0E0E0E' : '#4A4741',
+          numColor: active ? '#8A6B1C' : '#8A8580'
+        };
+      }),
+      stepTitle: quoteLabels[st - 1],
+      stepHint: ['Usaremos estos datos para enviarte la cotización.', 'Confirma el artículo que deseas personalizar.', 'Define las especificaciones del pedido.', 'Sube tu archivo en la mejor calidad posible.', 'Indícanos para cuándo lo necesitas.', 'Elige cómo prefieres recibirlo.', 'Cualquier detalle que debamos considerar.', 'Revisa y envía tu solicitud.'][st - 1],
+      stepFields: (stepFieldsAll[st] || []).map(([label, ph, span]) => ({ label, ph, span: span === '2' ? '1 / -1' : 'auto' })),
+      nextLabel: st === 8 ? 'Enviar solicitud' : 'Continuar',
+      nextStep: () => this.setState(s => ({ step: Math.min(8, s.step + 1) })),
+      prevStep: () => this.setState(s => ({ step: Math.max(1, s.step - 1) })),
+
+      footCols3: [
+        { title: 'navegación', items: ['Inicio', 'Catálogo', 'Personalizables', 'Entrega inmediata', 'Nosotros'] },
+        { title: 'categorías', items: ['Camisas', 'Buzos', 'Gorras', 'Tazas', 'Termos y botellas'] },
+        { title: 'contacto', items: ['WhatsApp +593 99 000 0000', 'hola@nyx.com', 'Quito, Ecuador', 'Instagram', 'Facebook'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
