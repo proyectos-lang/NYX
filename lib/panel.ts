@@ -203,6 +203,7 @@ export interface ProductoPanel {
   bajoPedido: boolean
   visible: boolean
   orden: number
+  descripcion: string | null
   foto: string | null
 }
 
@@ -214,7 +215,7 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
     .from('productos')
     .select(
       `id, sku, slug, nombre_es, categoria_id, precio_referencia, tipo, stock,
-       bajo_pedido, visible, orden,
+       bajo_pedido, visible, orden, descripcion_es,
        categorias ( nombre_es ),
        producto_fotos ( url, es_portada, orden )`
     )
@@ -243,6 +244,7 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
       bajoPedido: p.bajo_pedido,
       visible: p.visible,
       orden: p.orden,
+      descripcion: p.descripcion_es,
       foto: url ? (url.startsWith('/') || url.startsWith('http') ? url : `/${url}`) : null,
     }
   })

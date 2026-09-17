@@ -30,6 +30,7 @@ function FormularioProducto({
     tipo: string
     stock: number | null
     bajoPedido: boolean
+    descripcion: string | null
   }
 }) {
   const prefijo = producto?.id ?? 'nuevo'
@@ -164,6 +165,7 @@ function FormularioProducto({
             id={`descripcion-${prefijo}`}
             name="descripcion"
             maxLength={1200}
+            defaultValue={producto?.descripcion ?? ''}
           />
         </div>
       </div>
