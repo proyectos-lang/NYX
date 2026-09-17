@@ -20,6 +20,14 @@ const sans = Montserrat({
 })
 
 export const metadata: Metadata = {
+  // Base para resolver las imágenes de Open Graph. Vercel expone el dominio del
+  // despliegue en VERCEL_PROJECT_PRODUCTION_URL; en local vale localhost.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITIO_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : 'http://localhost:3000')
+  ),
   title: {
     default: 'NYX — Sublimación y productos personalizados',
     template: '%s · NYX',

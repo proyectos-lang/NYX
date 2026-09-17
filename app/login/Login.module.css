@@ -1,0 +1,134 @@
+.pantalla {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px 20px;
+  background: var(--negro-2);
+  background-image: radial-gradient(
+    80% 60% at 50% 0%,
+    rgba(201, 154, 46, 0.14),
+    transparent 62%
+  );
+}
+
+.caja {
+  width: min(410px, 100%);
+  background: var(--negro-3);
+  border: 1px solid rgba(201, 154, 46, 0.35);
+  padding: 36px 32px;
+}
+
+.marca {
+  display: block;
+  margin: 0 auto 26px;
+  height: 44px;
+  width: auto;
+}
+
+.antetituloAcceso {
+  font: 600 9.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--oro);
+}
+
+.titulo {
+  margin: 14px 0 0;
+  font: 400 24px/1.2 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+}
+
+.subtitulo {
+  margin: 10px 0 0;
+  font: 300 12px/1.7 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.etiqueta {
+  display: block;
+  font: 600 9.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8f8f8f;
+  margin-bottom: 9px;
+}
+
+.campo {
+  width: 100%;
+  font: 400 13px/1.4 var(--fuente-sans), sans-serif;
+  color: var(--blanco);
+  background: var(--negro-4);
+  border: 1px solid var(--linea);
+  padding: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.campo::placeholder {
+  color: #6b6b6b;
+}
+
+.campo:focus {
+  border-color: var(--oro);
+}
+
+.error {
+  font: 400 11.5px/1.6 var(--fuente-sans), sans-serif;
+  color: #e59a9a;
+  background: rgba(160, 50, 50, 0.14);
+  border: 1px solid rgba(200, 90, 90, 0.4);
+  padding: 11px 13px;
+  margin: 0;
+}
+
+.entrar {
+  width: 100%;
+  text-align: center;
+  font: 600 11.5px/1.2 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-degradado);
+  border: none;
+  padding: 16px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.entrar:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.entrar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nota {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  font: 300 11px/1.6 var(--fuente-sans), sans-serif;
+  color: #6b6b6b;
+}
+
+.volver {
+  display: block;
+  text-align: center;
+  margin-top: 22px;
+  font: 500 11px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gris-texto);
+}
+
+.volver:hover {
+  color: var(--blanco);
+}

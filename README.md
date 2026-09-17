@@ -1,129 +1,68 @@
 # NYX
 
 Sitio de sublimación y personalización + panel de administración.
-
-Ahora mismo el repositorio contiene **maquetas interactivas** (prototipos que ya
-se pueden navegar) y la **infraestructura preparada** para convertirlas en un
-sitio real: control de versiones, despliegue en Vercel y base de datos en
-Supabase.
+Next.js 15 (App Router) sobre Supabase, desplegado en Vercel.
 
 ---
 
-## Estado actual
+## Arranque rápido
 
-| Pieza | Estado |
+```bash
+npm install
+npm run dev          # http://localhost:3000
+```
+
+**El sitio funciona sin Supabase.** Si no hay variables de entorno, la capa de
+lectura devuelve los datos de demostración y lo avisa por consola. Sirve para
+maquetar y revisar el diseño; el panel, en cambio, sí necesita base de datos.
+
+---
+
+## Qué hay
+
+| Ruta | Qué es |
 |---|---|
-| Maquetas del sitio y del panel | Funcionando, con datos de demostración escritos dentro del HTML |
-| Repositorio Git | Listo |
-| Despliegue en Vercel | Configurado, pendiente de conectar el proyecto |
-| Esquema de base de datos | Escrito, **pendiente de aplicar** a un proyecto de Supabase |
-| Conexión maquetas ↔ Supabase | **No existe todavía** — es el siguiente paso |
+| `/` | Portada: categorías, destacados, trabajos, proceso, entrega inmediata, empresas, nosotros, FAQ |
+| `/catalogo` | Catálogo con filtros por categoría, tipo y búsqueda |
+| `/catalogo/[slug]` | Ficha de producto con galería y relacionados |
+| `/cotizar` | Formulario de solicitud de cotización |
+| `/login` | Acceso al panel |
+| `/panel/…` | Pedidos, catálogo, categorías, contenido, preguntas, ajustes |
+| `/maquetas` | Las maquetas originales, como referencia visual |
 
-Las maquetas siguen mostrando datos fijos. Que el esquema esté escrito no
-significa que la web ya lea de la base: falta la capa de aplicación.
+Las maquetas `.dc.html` viven en `public/` y siguen navegables, pero ya no son
+la aplicación: son el documento de diseño del que salió todo lo demás.
 
 ---
 
 ## Estructura
 
 ```
-NYX Web.dc.html        Sitio público — portada, catálogo, proceso, empresas, FAQ, cotización
-NYX Web v2.dc.html     Sitio público, propuesta visual alternativa
-NYX Panel.dc.html      Panel privado — pedidos, catálogo, categorías, contenido, ajustes
-support.js             Runtime de las maquetas (generado; no editar a mano)
-index.html             Índice interno que enlaza las tres maquetas
+app/
+  (sitio)/            Sitio público (comparte cabecera y pie)
+  panel/              Panel privado + acciones de escritura
+  login/              Acceso y cierre de sesión
+  layout.tsx          Raíz: fuentes y metadatos
+  globals.css         Paleta, animaciones y utilidades
 
-assets/                Imágenes y vídeo que usan las maquetas
-uploads/               Fotos originales sin procesar (no se despliegan)
+componentes/
+  sitio/              Cabecera, pie, tarjeta de producto, FAQ, secciones
+  panel/              Avisos y estados de error
+
+lib/
+  supabase/           Clientes de navegador, servidor y service_role
+  consultas.ts        Lecturas del sitio público (con respaldo de demo)
+  panel.ts            Lecturas del panel (sin respaldo: datos reales o error)
+  demo.ts             Datos de demostración, copiados de las maquetas
+  database.types.ts   Tipos de las tablas
+  formato.ts          Precios, fechas, stock, slugs
 
 supabase/
-  config.toml          Configuración del CLI de Supabase
-  migrations/          Esquema, políticas RLS y buckets de Storage
-  seed.sql             Datos de demostración para la base local
+  migrations/         Esquema, RLS y buckets
+  seed.sql            Datos de demostración para la base local
 
-vercel.json            Configuración del despliegue estático
-.env.example           Plantilla de variables de entorno
-```
-
-Los tres `.dc.html` se enlazan entre sí por nombre de archivo, así que
-**renombrarlos rompe la navegación** entre maquetas.
-
----
-
-## Requisitos
-
-- Node.js 20 o superior (hay 24 instalado)
-- Docker Desktop — **solo** si quieres levantar Supabase en local.
-  Sin Docker puedes trabajar igual contra el proyecto de Supabase en la nube.
-
-```bash
-npm install
-```
-
-Esto instala los CLI de Vercel y Supabase dentro del proyecto. No hace falta
-instalarlos globalmente: todos los comandos van por `npm run`.
-
----
-
-## Git
-
-El repositorio ya está inicializado, con rama `main` y un primer commit.
-
-La identidad de Git está puesta **solo para este repositorio**. Si el nombre que
-aparece en los commits no es el que quieres:
-
-```bash
-git config user.name "Tu nombre"
-git config user.email "tu@correo.com"
-```
-
-Para subirlo a GitHub (hace falta crear el repositorio vacío allí primero):
-
-```bash
-git remote add origin https://github.com/USUARIO/nyx.git
-git push -u origin main
-```
-
-Qué **no** entra nunca en Git, por si acaso: `.env` y `.env.local` (claves
-reales), `node_modules/`, `.vercel/` y `.thumbnail` (miniatura que regenera el
-editor de diseño en cada guardado).
-
----
-
-## Vercel
-
-El despliegue es estático: no hay paso de compilación, Vercel sirve los archivos
-tal cual.
-
-```bash
-npm run dev          # servidor local en http://localhost:3000
-npm run deploy       # despliegue de vista previa
-npm run deploy:prod  # despliegue a producción
-```
-
-La primera vez, `vercel` pedirá iniciar sesión y vincular la carpeta con un
-proyecto. Después de vincularlo, lo habitual es conectar el repositorio de
-GitHub desde el panel de Vercel para que cada `push` despliegue solo.
-
-Rutas cortas configuradas en `vercel.json`:
-
-| Ruta | Muestra |
-|---|---|
-| `/` | Índice con las tres maquetas |
-| `/web` | Sitio público |
-| `/v2` | Sitio público v2 |
-| `/panel` | Panel de administración |
-
-> **Antes de lanzar el sitio real:** `vercel.json` manda hoy una cabecera
-> `X-Robots-Tag: noindex, nofollow` a **todas** las rutas, para que Google no
-> indexe una maqueta con datos inventados. Hay que quitarla cuando el sitio
-> definitivo salga a producción.
-
-Las variables de entorno se cargan en Vercel desde
-*Project Settings → Environment Variables*, y se traen a local con:
-
-```bash
-npm run env:pull     # escribe .env.local
+public/               Imágenes, y las maquetas originales
+uploads/              Fotos fuente sin procesar (no se despliegan)
 ```
 
 ---
@@ -132,38 +71,44 @@ npm run env:pull     # escribe .env.local
 
 ### 1. Crear el proyecto
 
-En [supabase.com](https://supabase.com) crea un proyecto y copia de
-*Project Settings → Data API*:
-
-- la **URL** del proyecto,
-- la clave **anon / publishable** (pública, la puede ver el navegador),
-- la clave **service role** (secreta, **solo servidor**).
-
-Cópialas a `.env.local`:
+En [supabase.com](https://supabase.com), y de *Project Settings → Data API*
+copia la URL, la clave **anon** y la clave **service role**. Luego:
 
 ```bash
 cp .env.example .env.local
 ```
 
+`.env.local` necesita, como mínimo:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+El prefijo `NEXT_PUBLIC_` es obligatorio en las dos primeras: sin él, el
+navegador no las ve y fallan la sesión y la subida de archivos. La tercera
+**nunca** lleva ese prefijo: se salta todas las políticas RLS.
+
 ### 2. Aplicar el esquema
 
 ```bash
-npm run db:link      # vincula esta carpeta con el proyecto de la nube
-npm run db:push      # aplica las migraciones de supabase/migrations/
+npm run db:link
+npm run db:push
 ```
 
-Si prefieres trabajar en local (necesita Docker Desktop):
+En local, con Docker Desktop:
 
 ```bash
-npm run db:start     # levanta Postgres, Auth y Storage en contenedores
+npm run db:start
 npm run db:reset     # recrea la base y carga supabase/seed.sql
 ```
 
-### 3. Crear el primer usuario del panel
+### 3. Crear el primer administrador
 
-Auth crea la fila en `perfiles` automáticamente al registrar un usuario, pero
-con rol `editor`. Para el primer administrador, tras registrarlo desde el panel
-de Supabase, ejecuta en el SQL Editor:
+Registra el usuario desde *Authentication → Users* en Supabase. El trigger
+`crear_perfil_al_registrar` le crea el perfil con rol `editor`. Para el primer
+administrador, en el SQL Editor:
 
 ```sql
 update public.perfiles set rol = 'admin' where id = (
@@ -171,64 +116,103 @@ update public.perfiles set rol = 'admin' where id = (
 );
 ```
 
-### Cómo está modelado
+Sin fila en `perfiles` no se entra al panel, aunque la contraseña sea correcta.
 
-Las tablas replican lo que hoy está simulado dentro de las maquetas:
+### 4. Regenerar los tipos
 
-- **Catálogo** — `categorias`, `productos`, `producto_fotos`, `categoria_fotos`.
-  El campo `visible` de `productos` es el interruptor que sale en el panel.
-- **Pedidos** — `clientes`, `pedidos`, `pedido_items`, `pedido_archivos`,
-  `pedido_eventos`. Un "pedido" es lo que en la web es una solicitud de
-  cotización. Las referencias `NYX-P-0149`, `0150`… se generan solas.
-  `pedido_eventos` guarda el historial de cambios de estado.
-- **Contenido** — `contenido_bloques`, `contenido_campos`, `contenido_media`,
-  `faq`. Cada bloque de la web es fijo; lo editable son sus textos y su media,
-  en español e inglés.
-- **Ajustes** — `ajustes`, clave/valor en JSON. El flag `publico` separa lo que
-  ve la web (teléfono del pie de página) de lo que solo ve el panel (a qué
-  correos llegan los avisos).
-- **Enlaces compartidos** — `enlaces_compartidos`, `enlace_productos`, para la
-  función del panel que genera un enlace temporal con una selección de
-  productos.
-
-### Seguridad
-
-RLS activo en todas las tablas, con dos reglas:
-
-- **El público solo lee** lo marcado como visible: catálogo, contenido, FAQ y
-  los ajustes públicos. Nunca ve clientes ni pedidos.
-- **El staff** (cualquier usuario con fila en `perfiles`) lee y escribe todo.
-
-La única escritura anónima permitida es la función `crear_solicitud()`, que es
-la que debe usar el formulario de cotización. Valida la entrada y decide ella
-qué campos se fijan: el cliente no puede elegir el estado del pedido, ni la
-referencia, ni el precio.
-
-```js
-const { data: referencia, error } = await supabase.rpc('crear_solicitud', {
-  p_nombre: 'Distribuidora Andes',
-  p_email: 'compras@andes.ec',
-  p_telefono: '+593 99 812 4410',
-  p_items: [{ producto_id: '…', cantidad: 50, especificaciones: 'negro · logo frontal' }],
-  p_fecha_requerida: '2026-09-24',
-  p_metodo_entrega: 'envio_nacional',
-  p_observaciones: 'Empaque individual con etiqueta.'
-})
-// referencia -> 'NYX-P-0149'
+```bash
+npm run db:types
 ```
 
-Buckets de Storage: `productos` y `contenido` son públicos (solo el staff sube);
-`pedidos` es privado y admite subida anónima únicamente dentro de
-`entrantes/`, con límite de 20 MB y lista cerrada de tipos de archivo.
+Los tipos de `lib/database.types.ts` están escritos a mano. No se usan como
+genérico del cliente de Supabase: el parser de cadenas de `.select()` necesita
+los metadatos que produce el generador y contra un tipo a mano deduce `never`.
+Cuando el archivo esté generado se puede volver a poner
+`createServerClient<Database>(...)` y quitar las declaraciones locales de
+`lib/consultas.ts`.
 
 ---
 
-## Siguiente paso
+## Cómo está modelado
 
-Las maquetas son HTML estático que monta React desde un CDN; no tienen forma de
-consumir Supabase de manera razonable. Para que el catálogo, la bandeja de
-pedidos y el contenido salgan de la base de datos, el paso siguiente es
-reconstruir las maquetas como aplicación real —Next.js encaja bien con Vercel y
-Supabase— conservando el diseño tal como está.
+- **Catálogo** — `categorias`, `productos`, `producto_fotos`. El campo `visible`
+  es el interruptor del panel.
+- **Pedidos** — `clientes`, `pedidos`, `pedido_items`, `pedido_archivos`,
+  `pedido_eventos`. Un "pedido" es una solicitud de cotización. Las referencias
+  `NYX-P-0149`, `0150`… se generan solas y `pedido_eventos` guarda el historial
+  de estados.
+- **Contenido** — `contenido_bloques`, `contenido_campos`, `contenido_media`,
+  `faq`, en español e inglés.
+- **Ajustes** — clave/valor en JSON. El flag `publico` separa lo que ve la web
+  del correo interno de avisos.
 
-Hasta entonces, los `.dc.html` siguen siendo la referencia visual.
+### Seguridad
+
+RLS en todas las tablas, con dos reglas: el público **solo lee** lo marcado como
+visible y nunca ve clientes ni pedidos; el staff (usuario con fila en
+`perfiles`) lee y escribe todo.
+
+La única escritura anónima es la función `crear_solicitud()`. Valida la entrada
+y decide ella qué campos se fijan: el cliente no elige el estado del pedido, ni
+la referencia, ni el precio. El formulario de cotización la llama por RPC.
+
+El logo del cliente sube **directo del navegador** al bucket privado `pedidos`,
+dentro de `entrantes/`. Es a propósito: pasar 20 MB por una Server Action
+obligaría a subir el límite de body y el archivo viajaría dos veces. El servidor
+solo recibe la ruta, y como `pedido_archivos` es tabla solo-staff, la fila la
+inserta `crear_solicitud()`.
+
+Las acciones del panel no comprueban permisos por su cuenta: escriben con la
+sesión del usuario y deja decidir a RLS. Si alguien llegara sin ser staff, la
+escritura falla en la base de datos y no en una comprobación que se pueda
+olvidar.
+
+---
+
+## Vercel
+
+```bash
+npm run deploy       # vista previa
+npm run deploy:prod  # producción
+npm run env:pull     # trae las variables a .env.local
+```
+
+Vercel autodetecta Next: no hace falta `vercel.json`. Las cabeceras y las rutas
+cortas están en `next.config.ts`. Lo normal es conectar el repositorio de GitHub
+desde el panel de Vercel para que cada `push` despliegue solo.
+
+**Las variables de entorno hay que cargarlas también en Vercel**
+(*Project Settings → Environment Variables*), en Production y Preview. Sin
+ellas el sitio despliega igual, pero sirviendo datos de demostración.
+
+---
+
+## Git
+
+```bash
+git remote add origin https://github.com/USUARIO/nyx.git
+git push -u origin main
+```
+
+La identidad de Git está puesta solo para este repositorio. Para cambiarla:
+
+```bash
+git config user.name "Tu nombre"
+git config user.email "tu@correo.com"
+```
+
+---
+
+## Lo que todavía no está
+
+- **Subir imágenes desde el panel.** Los campos de foto de producto y de
+  categoría aceptan una ruta o URL, pero no hay selector de archivo. Los buckets
+  (`productos`, `contenido`) y sus políticas ya existen.
+- **Enviar los correos de aviso.** La pantalla de ajustes guarda los
+  destinatarios y las preferencias; falta quien los mande.
+- **Enlaces compartidos.** Las tablas `enlaces_compartidos` y
+  `enlace_productos` están creadas, pero la pantalla del panel no.
+- **Versión en inglés del sitio.** La base guarda todo en dos idiomas y el panel
+  los edita, pero el sitio público solo sirve español.
+- **ESLint.** `next lint` quedó obsoleto en Next 15.5 y no se ha migrado a la
+  CLI de ESLint. `npm run typecheck` y `npm run build` sí comprueban tipos.

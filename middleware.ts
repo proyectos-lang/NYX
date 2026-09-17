@@ -14,26 +14,39 @@ import { createServerClient } from '@supabase/ssr'
 export async function middleware(peticion: NextRequest) {
   let respuesta = NextResponse.next({ request: peticion })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return peticion.cookies.getAll()
-        },
-        setAll(cookiesNuevas) {
-          for (const { name, value } of cookiesNuevas) {
-            peticion.cookies.set(name, value)
-          }
-          respuesta = NextResponse.next({ request: peticion })
-          for (const { name, value, options } of cookiesNuevas) {
-            respuesta.cookies.set(name, value, options)
-          }
-        },
-      },
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const clave = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // Sin Supabase configurado no hay sesión que refrescar, y crear el cliente
+  // lanzaría una excepción que dejaría el sitio entero inaccesible. El sitio
+  // público debe seguir funcionando con los datos de demostración; el panel se
+  // manda a /login, que es quien explica lo que falta.
+  if (!url || !clave) {
+    if (peticion.nextUrl.pathname.startsWith('/panel')) {
+      const destino = peticion.nextUrl.clone()
+      destino.pathname = '/login'
+      destino.search = ''
+      return NextResponse.redirect(destino)
     }
-  )
+    return respuesta
+  }
+
+  const supabase = createServerClient(url, clave, {
+    cookies: {
+      getAll() {
+        return peticion.cookies.getAll()
+      },
+      setAll(cookiesNuevas) {
+        for (const { name, value } of cookiesNuevas) {
+          peticion.cookies.set(name, value)
+        }
+        respuesta = NextResponse.next({ request: peticion })
+        for (const { name, value, options } of cookiesNuevas) {
+          respuesta.cookies.set(name, value, options)
+        }
+      },
+    },
+  })
 
   const {
     data: { user },
