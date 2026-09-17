@@ -1,0 +1,66 @@
+import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+
+/**
+ * Hace dos cosas en cada peticion:
+ *
+ *   1. Refresca el token de Supabase y reescribe las cookies. Sin esto, la
+ *      sesion caduca a los pocos minutos dentro de los Server Components.
+ *   2. Cierra /panel a quien no haya iniciado sesion.
+ *
+ * Importante: getUser() valida el token contra Supabase. getSession() solo lee
+ * la cookie y se puede falsificar, asi que no sirve para proteger rutas.
+ */
+export async function middleware(peticion: NextRequest) {
+  let respuesta = NextResponse.next({ request: peticion })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return peticion.cookies.getAll()
+        },
+        setAll(cookiesNuevas) {
+          for (const { name, value } of cookiesNuevas) {
+            peticion.cookies.set(name, value)
+          }
+          respuesta = NextResponse.next({ request: peticion })
+          for (const { name, value, options } of cookiesNuevas) {
+            respuesta.cookies.set(name, value, options)
+          }
+        },
+      },
+    }
+  )
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const ruta = peticion.nextUrl.pathname
+
+  if (ruta.startsWith('/panel') && !user) {
+    const destino = peticion.nextUrl.clone()
+    destino.pathname = '/login'
+    destino.searchParams.set('volver', ruta)
+    return NextResponse.redirect(destino)
+  }
+
+  if (ruta === '/login' && user) {
+    const destino = peticion.nextUrl.clone()
+    destino.pathname = '/panel/pedidos'
+    destino.search = ''
+    return NextResponse.redirect(destino)
+  }
+
+  return respuesta
+}
+
+export const config = {
+  matcher: [
+    // Todo menos estaticos de Next, imagenes y las maquetas de public/.
+    '/((?!_next/static|_next/image|favicon.ico|assets|support.js|maquetas|.*\.(?:html|png|jpg|jpeg|webp|avif|svg|mp4|ico)$).*)',
+  ],
+}

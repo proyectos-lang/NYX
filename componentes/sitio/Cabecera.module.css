@@ -1,0 +1,135 @@
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px clamp(18px, 4vw, 40px);
+  background: rgba(8, 8, 8, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linea-tenue);
+}
+
+.logo {
+  display: block;
+  flex: none;
+}
+
+.logo img {
+  height: 30px;
+  width: auto;
+}
+
+@media (min-width: 900px) {
+  .logo img {
+    height: 36px;
+  }
+}
+
+.navegacion {
+  display: none;
+  align-items: center;
+  gap: 26px;
+}
+
+@media (min-width: 1040px) {
+  .navegacion {
+    display: flex;
+  }
+}
+
+.enlace {
+  font: 500 12px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--gris-texto);
+  transition: color 0.2s ease;
+}
+
+.enlace:hover,
+.enlace[data-activo='true'] {
+  color: var(--blanco);
+}
+
+.cta {
+  font: 600 11.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-degradado);
+  padding: 13px 20px;
+  border-radius: 2px;
+  transition: 0.3s var(--curva);
+}
+
+.cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(201, 154, 46, 0.28);
+}
+
+.hamburguesa {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  background: none;
+  border: 1px solid var(--linea);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+@media (min-width: 1040px) {
+  .hamburguesa {
+    display: none;
+  }
+}
+
+.hamburguesa span {
+  width: 20px;
+  height: 1.5px;
+  background: var(--oro-claro);
+  display: block;
+}
+
+.hamburguesa span:last-child {
+  width: 13px;
+}
+
+.desplegable {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  background: var(--negro-3);
+  border-bottom: 1px solid rgba(201, 154, 46, 0.3);
+  animation: nyxRise 0.35s var(--curva) both;
+}
+
+.enlaceMovil {
+  font: 500 14px/1 var(--fuente-sans), sans-serif;
+  color: var(--gris-muy-claro);
+  padding: 13px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.enlaceMovil:hover {
+  color: var(--blanco);
+}
+
+.ctaMovil {
+  margin-top: 10px;
+  text-align: center;
+  font: 600 12px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-degradado);
+  padding: 15px;
+}

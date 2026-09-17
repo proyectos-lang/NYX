@@ -43,3 +43,7 @@ Desktop.ini
 *.log
 npm-debug.log*
 yarn-error.log*
+
+# --- Next.js ---
+.next/
+next-env.d.ts

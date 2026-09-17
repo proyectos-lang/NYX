@@ -1,0 +1,187 @@
+.pagina {
+  background: var(--negro-2);
+  padding: clamp(32px, 5vw, 56px) clamp(18px, 4vw, 40px) clamp(56px, 8vw, 96px);
+}
+
+.migas {
+  font: 400 11px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--gris-suave);
+  margin-bottom: 26px;
+}
+
+.migas a:hover {
+  color: var(--blanco);
+}
+
+.cuerpo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 4vw, 54px);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .cuerpo {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+}
+
+/* --- Galería -------------------------------------------------------------- */
+
+.principal {
+  position: relative;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  background: var(--negro-4);
+  border: 1px solid var(--linea-oro);
+}
+
+.principal img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniaturas {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.miniatura {
+  position: relative;
+  flex: 1;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--negro-4);
+  border: 1px solid var(--linea);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.2s ease;
+}
+
+.miniatura img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniatura[data-activa='true'] {
+  border-color: var(--oro);
+}
+
+/* --- Ficha ---------------------------------------------------------------- */
+
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font: 600 9.5px/1.2 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+}
+
+.nombre {
+  margin: 18px 0 0;
+  font: 400 clamp(26px, 4vw, 40px) / 1.12 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+}
+
+.sku {
+  margin-top: 12px;
+  font: 400 11px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: 0.1em;
+  color: var(--gris-suave);
+}
+
+.descripcion {
+  margin: 24px 0 0;
+  font: 300 13.5px/1.85 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  text-wrap: pretty;
+}
+
+.bloquePrecio {
+  margin-top: 30px;
+  padding: 22px;
+  background: var(--negro-3);
+  border: 1px solid var(--linea-oro);
+}
+
+.precio {
+  font: 400 30px/1 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+}
+
+.precioNota {
+  margin-top: 10px;
+  font: 300 11.5px/1.6 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 26px;
+  background: var(--linea-tenue);
+  border: 1px solid var(--linea-tenue);
+}
+
+.dato {
+  background: var(--negro-2);
+  padding: 16px 18px;
+}
+
+.datoEtiqueta {
+  font: 600 9.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+}
+
+.datoValor {
+  margin-top: 9px;
+  font: 400 13px/1.4 var(--fuente-sans), sans-serif;
+  color: var(--blanco);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.aviso {
+  margin-top: 22px;
+  font: 300 11.5px/1.7 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
+/* --- Relacionados --------------------------------------------------------- */
+
+.relacionados {
+  margin-top: clamp(56px, 8vw, 90px);
+  padding-top: 40px;
+  border-top: 1px solid var(--linea-tenue);
+}
+
+.tituloRelacionados {
+  font: 400 24px/1.2 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+  margin: 0 0 26px;
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}

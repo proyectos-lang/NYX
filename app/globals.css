@@ -1,0 +1,267 @@
+/* ===========================================================================
+   NYX — sistema de diseño
+   Los valores salen de las maquetas originales (public/NYX Web.dc.html y
+   public/NYX Panel.dc.html), que siguen siendo la referencia visual.
+   =========================================================================== */
+
+:root {
+  /* Negros */
+  --negro: #080808;
+  --negro-2: #0b0b0b;
+  --negro-3: #0f0f0f;
+  --negro-4: #151515;
+  --negro-5: #161616;
+
+  /* Dorado NYX */
+  --oro: #c99a2e;
+  --oro-claro: #e2bd63;
+  --oro-oscuro: #8a6b1c;
+  --oro-degradado: linear-gradient(180deg, #e2bd63, #c99a2e);
+
+  /* Grises */
+  --gris-texto: #a7a7a7;
+  --gris-suave: #7d7d7d;
+  --gris-medio: #6f6f6f;
+  --gris-fuerte: #5c5c5c;
+  --gris-claro: #d6d6d6;
+  --gris-muy-claro: #e8e8e8;
+
+  /* Fondos claros */
+  --blanco: #ffffff;
+  --hueso: #f4f4f4;
+  --hueso-2: #efefef;
+
+  /* Bordes sobre fondo oscuro */
+  --linea-tenue: rgba(255, 255, 255, 0.07);
+  --linea: rgba(255, 255, 255, 0.14);
+  --linea-oro: rgba(201, 154, 46, 0.28);
+
+  /* Curva de animación usada en toda la maqueta */
+  --curva: cubic-bezier(0.22, 0.8, 0.3, 1);
+
+  /* Ancho máximo del contenido */
+  --ancho: 1240px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--negro-2);
+  color: var(--blanco);
+  font-family: var(--fuente-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* --- Animaciones de la maqueta ------------------------------------------- */
+
+@keyframes nyxRise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nyxFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nyxFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes nyxFloatSm {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+@keyframes nyxSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nyxMarquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes nyxZoomOut {
+  from {
+    transform: scale(1.14);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes nyxLine {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes nyxPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* La maqueta anima al entrar en pantalla con animation-timeline: view().
+   Donde el navegador no lo soporte, la animación simplemente corre al cargar
+   y el contenido queda visible igual. */
+.al-entrar {
+  animation: nyxRise 1s var(--curva) both;
+}
+
+@supports (animation-timeline: view()) {
+  .al-entrar {
+    animation-timeline: view();
+    animation-range: entry 0% entry 75%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* --- Utilidades compartidas ---------------------------------------------- */
+
+.contenedor {
+  max-width: var(--ancho);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Botón dorado principal */
+.boton-oro {
+  display: inline-block;
+  font: 600 12px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-degradado);
+  padding: 17px 30px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.3s var(--curva);
+}
+
+.boton-oro:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(201, 154, 46, 0.28);
+}
+
+.boton-oro:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Botón fantasma sobre fondo oscuro */
+.boton-linea {
+  display: inline-block;
+  font: 600 12px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blanco);
+  background: none;
+  border: 1px solid rgba(201, 154, 46, 0.5);
+  padding: 17px 30px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.3s var(--curva);
+}
+
+.boton-linea:hover {
+  background: rgba(201, 154, 46, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Antetítulo en versalitas que precede a cada h2 */
+.antetitulo {
+  font: 500 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Titulares de sección */
+.titulo-seccion {
+  margin: 16px 0 0;
+  font: 400 clamp(26px, 4vw, 42px) / 1.1 var(--fuente-serif), Georgia, serif;
+}
+
+/* Relleno vertical de sección, responsivo */
+.seccion {
+  padding: clamp(56px, 8vw, 100px) clamp(18px, 4vw, 40px);
+}
+
+/* Foco visible y coherente en todo el sitio */
+:focus-visible {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 3px;
+}

@@ -1,0 +1,607 @@
+/* Estilos de las secciones de la portada. Los valores vienen de
+   public/NYX Web.dc.html; lo que allí se calculaba en JS midiendo el ancho de
+   ventana, aquí son media queries. */
+
+/* --- Portada ------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--negro);
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+@media (min-width: 900px) {
+  .hero {
+    min-height: 86vh;
+  }
+}
+
+.heroFondo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .heroFondo {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.heroImagen {
+  position: relative;
+  overflow: hidden;
+}
+
+/* La segunda y tercera foto solo aparecen cuando hay sitio. */
+@media (max-width: 719px) {
+  .heroImagen:not(:first-child) {
+    display: none;
+  }
+}
+
+.heroImagen img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: nyxZoomOut 3s var(--curva) both;
+}
+
+.heroVelo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 8, 0.45) 0%,
+    rgba(8, 8, 8, 0.7) 45%,
+    rgba(8, 8, 8, 0.95) 100%
+  );
+}
+
+.heroContenido {
+  position: relative;
+  max-width: var(--ancho);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 40px) clamp(40px, 6vw, 70px);
+}
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font: 600 10px/1.2 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-claro);
+  padding: 7px 12px;
+}
+
+.heroTitulo {
+  margin: 24px 0 0;
+  max-width: 16ch;
+  font: 400 clamp(38px, 8vw, 84px) / 1 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.heroTitulo em {
+  font-style: italic;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.heroDatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 4vw, 44px);
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.heroDato {
+  font: 400 13.5px/1.5 var(--fuente-sans), sans-serif;
+  color: var(--gris-muy-claro);
+}
+
+/* --- Encabezado de sección ---------------------------------------------- */
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 44px;
+}
+
+.enlaceVerTodo {
+  font: 600 11.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--oro);
+  padding-bottom: 6px;
+  transition: color 0.2s ease;
+}
+
+.nota {
+  font: 400 11.5px/1.6 var(--fuente-sans), sans-serif;
+  max-width: 320px;
+}
+
+/* --- Categorías ---------------------------------------------------------- */
+
+.seccionClara {
+  background: var(--hueso);
+  color: var(--negro);
+}
+
+.seccionOscura {
+  background: var(--negro);
+  color: var(--blanco);
+}
+
+.seccionCarbon {
+  background: var(--negro-4);
+  color: var(--blanco);
+}
+
+.seccionBlanca {
+  background: var(--blanco);
+  color: var(--negro);
+}
+
+.rejillaCategorias {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+@media (min-width: 720px) {
+  .rejillaCategorias {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1040px) {
+  .rejillaCategorias {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.categoria {
+  position: relative;
+  display: block;
+  background: var(--blanco);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: 0.35s var(--curva);
+}
+
+.categoria:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+.categoriaFoto {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: repeating-linear-gradient(135deg, #efefef 0 10px, #e6e6e6 10px 20px);
+}
+
+.categoriaFoto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--curva);
+}
+
+.categoria:hover .categoriaFoto img {
+  transform: scale(1.07);
+}
+
+.categoriaPie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 18px;
+}
+
+.categoriaNombre {
+  font: 500 14px/1.2 var(--fuente-sans), sans-serif;
+  color: var(--negro);
+}
+
+.categoriaCuenta {
+  margin-top: 5px;
+  font: 400 11px/1 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+}
+
+.flecha {
+  font: 400 16px/1 var(--fuente-sans), sans-serif;
+  color: var(--oro);
+}
+
+/* --- Tarjetas de producto ------------------------------------------------ */
+
+.rejillaProductos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+/* --- Marquesina ---------------------------------------------------------- */
+
+.marquesina {
+  overflow: hidden;
+  background: var(--negro);
+  border-top: 1px solid rgba(201, 154, 46, 0.22);
+  border-bottom: 1px solid rgba(201, 154, 46, 0.22);
+  padding: 20px 0;
+}
+
+.marquesinaPista {
+  display: flex;
+  width: max-content;
+  animation: nyxMarquee 34s linear infinite;
+}
+
+.marquesinaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 26px;
+  padding-right: 26px;
+  white-space: nowrap;
+  font: 400 22px/1.2 var(--fuente-serif), Georgia, serif;
+}
+
+.rombo {
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  background: var(--oro);
+  display: inline-block;
+}
+
+/* --- Mosaico de trabajos ------------------------------------------------- */
+
+.mosaico {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 720px) {
+  .mosaico {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1040px) {
+  .mosaico {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.mosaicoFoto {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--hueso);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  transition: border-color 0.3s ease;
+}
+
+.mosaicoFoto:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.mosaicoFoto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--curva);
+}
+
+.mosaicoFoto:hover {
+  border-color: var(--oro);
+}
+
+.mosaicoFoto:hover img {
+  transform: scale(1.05);
+}
+
+/* --- Dos columnas (proceso, empresas, nosotros) -------------------------- */
+
+.dosColumnas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .dosColumnas {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.paso {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pasoNumero {
+  flex: none;
+  font: 400 13px/1 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+  width: 26px;
+}
+
+.pasoTitulo {
+  font: 500 14.5px/1.3 var(--fuente-sans), sans-serif;
+  color: var(--blanco);
+}
+
+.pasoDetalle {
+  margin-top: 7px;
+  font: 300 12.5px/1.7 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  max-width: 400px;
+}
+
+.previsualizacion {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--hueso);
+  border: 1px solid rgba(201, 154, 46, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previsualizacion img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.marcaLogo {
+  position: relative;
+  width: 38%;
+  aspect-ratio: 1;
+  border: 1px dashed rgba(226, 189, 99, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 8, 0.55);
+  font: 400 10.5px/1.5 ui-monospace, Menlo, monospace;
+  color: var(--blanco);
+  text-align: center;
+}
+
+.cinta {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font: 500 9px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: 0.14em;
+  color: var(--negro);
+  background: rgba(226, 189, 99, 0.92);
+  padding: 5px 8px;
+  z-index: 2;
+}
+
+/* --- Empresas ------------------------------------------------------------ */
+
+.empresasMedia {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.empresasFoto {
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.empresasFoto img,
+.empresasVideo video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.empresasVideo {
+  position: relative;
+  aspect-ratio: 3/4;
+  margin-top: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 154, 46, 0.3);
+}
+
+.pildoras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0 0;
+}
+
+.pildora {
+  display: inline-flex;
+  align-items: center;
+  font: 400 11px/1.2 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--gris-claro);
+  border: 1px solid var(--linea);
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+/* --- Nosotros ------------------------------------------------------------ */
+
+.cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 34px;
+  margin-top: 34px;
+}
+
+.cifra {
+  font: 400 24px/1 var(--fuente-serif), Georgia, serif;
+}
+
+.cifraDetalle {
+  margin-top: 6px;
+  font: 400 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+.retrato {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Preguntas frecuentes ------------------------------------------------ */
+
+.faqLista {
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faqItem {
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.faqBoton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: 400 15px/1.4 var(--fuente-sans), sans-serif;
+  color: var(--gris-claro);
+  transition: color 0.2s ease;
+}
+
+.faqBoton:hover,
+.faqBoton[aria-expanded='true'] {
+  color: var(--blanco);
+}
+
+.faqSigno {
+  flex: none;
+  font: 300 20px/1 var(--fuente-sans), sans-serif;
+  color: var(--oro);
+}
+
+.faqRespuesta {
+  margin: 0;
+  padding: 0 44px 24px 4px;
+  font: 300 13px/1.8 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  text-wrap: pretty;
+  animation: nyxRise 0.45s var(--curva) both;
+}
+
+/* --- Cierre -------------------------------------------------------------- */
+
+.cierre {
+  position: relative;
+  overflow: hidden;
+  background: var(--negro-4);
+  text-align: center;
+  padding: clamp(64px, 9vw, 110px) clamp(18px, 4vw, 40px);
+}
+
+.cierreLuz {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 100% at 50% 0%, rgba(201, 154, 46, 0.2), transparent 65%);
+}
+
+.cierreAro {
+  position: absolute;
+  left: 50%;
+  top: -220px;
+  width: 440px;
+  height: 440px;
+  margin-left: -220px;
+  border: 1px solid rgba(201, 154, 46, 0.14);
+  border-radius: 50%;
+}
+
+.cierreContenido {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.parrafo {
+  margin: 22px auto 0;
+  max-width: 540px;
+  font: 300 clamp(13px, 1.4vw, 15px) / 1.8 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  text-wrap: pretty;
+}
+
+.parrafoIzquierda {
+  margin: 22px 0 0;
+  max-width: 520px;
+  font: 300 clamp(13px, 1.4vw, 15px) / 1.8 var(--fuente-sans), sans-serif;
+  text-wrap: pretty;
+}
+
+.botonesCentrados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 36px;
+}

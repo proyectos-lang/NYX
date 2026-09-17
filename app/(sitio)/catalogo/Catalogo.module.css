@@ -1,0 +1,217 @@
+.pagina {
+  background: var(--negro-2);
+  min-height: 70vh;
+  padding: clamp(32px, 5vw, 56px) clamp(18px, 4vw, 40px) clamp(56px, 8vw, 96px);
+}
+
+.migas {
+  font: 400 11px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.06em;
+  color: var(--gris-suave);
+  margin-bottom: 18px;
+}
+
+.migas a:hover {
+  color: var(--blanco);
+}
+
+.titulo {
+  margin: 0;
+  font: 400 clamp(30px, 5vw, 48px) / 1.05 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+}
+
+.resumen {
+  margin: 12px 0 0;
+  font: 300 12.5px/1.7 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32px 0 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--linea-tenue);
+}
+
+.buscador {
+  display: flex;
+  gap: 8px;
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.campoBusqueda {
+  flex: 1;
+  font: 400 13px/1.4 var(--fuente-sans), sans-serif;
+  color: var(--blanco);
+  background: var(--negro-4);
+  border: 1px solid var(--linea);
+  padding: 12px 14px;
+  outline: none;
+}
+
+.campoBusqueda::placeholder {
+  color: #6b6b6b;
+}
+
+.campoBusqueda:focus {
+  border-color: var(--oro);
+}
+
+.botonBuscar {
+  font: 600 11px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--negro);
+  background: var(--oro-degradado);
+  border: none;
+  padding: 0 18px;
+  cursor: pointer;
+}
+
+.pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pestana {
+  font: 500 11.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.08em;
+  color: var(--gris-texto);
+  border: 1px solid var(--linea);
+  padding: 11px 15px;
+  transition: 0.2s ease;
+}
+
+.pestana:hover {
+  color: var(--blanco);
+  border-color: var(--blanco);
+}
+
+.pestana[data-activa='true'] {
+  color: var(--negro);
+  background: var(--oro-claro);
+  border-color: var(--oro-claro);
+}
+
+.cuerpo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 34px;
+}
+
+@media (min-width: 1040px) {
+  .cuerpo {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 44px;
+  }
+}
+
+.lateral {
+  align-self: start;
+}
+
+.tituloFiltro {
+  font: 600 10px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blanco);
+  margin-bottom: 16px;
+}
+
+.listaFiltro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 1040px) {
+  .listaFiltro {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.opcionFiltro {
+  font: 400 12.5px/1.2 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  padding: 10px 12px;
+  border-left: 2px solid transparent;
+  transition: 0.2s ease;
+}
+
+@media (max-width: 1039px) {
+  .opcionFiltro {
+    border: 1px solid var(--linea);
+    border-left-width: 1px;
+  }
+}
+
+.opcionFiltro:hover {
+  color: var(--blanco);
+  background: var(--negro-4);
+}
+
+.opcionFiltro[data-activa='true'] {
+  color: var(--blanco);
+  background: var(--negro-4);
+  border-left-color: var(--oro);
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.vacio {
+  padding: 60px 20px;
+  text-align: center;
+  border: 1px dashed var(--linea);
+}
+
+.vacioTitulo {
+  font: 400 20px/1.3 var(--fuente-serif), Georgia, serif;
+  color: var(--blanco);
+}
+
+.vacioTexto {
+  margin: 12px 0 24px;
+  font: 300 12.5px/1.7 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 44px;
+}
+
+.pagina {
+  min-width: 42px;
+  text-align: center;
+  font: 500 12px/1 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  border: 1px solid var(--linea);
+  padding: 12px 10px;
+  transition: 0.2s ease;
+}
+
+.pagina:hover {
+  color: var(--blanco);
+  border-color: var(--blanco);
+}
+
+.pagina[data-activa='true'] {
+  color: var(--negro);
+  background: var(--oro-claro);
+  border-color: var(--oro-claro);
+}
