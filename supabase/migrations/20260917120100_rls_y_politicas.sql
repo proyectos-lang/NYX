@@ -10,92 +10,92 @@
 -- la entrada y controla exactamente qué campos se pueden fijar.
 -- ===========================================================================
 
-alter table public.perfiles             enable row level security;
-alter table public.categorias           enable row level security;
-alter table public.categoria_fotos      enable row level security;
-alter table public.productos            enable row level security;
-alter table public.producto_fotos       enable row level security;
-alter table public.clientes             enable row level security;
-alter table public.pedidos              enable row level security;
-alter table public.pedido_items         enable row level security;
-alter table public.pedido_archivos      enable row level security;
-alter table public.pedido_eventos       enable row level security;
-alter table public.contenido_bloques    enable row level security;
-alter table public.contenido_campos     enable row level security;
-alter table public.contenido_media      enable row level security;
-alter table public.faq                  enable row level security;
-alter table public.ajustes              enable row level security;
-alter table public.enlaces_compartidos  enable row level security;
-alter table public.enlace_productos     enable row level security;
+alter table nyx.perfiles             enable row level security;
+alter table nyx.categorias           enable row level security;
+alter table nyx.categoria_fotos      enable row level security;
+alter table nyx.productos            enable row level security;
+alter table nyx.producto_fotos       enable row level security;
+alter table nyx.clientes             enable row level security;
+alter table nyx.pedidos              enable row level security;
+alter table nyx.pedido_items         enable row level security;
+alter table nyx.pedido_archivos      enable row level security;
+alter table nyx.pedido_eventos       enable row level security;
+alter table nyx.contenido_bloques    enable row level security;
+alter table nyx.contenido_campos     enable row level security;
+alter table nyx.contenido_media      enable row level security;
+alter table nyx.faq                  enable row level security;
+alter table nyx.ajustes              enable row level security;
+alter table nyx.enlaces_compartidos  enable row level security;
+alter table nyx.enlace_productos     enable row level security;
 
 -- ---------------------------------------------------------------------------
 -- Perfiles
 -- ---------------------------------------------------------------------------
 
 create policy "perfiles: cada uno lee el suyo"
-  on public.perfiles for select
+  on nyx.perfiles for select
   using (id = auth.uid());
 
 create policy "perfiles: el admin lee todos"
-  on public.perfiles for select
-  using (public.es_admin());
+  on nyx.perfiles for select
+  using (nyx.es_admin());
 
 create policy "perfiles: el admin gestiona"
-  on public.perfiles for all
-  using (public.es_admin())
-  with check (public.es_admin());
+  on nyx.perfiles for all
+  using (nyx.es_admin())
+  with check (nyx.es_admin());
 
 -- ---------------------------------------------------------------------------
 -- Catálogo — lectura pública de lo visible, escritura solo del staff
 -- ---------------------------------------------------------------------------
 
 create policy "categorias: lectura pública de las visibles"
-  on public.categorias for select
-  using (visible or public.es_staff());
+  on nyx.categorias for select
+  using (visible or nyx.es_staff());
 
 create policy "categorias: el staff gestiona"
-  on public.categorias for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.categorias for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "categoria_fotos: lectura pública si la categoría es visible"
-  on public.categoria_fotos for select
+  on nyx.categoria_fotos for select
   using (
-    public.es_staff()
+    nyx.es_staff()
     or exists (
-      select 1 from public.categorias c
+      select 1 from nyx.categorias c
       where c.id = categoria_fotos.categoria_id and c.visible
     )
   );
 
 create policy "categoria_fotos: el staff gestiona"
-  on public.categoria_fotos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.categoria_fotos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "productos: lectura pública de los visibles"
-  on public.productos for select
-  using (visible or public.es_staff());
+  on nyx.productos for select
+  using (visible or nyx.es_staff());
 
 create policy "productos: el staff gestiona"
-  on public.productos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.productos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "producto_fotos: lectura pública si el producto es visible"
-  on public.producto_fotos for select
+  on nyx.producto_fotos for select
   using (
-    public.es_staff()
+    nyx.es_staff()
     or exists (
-      select 1 from public.productos p
+      select 1 from nyx.productos p
       where p.id = producto_fotos.producto_id and p.visible
     )
   );
 
 create policy "producto_fotos: el staff gestiona"
-  on public.producto_fotos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.producto_fotos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 -- ---------------------------------------------------------------------------
 -- Clientes y pedidos — privados en su totalidad
@@ -105,69 +105,69 @@ create policy "producto_fotos: el staff gestiona"
 -- ---------------------------------------------------------------------------
 
 create policy "clientes: solo el staff"
-  on public.clientes for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.clientes for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "pedidos: solo el staff"
-  on public.pedidos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.pedidos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "pedido_items: solo el staff"
-  on public.pedido_items for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.pedido_items for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "pedido_archivos: solo el staff"
-  on public.pedido_archivos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.pedido_archivos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 -- El historial lo escriben los triggers, no las personas: solo lectura.
 create policy "pedido_eventos: el staff lee"
-  on public.pedido_eventos for select
-  using (public.es_staff());
+  on nyx.pedido_eventos for select
+  using (nyx.es_staff());
 
 -- ---------------------------------------------------------------------------
 -- Contenido del sitio y FAQ — lectura pública
 -- ---------------------------------------------------------------------------
 
 create policy "contenido_bloques: lectura pública"
-  on public.contenido_bloques for select
+  on nyx.contenido_bloques for select
   using (true);
 
 create policy "contenido_bloques: el staff gestiona"
-  on public.contenido_bloques for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.contenido_bloques for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "contenido_campos: lectura pública"
-  on public.contenido_campos for select
+  on nyx.contenido_campos for select
   using (true);
 
 create policy "contenido_campos: el staff gestiona"
-  on public.contenido_campos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.contenido_campos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "contenido_media: lectura pública"
-  on public.contenido_media for select
+  on nyx.contenido_media for select
   using (true);
 
 create policy "contenido_media: el staff gestiona"
-  on public.contenido_media for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.contenido_media for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "faq: lectura pública de las visibles"
-  on public.faq for select
-  using (visible or public.es_staff());
+  on nyx.faq for select
+  using (visible or nyx.es_staff());
 
 create policy "faq: el staff gestiona"
-  on public.faq for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.faq for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 -- ---------------------------------------------------------------------------
 -- Ajustes — el público solo ve los marcados como públicos
@@ -177,13 +177,13 @@ create policy "faq: el staff gestiona"
 -- ---------------------------------------------------------------------------
 
 create policy "ajustes: lectura pública de los marcados como públicos"
-  on public.ajustes for select
-  using (publico or public.es_staff());
+  on nyx.ajustes for select
+  using (publico or nyx.es_staff());
 
 create policy "ajustes: el staff gestiona"
-  on public.ajustes for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.ajustes for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 -- ---------------------------------------------------------------------------
 -- Enlaces compartidos
@@ -193,14 +193,14 @@ create policy "ajustes: el staff gestiona"
 -- ---------------------------------------------------------------------------
 
 create policy "enlaces_compartidos: solo el staff"
-  on public.enlaces_compartidos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.enlaces_compartidos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 create policy "enlace_productos: solo el staff"
-  on public.enlace_productos for all
-  using (public.es_staff())
-  with check (public.es_staff());
+  on nyx.enlace_productos for all
+  using (nyx.es_staff())
+  with check (nyx.es_staff());
 
 -- ===========================================================================
 -- Única vía de escritura pública: el formulario de cotización
@@ -210,20 +210,20 @@ create policy "enlace_productos: solo el staff"
 -- referencia, ni el precio: esos los fija NYX desde el panel.
 -- ===========================================================================
 
-create or replace function public.crear_solicitud(
+create or replace function nyx.crear_solicitud(
   p_nombre          text,
   p_email           text,
   p_items           jsonb,
   p_telefono        text default null,
   p_empresa         text default null,
   p_fecha_requerida date default null,
-  p_metodo_entrega  public.metodo_entrega default null,
+  p_metodo_entrega  nyx.metodo_entrega default null,
   p_observaciones   text default null
 )
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
 declare
   v_cliente_id  uuid;
@@ -265,25 +265,25 @@ begin
 
   -- --- Cliente: reutiliza el existente si ya escribió antes ----------------
   select id into v_cliente_id
-  from public.clientes
+  from nyx.clientes
   where lower(email) = p_email
   limit 1;
 
   if v_cliente_id is null then
-    insert into public.clientes (nombre, email, telefono, empresa)
+    insert into nyx.clientes (nombre, email, telefono, empresa)
     values (p_nombre, p_email, nullif(btrim(coalesce(p_telefono, '')), ''),
             nullif(btrim(coalesce(p_empresa, '')), ''))
     returning id into v_cliente_id;
   else
     -- Completa los datos que falten sin pisar lo que ya tenga el panel.
-    update public.clientes
+    update nyx.clientes
        set telefono = coalesce(telefono, nullif(btrim(coalesce(p_telefono, '')), '')),
            empresa  = coalesce(empresa,  nullif(btrim(coalesce(p_empresa, '')), ''))
      where id = v_cliente_id;
   end if;
 
   -- --- Pedido ---------------------------------------------------------------
-  insert into public.pedidos (
+  insert into nyx.pedidos (
     cliente_id, estado, metodo_entrega, fecha_requerida, observaciones, origen
   )
   values (
@@ -304,7 +304,7 @@ begin
 
     if v_ref_prod ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
       select p.id into v_producto_id
-      from public.productos p
+      from nyx.productos p
       where p.id = v_ref_prod::uuid and p.visible;
     else
       v_producto_id := null;
@@ -316,7 +316,7 @@ begin
       else 1
     end;
 
-    insert into public.pedido_items (
+    insert into nyx.pedido_items (
       pedido_id, producto_id, nombre_producto, cantidad, especificaciones
     )
     values (
@@ -324,7 +324,7 @@ begin
       v_producto_id,
       coalesce(
         nullif(btrim(coalesce(v_item ->> 'nombre', '')), ''),
-        (select p.nombre_es from public.productos p where p.id = v_producto_id),
+        (select p.nombre_es from nyx.productos p where p.id = v_producto_id),
         'Producto sin especificar'
       ),
       v_cantidad,
@@ -337,10 +337,10 @@ end;
 $$;
 
 -- El formulario público la llama con la clave anon; el panel, autenticado.
-revoke all on function public.crear_solicitud(
-  text, text, jsonb, text, text, date, public.metodo_entrega, text
+revoke all on function nyx.crear_solicitud(
+  text, text, jsonb, text, text, date, nyx.metodo_entrega, text
 ) from public;
 
-grant execute on function public.crear_solicitud(
-  text, text, jsonb, text, text, date, public.metodo_entrega, text
+grant execute on function nyx.crear_solicitud(
+  text, text, jsonb, text, text, date, nyx.metodo_entrega, text
 ) to anon, authenticated;

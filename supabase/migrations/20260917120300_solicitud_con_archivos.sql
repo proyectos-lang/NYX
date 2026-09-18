@@ -16,25 +16,25 @@
 -- crearía una sobrecarga y las llamadas quedarían ambiguas.
 -- ===========================================================================
 
-drop function if exists public.crear_solicitud(
-  text, text, jsonb, text, text, date, public.metodo_entrega, text
+drop function if exists nyx.crear_solicitud(
+  text, text, jsonb, text, text, date, nyx.metodo_entrega, text
 );
 
-create or replace function public.crear_solicitud(
+create or replace function nyx.crear_solicitud(
   p_nombre          text,
   p_email           text,
   p_items           jsonb,
   p_telefono        text default null,
   p_empresa         text default null,
   p_fecha_requerida date default null,
-  p_metodo_entrega  public.metodo_entrega default null,
+  p_metodo_entrega  nyx.metodo_entrega default null,
   p_observaciones   text default null,
   p_archivos        jsonb default '[]'::jsonb
 )
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
 declare
   v_cliente_id  uuid;
@@ -83,25 +83,25 @@ begin
 
   -- --- Cliente: reutiliza el existente si ya escribió antes ----------------
   select id into v_cliente_id
-  from public.clientes
+  from nyx.clientes
   where lower(email) = p_email
   limit 1;
 
   if v_cliente_id is null then
-    insert into public.clientes (nombre, email, telefono, empresa)
+    insert into nyx.clientes (nombre, email, telefono, empresa)
     values (p_nombre, p_email, nullif(btrim(coalesce(p_telefono, '')), ''),
             nullif(btrim(coalesce(p_empresa, '')), ''))
     returning id into v_cliente_id;
   else
     -- Completa los datos que falten sin pisar lo que ya tenga el panel.
-    update public.clientes
+    update nyx.clientes
        set telefono = coalesce(telefono, nullif(btrim(coalesce(p_telefono, '')), '')),
            empresa  = coalesce(empresa,  nullif(btrim(coalesce(p_empresa, '')), ''))
      where id = v_cliente_id;
   end if;
 
   -- --- Pedido ---------------------------------------------------------------
-  insert into public.pedidos (
+  insert into nyx.pedidos (
     cliente_id, estado, metodo_entrega, fecha_requerida, observaciones, origen
   )
   values (
@@ -122,7 +122,7 @@ begin
 
     if v_ref_prod ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
       select p.id into v_producto_id
-      from public.productos p
+      from nyx.productos p
       where p.id = v_ref_prod::uuid and p.visible;
     else
       v_producto_id := null;
@@ -134,7 +134,7 @@ begin
       else 1
     end;
 
-    insert into public.pedido_items (
+    insert into nyx.pedido_items (
       pedido_id, producto_id, nombre_producto, cantidad, especificaciones
     )
     values (
@@ -142,7 +142,7 @@ begin
       v_producto_id,
       coalesce(
         nullif(btrim(coalesce(v_item ->> 'nombre', '')), ''),
-        (select p.nombre_es from public.productos p where p.id = v_producto_id),
+        (select p.nombre_es from nyx.productos p where p.id = v_producto_id),
         'Producto sin especificar'
       ),
       v_cantidad,
@@ -160,7 +160,7 @@ begin
     v_ruta := nullif(btrim(coalesce(v_archivo ->> 'ruta', '')), '');
 
     if v_ruta is not null and v_ruta like 'entrantes/%' and v_ruta !~ '\.\.' then
-      insert into public.pedido_archivos (
+      insert into nyx.pedido_archivos (
         pedido_id, ruta_storage, nombre_archivo, bytes, mime
       )
       values (
@@ -181,10 +181,10 @@ begin
 end;
 $$;
 
-revoke all on function public.crear_solicitud(
-  text, text, jsonb, text, text, date, public.metodo_entrega, text, jsonb
+revoke all on function nyx.crear_solicitud(
+  text, text, jsonb, text, text, date, nyx.metodo_entrega, text, jsonb
 ) from public;
 
-grant execute on function public.crear_solicitud(
-  text, text, jsonb, text, text, date, public.metodo_entrega, text, jsonb
+grant execute on function nyx.crear_solicitud(
+  text, text, jsonb, text, text, date, nyx.metodo_entrega, text, jsonb
 ) to anon, authenticated;

@@ -47,8 +47,8 @@ create policy "storage: lectura pública de productos y contenido"
 
 create policy "storage: el staff gestiona productos y contenido"
   on storage.objects for all
-  using (bucket_id in ('productos', 'contenido') and public.es_staff())
-  with check (bucket_id in ('productos', 'contenido') and public.es_staff());
+  using (bucket_id in ('productos', 'contenido') and nyx.es_staff())
+  with check (bucket_id in ('productos', 'contenido') and nyx.es_staff());
 
 -- ---------------------------------------------------------------------------
 -- Bucket privado de pedidos
@@ -72,5 +72,5 @@ create policy "storage: subida anónima a pedidos/entrantes"
 
 create policy "storage: el staff gestiona pedidos"
   on storage.objects for all
-  using (bucket_id = 'pedidos' and public.es_staff())
-  with check (bucket_id = 'pedidos' and public.es_staff());
+  using (bucket_id = 'pedidos' and nyx.es_staff())
+  with check (bucket_id = 'pedidos' and nyx.es_staff());

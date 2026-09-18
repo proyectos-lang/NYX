@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createClient } from '@supabase/supabase-js'
+import { ESQUEMA } from './esquema'
 
 /**
  * Cliente con la clave service_role: SE SALTA TODAS LAS POLITICAS RLS.
@@ -22,6 +23,7 @@ export function crearClienteAdmin() {
   }
 
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, clave, {
+    db: { schema: ESQUEMA },
     auth: { persistSession: false, autoRefreshToken: false },
   })
 }

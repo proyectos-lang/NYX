@@ -19,7 +19,7 @@
     "db:push": "supabase db push",
     "db:pull": "supabase db pull",
     "db:diff": "supabase db diff -f",
-    "db:types": "supabase gen types typescript --linked > lib/database.types.ts"
+    "db:types": "supabase gen types typescript --linked --schema nyx > lib/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

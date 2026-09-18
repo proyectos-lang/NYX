@@ -8,7 +8,14 @@
 --
 -- Nomenclatura en español para que coincida con el dominio del negocio.
 -- Las políticas RLS van en la migración siguiente.
+--
+-- Todo vive en el esquema `nyx`, no en `public`. En minúscula a propósito:
+-- Postgres pliega a minúsculas los identificadores sin comillas, así que un
+-- esquema llamado "NYX" obligaría a entrecomillarlo en cada consulta, cada
+-- política y cada función. Con `nyx` se escribe igual en todas partes.
 -- ===========================================================================
+
+create schema if not exists nyx;
 
 create extension if not exists pgcrypto;
 
@@ -17,7 +24,7 @@ create extension if not exists pgcrypto;
 -- ---------------------------------------------------------------------------
 
 -- Estados del pedido, en el mismo orden en que avanzan en el panel.
-create type public.estado_pedido as enum (
+create type nyx.estado_pedido as enum (
   'nuevo',
   'en_revision',
   'en_produccion',
@@ -25,23 +32,23 @@ create type public.estado_pedido as enum (
   'cancelado'
 );
 
-create type public.tipo_producto as enum (
+create type nyx.tipo_producto as enum (
   'personalizable',
   'entrega_inmediata'
 );
 
-create type public.metodo_entrega as enum (
+create type nyx.metodo_entrega as enum (
   'envio_nacional',
   'retiro_taller',
   'entrega_local'
 );
 
-create type public.rol_usuario as enum (
+create type nyx.rol_usuario as enum (
   'admin',
   'editor'
 );
 
-create type public.tipo_media as enum (
+create type nyx.tipo_media as enum (
   'imagen',
   'video'
 );
@@ -51,7 +58,7 @@ create type public.tipo_media as enum (
 -- ---------------------------------------------------------------------------
 
 -- Mantiene actualizado_en en cada UPDATE. Se engancha más abajo tabla por tabla.
-create or replace function public.tocar_actualizado_en()
+create or replace function nyx.tocar_actualizado_en()
 returns trigger
 language plpgsql
 as $$
@@ -69,27 +76,27 @@ $$;
 -- gestionar a los demás usuarios.
 -- ---------------------------------------------------------------------------
 
-create table public.perfiles (
+create table nyx.perfiles (
   id             uuid primary key references auth.users (id) on delete cascade,
   nombre         text,
-  rol            public.rol_usuario not null default 'editor',
+  rol            nyx.rol_usuario not null default 'editor',
   creado_en      timestamptz not null default now(),
   actualizado_en timestamptz not null default now()
 );
 
 create trigger perfiles_actualizado_en
-  before update on public.perfiles
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.perfiles
+  for each row execute function nyx.tocar_actualizado_en();
 
 -- Crea el perfil automáticamente al registrar un usuario en Auth.
-create or replace function public.crear_perfil_para_usuario()
+create or replace function nyx.crear_perfil_para_usuario()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
 begin
-  insert into public.perfiles (id, nombre)
+  insert into nyx.perfiles (id, nombre)
   values (new.id, coalesce(new.raw_user_meta_data ->> 'nombre', new.email))
   on conflict (id) do nothing;
   return new;
@@ -98,30 +105,30 @@ $$;
 
 create trigger crear_perfil_al_registrar
   after insert on auth.users
-  for each row execute function public.crear_perfil_para_usuario();
+  for each row execute function nyx.crear_perfil_para_usuario();
 
 -- Helpers usados por las políticas RLS.
 -- SECURITY DEFINER a propósito: consultan perfiles sin pasar por RLS y así
 -- evitan la recursión infinita de una política que se consulta a sí misma.
-create or replace function public.es_staff()
+create or replace function nyx.es_staff()
 returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
-  select exists (select 1 from public.perfiles p where p.id = auth.uid());
+  select exists (select 1 from nyx.perfiles p where p.id = auth.uid());
 $$;
 
-create or replace function public.es_admin()
+create or replace function nyx.es_admin()
 returns boolean
 language sql
 stable
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
   select exists (
-    select 1 from public.perfiles p
+    select 1 from nyx.perfiles p
     where p.id = auth.uid() and p.rol = 'admin'
   );
 $$;
@@ -130,7 +137,7 @@ $$;
 -- Catálogo
 -- ---------------------------------------------------------------------------
 
-create table public.categorias (
+create table nyx.categorias (
   id             uuid primary key default gen_random_uuid(),
   slug           text not null unique,
   nombre_es      text not null,
@@ -144,38 +151,38 @@ create table public.categorias (
   actualizado_en timestamptz not null default now()
 );
 
-create index categorias_orden_idx on public.categorias (orden) where visible;
+create index categorias_orden_idx on nyx.categorias (orden) where visible;
 
 create trigger categorias_actualizado_en
-  before update on public.categorias
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.categorias
+  for each row execute function nyx.tocar_actualizado_en();
 
 -- Fotos adicionales de la categoría (el panel permite varias por categoría).
-create table public.categoria_fotos (
+create table nyx.categoria_fotos (
   id           uuid primary key default gen_random_uuid(),
-  categoria_id uuid not null references public.categorias (id) on delete cascade,
+  categoria_id uuid not null references nyx.categorias (id) on delete cascade,
   url          text not null,
   alt          text,
   orden        integer not null default 0,
   creado_en    timestamptz not null default now()
 );
 
-create index categoria_fotos_categoria_idx on public.categoria_fotos (categoria_id, orden);
+create index categoria_fotos_categoria_idx on nyx.categoria_fotos (categoria_id, orden);
 
-create table public.productos (
+create table nyx.productos (
   id                uuid primary key default gen_random_uuid(),
   sku               text not null unique,
   slug              text not null unique,
   nombre_es         text not null,
   nombre_en         text,
-  categoria_id      uuid references public.categorias (id) on delete set null,
+  categoria_id      uuid references nyx.categorias (id) on delete set null,
   descripcion_es    text,
   descripcion_en    text,
   -- Precio de referencia: la web lo muestra como orientativo y NYX confirma el
   -- valor final según cantidad, material y acabado.
   precio_referencia numeric(10, 2) check (precio_referencia >= 0),
   moneda            text not null default 'USD',
-  tipo              public.tipo_producto not null default 'personalizable',
+  tipo              nyx.tipo_producto not null default 'personalizable',
   stock             integer check (stock >= 0),
   bajo_pedido       boolean not null default false,
   -- El interruptor del panel: controla si el producto se ve en la web.
@@ -185,17 +192,17 @@ create table public.productos (
   actualizado_en    timestamptz not null default now()
 );
 
-create index productos_categoria_idx on public.productos (categoria_id);
-create index productos_visible_idx   on public.productos (visible, orden);
-create index productos_tipo_idx      on public.productos (tipo);
+create index productos_categoria_idx on nyx.productos (categoria_id);
+create index productos_visible_idx   on nyx.productos (visible, orden);
+create index productos_tipo_idx      on nyx.productos (tipo);
 
 create trigger productos_actualizado_en
-  before update on public.productos
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.productos
+  for each row execute function nyx.tocar_actualizado_en();
 
-create table public.producto_fotos (
+create table nyx.producto_fotos (
   id          uuid primary key default gen_random_uuid(),
-  producto_id uuid not null references public.productos (id) on delete cascade,
+  producto_id uuid not null references nyx.productos (id) on delete cascade,
   url         text not null,
   alt         text,
   orden       integer not null default 0,
@@ -203,11 +210,11 @@ create table public.producto_fotos (
   creado_en   timestamptz not null default now()
 );
 
-create index producto_fotos_producto_idx on public.producto_fotos (producto_id, orden);
+create index producto_fotos_producto_idx on nyx.producto_fotos (producto_id, orden);
 
 -- Una sola portada por producto.
 create unique index producto_fotos_portada_idx
-  on public.producto_fotos (producto_id) where es_portada;
+  on nyx.producto_fotos (producto_id) where es_portada;
 
 -- ---------------------------------------------------------------------------
 -- Clientes y pedidos
@@ -216,7 +223,7 @@ create unique index producto_fotos_portada_idx
 -- la envía desde el formulario público y aparece en la bandeja del panel.
 -- ---------------------------------------------------------------------------
 
-create table public.clientes (
+create table nyx.clientes (
   id        uuid primary key default gen_random_uuid(),
   nombre    text not null,
   email     text,
@@ -227,17 +234,17 @@ create table public.clientes (
 );
 
 create unique index clientes_email_idx
-  on public.clientes (lower(email)) where email is not null;
+  on nyx.clientes (lower(email)) where email is not null;
 
 -- Referencias legibles tipo NYX-P-0149, continuando la numeración de la maqueta.
-create sequence public.pedidos_ref_seq start with 149;
+create sequence nyx.pedidos_ref_seq start with 149;
 
-create table public.pedidos (
+create table nyx.pedidos (
   id                uuid primary key default gen_random_uuid(),
   ref               text not null unique,
-  cliente_id        uuid references public.clientes (id) on delete set null,
-  estado            public.estado_pedido not null default 'nuevo',
-  metodo_entrega    public.metodo_entrega,
+  cliente_id        uuid references nyx.clientes (id) on delete set null,
+  estado            nyx.estado_pedido not null default 'nuevo',
+  metodo_entrega    nyx.metodo_entrega,
   fecha_requerida   date,
   precio_referencia numeric(10, 2) check (precio_referencia >= 0),
   observaciones     text,
@@ -246,35 +253,35 @@ create table public.pedidos (
   actualizado_en    timestamptz not null default now()
 );
 
-create index pedidos_estado_idx  on public.pedidos (estado, creado_en desc);
-create index pedidos_cliente_idx on public.pedidos (cliente_id);
+create index pedidos_estado_idx  on nyx.pedidos (estado, creado_en desc);
+create index pedidos_cliente_idx on nyx.pedidos (cliente_id);
 
-create or replace function public.asignar_ref_pedido()
+create or replace function nyx.asignar_ref_pedido()
 returns trigger
 language plpgsql
 as $$
 begin
   if new.ref is null or new.ref = '' then
-    new.ref := 'NYX-P-' || lpad(nextval('public.pedidos_ref_seq')::text, 4, '0');
+    new.ref := 'NYX-P-' || lpad(nextval('nyx.pedidos_ref_seq')::text, 4, '0');
   end if;
   return new;
 end;
 $$;
 
 create trigger pedidos_ref
-  before insert on public.pedidos
-  for each row execute function public.asignar_ref_pedido();
+  before insert on nyx.pedidos
+  for each row execute function nyx.asignar_ref_pedido();
 
 create trigger pedidos_actualizado_en
-  before update on public.pedidos
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.pedidos
+  for each row execute function nyx.tocar_actualizado_en();
 
-create table public.pedido_items (
+create table nyx.pedido_items (
   id               uuid primary key default gen_random_uuid(),
-  pedido_id        uuid not null references public.pedidos (id) on delete cascade,
+  pedido_id        uuid not null references nyx.pedidos (id) on delete cascade,
   -- Nullable a propósito: el producto puede salir del catálogo sin que el
   -- pedido histórico pierda sentido, por eso se guarda también el nombre.
-  producto_id      uuid references public.productos (id) on delete set null,
+  producto_id      uuid references nyx.productos (id) on delete set null,
   nombre_producto  text not null,
   cantidad         integer not null check (cantidad > 0),
   especificaciones text,
@@ -282,13 +289,13 @@ create table public.pedido_items (
   creado_en        timestamptz not null default now()
 );
 
-create index pedido_items_pedido_idx on public.pedido_items (pedido_id);
+create index pedido_items_pedido_idx on nyx.pedido_items (pedido_id);
 
 -- Archivos que sube el cliente (logo, lista de nombres, manual de marca).
 -- ruta_storage apunta al bucket privado 'pedidos'.
-create table public.pedido_archivos (
+create table nyx.pedido_archivos (
   id             uuid primary key default gen_random_uuid(),
-  pedido_id      uuid not null references public.pedidos (id) on delete cascade,
+  pedido_id      uuid not null references nyx.pedidos (id) on delete cascade,
   ruta_storage   text not null,
   nombre_archivo text not null,
   bytes          bigint check (bytes >= 0),
@@ -296,30 +303,30 @@ create table public.pedido_archivos (
   creado_en      timestamptz not null default now()
 );
 
-create index pedido_archivos_pedido_idx on public.pedido_archivos (pedido_id);
+create index pedido_archivos_pedido_idx on nyx.pedido_archivos (pedido_id);
 
 -- Historial de cambios de estado, para saber quién movió qué y cuándo.
-create table public.pedido_eventos (
+create table nyx.pedido_eventos (
   id              uuid primary key default gen_random_uuid(),
-  pedido_id       uuid not null references public.pedidos (id) on delete cascade,
-  estado_anterior public.estado_pedido,
-  estado_nuevo    public.estado_pedido not null,
-  usuario_id      uuid references public.perfiles (id) on delete set null,
+  pedido_id       uuid not null references nyx.pedidos (id) on delete cascade,
+  estado_anterior nyx.estado_pedido,
+  estado_nuevo    nyx.estado_pedido not null,
+  usuario_id      uuid references nyx.perfiles (id) on delete set null,
   nota            text,
   creado_en       timestamptz not null default now()
 );
 
-create index pedido_eventos_pedido_idx on public.pedido_eventos (pedido_id, creado_en desc);
+create index pedido_eventos_pedido_idx on nyx.pedido_eventos (pedido_id, creado_en desc);
 
-create or replace function public.registrar_cambio_estado()
+create or replace function nyx.registrar_cambio_estado()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = nyx, public, extensions
 as $$
 begin
   if new.estado is distinct from old.estado then
-    insert into public.pedido_eventos (pedido_id, estado_anterior, estado_nuevo, usuario_id)
+    insert into nyx.pedido_eventos (pedido_id, estado_anterior, estado_nuevo, usuario_id)
     values (new.id, old.estado, new.estado, auth.uid());
   end if;
   return new;
@@ -327,8 +334,8 @@ end;
 $$;
 
 create trigger pedidos_historial
-  after update on public.pedidos
-  for each row execute function public.registrar_cambio_estado();
+  after update on nyx.pedidos
+  for each row execute function nyx.registrar_cambio_estado();
 
 -- ---------------------------------------------------------------------------
 -- Contenido editable del sitio
@@ -338,7 +345,7 @@ create trigger pedidos_historial
 -- que varía son sus campos y su media.
 -- ---------------------------------------------------------------------------
 
-create table public.contenido_bloques (
+create table nyx.contenido_bloques (
   id             uuid primary key default gen_random_uuid(),
   clave          text not null unique,
   seccion        text not null,
@@ -351,12 +358,12 @@ create table public.contenido_bloques (
 );
 
 create trigger contenido_bloques_actualizado_en
-  before update on public.contenido_bloques
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.contenido_bloques
+  for each row execute function nyx.tocar_actualizado_en();
 
-create table public.contenido_campos (
+create table nyx.contenido_campos (
   id             uuid primary key default gen_random_uuid(),
-  bloque_id      uuid not null references public.contenido_bloques (id) on delete cascade,
+  bloque_id      uuid not null references nyx.contenido_bloques (id) on delete cascade,
   clave          text not null,
   etiqueta       text not null,
   valor_es       text,
@@ -367,25 +374,25 @@ create table public.contenido_campos (
   unique (bloque_id, clave)
 );
 
-create index contenido_campos_bloque_idx on public.contenido_campos (bloque_id, orden);
+create index contenido_campos_bloque_idx on nyx.contenido_campos (bloque_id, orden);
 
 create trigger contenido_campos_actualizado_en
-  before update on public.contenido_campos
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.contenido_campos
+  for each row execute function nyx.tocar_actualizado_en();
 
-create table public.contenido_media (
+create table nyx.contenido_media (
   id        uuid primary key default gen_random_uuid(),
-  bloque_id uuid not null references public.contenido_bloques (id) on delete cascade,
+  bloque_id uuid not null references nyx.contenido_bloques (id) on delete cascade,
   url       text not null,
-  tipo      public.tipo_media not null default 'imagen',
+  tipo      nyx.tipo_media not null default 'imagen',
   alt       text,
   orden     integer not null default 0,
   creado_en timestamptz not null default now()
 );
 
-create index contenido_media_bloque_idx on public.contenido_media (bloque_id, orden);
+create index contenido_media_bloque_idx on nyx.contenido_media (bloque_id, orden);
 
-create table public.faq (
+create table nyx.faq (
   id             uuid primary key default gen_random_uuid(),
   pregunta_es    text not null,
   respuesta_es   text not null,
@@ -397,11 +404,11 @@ create table public.faq (
   actualizado_en timestamptz not null default now()
 );
 
-create index faq_orden_idx on public.faq (orden) where visible;
+create index faq_orden_idx on nyx.faq (orden) where visible;
 
 create trigger faq_actualizado_en
-  before update on public.faq
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.faq
+  for each row execute function nyx.tocar_actualizado_en();
 
 -- ---------------------------------------------------------------------------
 -- Ajustes
@@ -410,7 +417,7 @@ create trigger faq_actualizado_en
 -- redes sociales. Evita una migración cada vez que se añade un ajuste.
 -- ---------------------------------------------------------------------------
 
-create table public.ajustes (
+create table nyx.ajustes (
   clave          text primary key,
   valor          jsonb not null default '{}'::jsonb,
   descripcion    text,
@@ -421,8 +428,8 @@ create table public.ajustes (
 );
 
 create trigger ajustes_actualizado_en
-  before update on public.ajustes
-  for each row execute function public.tocar_actualizado_en();
+  before update on nyx.ajustes
+  for each row execute function nyx.tocar_actualizado_en();
 
 -- ---------------------------------------------------------------------------
 -- Enlaces compartidos
@@ -431,7 +438,7 @@ create trigger ajustes_actualizado_en
 -- sin precios, para enviárselo a un cliente.
 -- ---------------------------------------------------------------------------
 
-create table public.enlaces_compartidos (
+create table nyx.enlaces_compartidos (
   id              uuid primary key default gen_random_uuid(),
   token           text not null unique default encode(gen_random_bytes(12), 'hex'),
   titulo          text,
@@ -439,15 +446,46 @@ create table public.enlaces_compartidos (
   permite_cotizar boolean not null default true,
   expira_en       timestamptz,
   visitas         integer not null default 0,
-  creado_por      uuid references public.perfiles (id) on delete set null,
+  creado_por      uuid references nyx.perfiles (id) on delete set null,
   creado_en       timestamptz not null default now()
 );
 
-create index enlaces_compartidos_token_idx on public.enlaces_compartidos (token);
+create index enlaces_compartidos_token_idx on nyx.enlaces_compartidos (token);
 
-create table public.enlace_productos (
-  enlace_id   uuid not null references public.enlaces_compartidos (id) on delete cascade,
-  producto_id uuid not null references public.productos (id) on delete cascade,
+create table nyx.enlace_productos (
+  enlace_id   uuid not null references nyx.enlaces_compartidos (id) on delete cascade,
+  producto_id uuid not null references nyx.productos (id) on delete cascade,
   orden       integer not null default 0,
   primary key (enlace_id, producto_id)
 );
+
+-- ---------------------------------------------------------------------------
+-- Permisos del esquema
+--
+-- Supabase concede estos privilegios automaticamente en `public`, pero no en
+-- un esquema propio: hay que hacerlo a mano o PostgREST responde 404 a todo.
+--
+-- Conceder ALL a anon parece excesivo y no lo es: sin el GRANT, Postgres corta
+-- antes de llegar a evaluar las politicas RLS, asi que ni siquiera se
+-- consultarian. Quien decide de verdad que puede ver o tocar cada rol son las
+-- politicas de la migracion siguiente, no estos permisos.
+--
+-- Falta ademas un paso que no se puede hacer desde SQL: anadir `nyx` a
+-- Settings -> API -> Exposed schemas en el panel de Supabase. Sin eso la API
+-- no expone el esquema por mucho permiso que tenga.
+-- ---------------------------------------------------------------------------
+
+grant usage on schema nyx to anon, authenticated, service_role;
+
+grant all on all tables    in schema nyx to anon, authenticated, service_role;
+grant all on all sequences in schema nyx to anon, authenticated, service_role;
+grant all on all routines  in schema nyx to anon, authenticated, service_role;
+
+-- Para que las tablas que se creen mas adelante hereden lo mismo y no haya que
+-- acordarse de repetir el GRANT en cada migracion.
+alter default privileges in schema nyx
+  grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema nyx
+  grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema nyx
+  grant all on routines to anon, authenticated, service_role;

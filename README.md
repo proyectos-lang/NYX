@@ -71,26 +71,30 @@ uploads/              Fotos fuente sin procesar (no se despliegan)
 
 ### 1. Crear el proyecto
 
-En [supabase.com](https://supabase.com), y de *Project Settings → Data API*
-copia la URL, la clave **anon** y la clave **service role**. Luego:
+En [supabase.com](https://supabase.com), y de *Project Settings → API* copia la
+URL del proyecto y la clave **anon** (en el panel nuevo, *publishable*). Luego:
 
 ```bash
 cp .env.example .env.local
 ```
 
-`.env.local` necesita, como mínimo:
+Con estas dos basta para que funcione todo lo que hay hoy:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-El prefijo `NEXT_PUBLIC_` es obligatorio en las dos primeras: sin él, el
-navegador no las ve y fallan la sesión y la subida de archivos. La tercera
-**nunca** lleva ese prefijo: se salta todas las políticas RLS.
+El prefijo `NEXT_PUBLIC_` es obligatorio: sin él el navegador no las ve y fallan
+la sesión del panel y la subida del logo del cliente.
+
+`SUPABASE_SERVICE_ROLE_KEY` **no hace falta todavía**. `crearClienteAdmin()`
+existe pero no la llama nadie. Se salta todas las políticas RLS, así que
+cárgala cuando haya algo que la necesite y nunca con prefijo `NEXT_PUBLIC_`.
 
 ### 2. Aplicar el esquema
+
+Todo vive en el esquema **`nyx`**, no en `public`.
 
 ```bash
 npm run db:link
@@ -104,21 +108,39 @@ npm run db:start
 npm run db:reset     # recrea la base y carga supabase/seed.sql
 ```
 
-### 3. Crear el primer administrador
+### 3. Exponer el esquema en la API
+
+**Este paso no se puede hacer desde SQL y sin él no funciona nada.** Supabase
+solo publica en su API los esquemas que tenga en la lista, y por defecto son
+`public` y `graphql_public`. Si `nyx` no está ahí, PostgREST responde 404 a
+todas las consultas por muchos permisos que tengan las tablas.
+
+En el panel: *Project Settings → API → Exposed schemas*, añade `nyx`.
+
+En local ya está resuelto: `supabase/config.toml` lo incluye en `schemas` y en
+`extra_search_path`.
+
+Lo que sí hace el SQL son los permisos (`grant usage on schema nyx…`, al final
+de la primera migración). Supabase los concede solo en `public`, así que en un
+esquema propio hay que darlos a mano. Conceder `all` a `anon` parece excesivo y
+no lo es: sin el `grant`, Postgres corta antes de evaluar las políticas RLS y
+ni siquiera llegarían a consultarse. Quien decide de verdad son las políticas.
+
+### 4. Crear el primer administrador
 
 Registra el usuario desde *Authentication → Users* en Supabase. El trigger
 `crear_perfil_al_registrar` le crea el perfil con rol `editor`. Para el primer
 administrador, en el SQL Editor:
 
 ```sql
-update public.perfiles set rol = 'admin' where id = (
+update nyx.perfiles set rol = 'admin' where id = (
   select id from auth.users where email = 'tu@correo.com'
 );
 ```
 
 Sin fila en `perfiles` no se entra al panel, aunque la contraseña sea correcta.
 
-### 4. Regenerar los tipos
+### 5. Regenerar los tipos
 
 ```bash
 npm run db:types
@@ -134,6 +156,12 @@ Cuando el archivo esté generado se puede volver a poner
 ---
 
 ## Cómo está modelado
+
+Todas las tablas viven en el esquema `nyx`. El nombre está en minúscula a
+propósito: Postgres pliega a minúsculas los identificadores sin comillas, así
+que un esquema `"NYX"` obligaría a entrecomillarlo en cada consulta, política y
+función. La constante está en `lib/supabase/esquema.ts`, y los tres clientes la
+pasan como `db: { schema }`.
 
 - **Catálogo** — `categorias`, `productos`, `producto_fotos`. El campo `visible`
   es el interruptor del panel.

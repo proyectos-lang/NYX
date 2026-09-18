@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { ESQUEMA } from './esquema'
 
 /**
  * Cliente para Server Components, Server Actions y Route Handlers.
@@ -15,6 +16,7 @@ export async function crearClienteServidor() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      db: { schema: ESQUEMA },
       cookies: {
         getAll() {
           return almacen.getAll()
