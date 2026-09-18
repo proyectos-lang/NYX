@@ -19,19 +19,26 @@
     "db:push": "supabase db push",
     "db:pull": "supabase db pull",
     "db:diff": "supabase db diff -f",
-    "db:types": "supabase gen types typescript --linked --schema nyx > lib/database.types.ts"
+    "db:types": "supabase gen types typescript --linked --schema nyx > lib/database.types.ts",
+    "verificar:mapeo": "node scripts/verificar-mapeo.mts",
+    "verificar:estudio": "node scripts/verificar-estudio.mts",
+    "verificar": "npm run verificar:mapeo && npm run verificar:estudio"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "next": "^15.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@types/three": "^0.186.0",
     "supabase": "^2.0.0",
     "typescript": "^5.6.0",
     "vercel": "^48.0.0"

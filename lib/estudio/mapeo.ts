@@ -1,0 +1,180 @@
+/**
+ * Estudio de diseño — mapeo de la textura sobre la malla.
+ *
+ * Esta es la pieza central del visor, y la menos evidente.
+ *
+ * Los modelos de prenda suelen venir con UVs pensadas para una tela estampada
+ * que se repite, no para colocar un diseño encima. Un .glb real puede traer
+ * UVs de -387 a 298 (unas 686 repeticiones de la textura) sin que un solo
+ * vértice caiga en el rango [0,1].
+ *
+ * El síntoma es desconcertante: un logo **tiñe toda la prenda de un color
+ * plano** en vez de aparecer como imagen, porque cada punto de la malla
+ * muestrea un píxel distinto del canvas y el logo acaba promediado.
+ *
+ * La solución es ignorar las UVs del archivo y regenerarlas con una proyección
+ * planar frontal.
+ *
+ * Solo depende de `three`, no de @react-three/fiber: así este archivo sí entra
+ * en la comprobación de tipos del proyecto (ver visor3d/README).
+ */
+
+import * as THREE from 'three'
+import type { Mapeo } from './tipos'
+
+/**
+ * Regenera las UVs con una proyección planar frontal.
+ *
+ * Con `mapeo === 'original'` no toca nada: hay modelos bien desplegados a los
+ * que la proyección les sentaría peor.
+ */
+export function aplicarMapeo(raiz: THREE.Object3D, mapeo: Mapeo): void {
+  if (mapeo === 'original') return
+
+  const caja = new THREE.Box3().setFromObject(raiz)
+  const min = caja.min
+  const tam = caja.getSize(new THREE.Vector3())
+
+  // Un modelo plano en algún eje no debe dar una división por cero.
+  const anchoX = tam.x > 0 ? tam.x : 1
+  const altoY = tam.y > 0 ? tam.y : 1
+
+  raiz.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return
+
+    const geo = obj.geometry as THREE.BufferGeometry
+    const pos = geo.attributes.position
+    const nor = geo.attributes.normal
+    if (!pos) return
+
+    const uv = new Float32Array(pos.count * 2)
+
+    for (let i = 0; i < pos.count; i++) {
+      // La normal en Z separa las dos caras de la prenda. Sin normales, todo
+      // se trata como frente: es mejor que repartirlo al azar.
+      const alFrente = !nor || nor.getZ(i) >= 0
+
+      const u = (pos.getX(i) - min.x) / anchoX
+
+      // El atlas es frente|espalda: [0, 0.5) frente, [0.5, 1] espalda.
+      //
+      // La espalda se REFLEJA en U porque se mira desde el otro lado. Sin
+      // reflejarla, un texto sale al revés como en un espejo.
+      uv[i * 2] = alFrente ? u * 0.5 : 1 - u * 0.5
+      uv[i * 2 + 1] = (pos.getY(i) - min.y) / altoY
+    }
+
+    geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Normalización de escala
+// ---------------------------------------------------------------------------
+
+export interface AjusteModelo {
+  /** Factor para llevar el modelo a ~1 unidad en su lado mayor. */
+  escala: number
+  /** Centro de la caja envolvente. */
+  centro: { x: number; y: number; z: number }
+}
+
+/**
+ * Mide el modelo para poder normalizarlo.
+ *
+ * Los .glb vienen en las unidades con que se exportaron. Uno real medía 68
+ * unidades de ancho y estaba centrado en Y=136 —centímetros, no metros—: con
+ * una cámara pensada para un objeto de ~1 unidad, la cámara queda **dentro** de
+ * la prenda y solo se ve el gris de la cara interna.
+ */
+export function medirModelo(raiz: THREE.Object3D): AjusteModelo {
+  const caja = new THREE.Box3().setFromObject(raiz)
+  const tam = caja.getSize(new THREE.Vector3())
+  const centro = caja.getCenter(new THREE.Vector3())
+
+  const mayor = Math.max(tam.x, tam.y, tam.z)
+  // Un modelo degenerado o vacío no debe dar una escala infinita.
+  const escala = mayor > 0 && Number.isFinite(mayor) ? 1 / mayor : 1
+
+  return { escala, centro: { x: centro.x, y: centro.y, z: centro.z } }
+}
+
+// ---------------------------------------------------------------------------
+// Análisis de las UVs
+// ---------------------------------------------------------------------------
+
+export interface AnalisisUV {
+  vertices: number
+  /** Cuántos caen dentro de [0,1] en ambos ejes. */
+  dentro: number
+  /** Proporción 0–1. */
+  proporcionDentro: number
+  rango: { uMin: number; uMax: number; vMin: number; vMax: number }
+  /** Lo que habría que usar según el análisis. */
+  mapeoSugerido: Mapeo
+}
+
+/**
+ * Umbral para decidir si las UVs del archivo sirven.
+ *
+ * No se exige el 100%: es normal que algún vértice se salga por las costuras.
+ */
+export const UMBRAL_UV_VALIDAS = 0.9
+
+/**
+ * Cuenta qué porcentaje de las UVs cae en [0,1] y sugiere el mapeo.
+ *
+ * Conviene ejecutarlo **al subir el modelo**, no en cada carga, y guardar la
+ * decisión junto al archivo: así el usuario sabe en el momento si su .glb
+ * sirve, en vez de descubrirlo al ver el resultado.
+ */
+export function analizarUV(raiz: THREE.Object3D): AnalisisUV {
+  let vertices = 0
+  let dentro = 0
+  let uMin = Infinity
+  let uMax = -Infinity
+  let vMin = Infinity
+  let vMax = -Infinity
+
+  raiz.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return
+
+    const geo = obj.geometry as THREE.BufferGeometry
+    const uv = geo.attributes.uv
+    if (!uv) return
+
+    for (let i = 0; i < uv.count; i++) {
+      const u = uv.getX(i)
+      const v = uv.getY(i)
+
+      vertices++
+      if (u >= 0 && u <= 1 && v >= 0 && v <= 1) dentro++
+
+      if (u < uMin) uMin = u
+      if (u > uMax) uMax = u
+      if (v < vMin) vMin = v
+      if (v > vMax) vMax = v
+    }
+  })
+
+  // Sin UVs no hay nada que respetar: hay que proyectar.
+  if (vertices === 0) {
+    return {
+      vertices: 0,
+      dentro: 0,
+      proporcionDentro: 0,
+      rango: { uMin: 0, uMax: 0, vMin: 0, vMax: 0 },
+      mapeoSugerido: 'proyeccion',
+    }
+  }
+
+  const proporcionDentro = dentro / vertices
+
+  return {
+    vertices,
+    dentro,
+    proporcionDentro,
+    rango: { uMin, uMax, vMin, vMax },
+    mapeoSugerido: proporcionDentro >= UMBRAL_UV_VALIDAS ? 'original' : 'proyeccion',
+  }
+}

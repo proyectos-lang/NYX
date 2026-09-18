@@ -9,6 +9,7 @@ import estilos from './Cabecera.module.css'
 const ENLACES = [
   { texto: 'Inicio', href: '/' },
   { texto: 'Catálogo', href: '/catalogo' },
+  { texto: 'Estudio 3D', href: '/estudio' },
   { texto: 'Personalizables', href: '/catalogo?tipo=personalizable' },
   { texto: 'Entrega inmediata', href: '/catalogo?tipo=entrega_inmediata' },
   { texto: 'Nosotros', href: '/#nosotros' },

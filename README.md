@@ -26,6 +26,7 @@ maquetar y revisar el diseño; el panel, en cambio, sí necesita base de datos.
 | `/catalogo` | Catálogo con filtros por categoría, tipo y búsqueda |
 | `/catalogo/[slug]` | Ficha de producto con galería y relacionados |
 | `/cotizar` | Formulario de solicitud de cotización |
+| `/estudio` | Estudio de diseño: color, textura, logos y visor 3D |
 | `/login` | Acceso al panel |
 | `/panel/…` | Pedidos, catálogo, categorías, contenido, preguntas, ajustes |
 | `/maquetas` | Las maquetas originales, como referencia visual |
@@ -48,8 +49,13 @@ app/
 componentes/
   sitio/              Cabecera, pie, tarjeta de producto, FAQ, secciones
   panel/              Avisos y estados de error
+  estudio/            Editor 2D, controles y puente al visor
+    visor/            Implementacion 3D (three + fiber + drei)
+
+scripts/              Comprobaciones que no necesitan navegador
 
 lib/
+  estudio/            Modelo de datos, compositor, mapeo de UVs e historial
   supabase/           Clientes de navegador, servidor y service_role
   consultas.ts        Lecturas del sitio público (con respaldo de demo)
   panel.ts            Lecturas del panel (sin respaldo: datos reales o error)
@@ -197,6 +203,71 @@ olvidar.
 
 ---
 
+## Estudio de diseño 3D
+
+En `/estudio` el cliente arma un diseño —color base, textura en mosaico y
+logotipos que coloca con el ratón— y lo ve aplicado sobre un modelo `.glb` que
+puede girar.
+
+Tres piezas separadas:
+
+| Pieza | Dónde | Qué hace |
+|---|---|---|
+| Compositor | `lib/estudio/compositor.ts` | Pinta el diseño en un canvas 2D. Sin React y sin three |
+| Visor 3D | `componentes/estudio/visor/` | Toma ese canvas como textura del modelo |
+| Editor 2D | `componentes/estudio/Editor2D.tsx` | Donde se arrastran los logos, sobre el mismo canvas |
+
+El compositor va aparte **a propósito**: lo usan el editor y el visor, y si cada
+uno pintara por su cuenta, la previsualización 2D y el 3D acabarían mostrando
+cosas distintas.
+
+### Las UVs de los `.glb` no sirven
+
+Es lo menos evidente de todo el sistema. Los modelos de prenda suelen traer UVs
+pensadas para una tela estampada que se repite, no para colocar un diseño: es
+normal encontrar rangos de -387 a 298 sin que un solo vértice caiga en [0,1].
+
+El síntoma es desconcertante: **un logo tiñe toda la prenda de un color plano**
+en vez de aparecer como imagen, porque cada punto de la malla muestrea un píxel
+distinto del canvas y el logo acaba promediado.
+
+Por eso `aplicarMapeo()` ignora las UVs del archivo y las regenera con una
+proyección planar frontal, mandando cada cara a su mitad de un atlas
+frente|espalda. La espalda se refleja en U: sin eso, un texto sale al revés.
+
+`analizarUV()` decide cuál usar contando qué porcentaje cae en [0,1]. Conviene
+ejecutarlo **al subir el modelo** y guardar la decisión en `modelos_3d`, junto
+con la escala y el centro: así el usuario sabe en el momento si su archivo
+sirve, en vez de descubrirlo al ver el resultado.
+
+### Dependencias fijadas
+
+`react` y `react-dom` están **clavados a 19.2.8 sin caret**, no por capricho:
+`@react-three/fiber@9` exige `react >=19 <19.3`, y con `^19.2.8` npm volvería a
+instalar 19.3 y rompería el visor sin avisar. Al actualizar React hay que mirar
+antes el peer de fiber.
+
+### CORS
+
+Las imágenes del estudio se cargan con `crossOrigin="anonymous"`. Si el host no
+responde con CORS, el canvas queda "tainted" y tanto la textura del modelo como
+la exportación a PNG dejan de funcionar. Por eso el bucket `disenos` es público
+y no se usan URLs firmadas.
+
+### Comprobaciones
+
+```bash
+npm run verificar        # mapeo de UVs + normalizador e historial
+```
+
+Corren en Node, sin navegador ni GPU. Cubren lo que no se puede mirar a ojo:
+que las UVs regeneradas caigan todas en rango y en su mitad del atlas, que la
+espalda quede reflejada, que la escala normalice a ~1 unidad, que un diseño
+guardado con campos de menos no reviente el editor y que arrastrar un logo no
+llene el historial.
+
+---
+
 ## Vercel
 
 ```bash
@@ -242,5 +313,14 @@ git config user.email "tu@correo.com"
   `enlace_productos` están creadas, pero la pantalla del panel no.
 - **Versión en inglés del sitio.** La base guarda todo en dos idiomas y el panel
   los edita, pero el sitio público solo sirve español.
+- **Modelos 3D.** El esquema y el visor estan listos, pero no hay ningun .glb
+  cargado ni pantalla en el panel para subirlos: hay que insertar la fila en
+  `nyx.modelos_3d` a mano. El analizador (`analizarUV`, `medirModelo`) existe y
+  esta comprobado, pero todavia no hay interfaz que lo ejecute al subir.
+- **El visor 3D no se ha probado con un modelo real.** Sin .glb no hay forma de
+  confirmar que la prenda se ve como debe; la matematica del mapeo si esta
+  comprobada en `npm run verificar`.
+- **Guardar el diseno.** Las funciones `guardar_diseno()` y `leer_diseno()`
+  estan en la migracion, pero el estudio todavia no las llama.
 - **ESLint.** `next lint` quedó obsoleto en Next 15.5 y no se ha migrado a la
   CLI de ESLint. `npm run typecheck` y `npm run build` sí comprueban tipos.
