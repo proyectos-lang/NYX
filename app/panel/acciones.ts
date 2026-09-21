@@ -477,3 +477,117 @@ export async function guardarNotificaciones(datos: FormData): Promise<void> {
 
   redirect(destino)
 }
+
+// ---------------------------------------------------------------------------
+// Modelos 3D
+//
+// El archivo lo sube el navegador directo al bucket `modelos`, y ahi mismo lo
+// analiza para medir mapeo, escala y centro. Aqui solo llega el resultado: son
+// numeros, no el .glb, que puede pesar decenas de megas.
+//
+// Medir una vez al subir y guardarlo es a proposito. Hacerlo en cada carga del
+// visor obliga a esperar a que la malla este lista y repite trabajo; y, sobre
+// todo, asi el usuario sabe EN EL MOMENTO si su archivo sirve, en vez de
+// descubrirlo cuando ve la prenda tenida de un color plano.
+// ---------------------------------------------------------------------------
+
+export async function guardarModelo3D(datos: FormData): Promise<void> {
+  const base = '/panel/modelos'
+
+  const nombre = texto(datos, 'nombre')
+  const archivoUrl = texto(datos, 'archivo_url')
+  const mapeo = texto(datos, 'mapeo')
+
+  if (!nombre || !archivoUrl) {
+    redirect(conError(base, new Error('Falta el nombre o el archivo.'), 'modelo incompleto'))
+  }
+  if (mapeo !== 'original' && mapeo !== 'proyeccion') {
+    redirect(conError(base, new Error('Mapeo no valido.'), 'mapeo invalido'))
+  }
+
+  const escala = numero(datos, 'escala')
+  if (!escala || escala <= 0) {
+    redirect(conError(base, new Error('La escala medida no es valida.'), 'escala invalida'))
+  }
+
+  const excluidos = texto(datos, 'materiales_excluidos')
+    .split(',')
+    .map((m) => m.trim())
+    .filter(Boolean)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('modelos_3d').insert({
+      nombre,
+      slug: aSlug(nombre) || `modelo-${Date.now().toString().slice(-6)}`,
+      archivo_url: archivoUrl,
+      mapeo,
+      escala,
+      centro_x: numero(datos, 'centro_x') ?? 0,
+      centro_y: numero(datos, 'centro_y') ?? 0,
+      centro_z: numero(datos, 'centro_z') ?? 0,
+      materiales_excluidos: excluidos,
+      uv_proporcion_dentro: numero(datos, 'uv_proporcion'),
+      uv_vertices: entero(datos, 'uv_vertices'),
+      visible: true,
+    })
+
+    if (error) throw error
+
+    revalidatePath(base)
+    revalidatePath('/estudio')
+    destino = conAviso(base, `Modelo "${nombre}" anadido`)
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo guardar el modelo 3D')
+  }
+
+  redirect(destino)
+}
+
+export async function alternarVisibilidadModelo(datos: FormData): Promise<void> {
+  const base = '/panel/modelos'
+  const id = texto(datos, 'id')
+  const visible = texto(datos, 'visible') === 'true'
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('modelos_3d').update({ visible }).eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    revalidatePath('/estudio')
+    destino = conAviso(base, visible ? 'Modelo visible' : 'Modelo oculto')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo cambiar la visibilidad del modelo')
+  }
+
+  redirect(destino)
+}
+
+export async function eliminarModelo3D(datos: FormData): Promise<void> {
+  const base = '/panel/modelos'
+  const id = texto(datos, 'id')
+
+  if (!id) redirect(conError(base, new Error('Falta el modelo.'), 'modelo sin id'))
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    // El archivo del bucket no se borra aqui: un diseno ya guardado puede
+    // seguir apuntando a el, y dejar huerfano un .glb cuesta menos que romper
+    // un pedido. Se limpian aparte.
+    const { error } = await supabase.from('modelos_3d').delete().eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    revalidatePath('/estudio')
+    destino = conAviso(base, 'Modelo eliminado')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo eliminar el modelo')
+  }
+
+  redirect(destino)
+}

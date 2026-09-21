@@ -28,7 +28,7 @@ maquetar y revisar el diseño; el panel, en cambio, sí necesita base de datos.
 | `/cotizar` | Formulario de solicitud de cotización |
 | `/estudio` | Estudio de diseño: color, textura, logos y visor 3D |
 | `/login` | Acceso al panel |
-| `/panel/…` | Pedidos, catálogo, categorías, contenido, preguntas, ajustes |
+| `/panel/…` | Pedidos, catálogo, categorías, modelos 3D, contenido, preguntas, ajustes |
 | `/maquetas` | Las maquetas originales, como referencia visual |
 
 Las maquetas `.dc.html` viven en `public/` y siguen navegables, pero ya no son
@@ -316,9 +316,10 @@ git config user.email "tu@correo.com"
 - **Un modelo de prenda de verdad.** El `.glb` que hay es el que genera
   `npm run modelo:demo`: una silueta extruida, sin arrugas ni caida de tela.
   Sirve para probar el visor, no para ensenarselo a un cliente.
-- **Subir modelos desde el panel.** No hay pantalla: hay que generar el `.glb`,
-  dejarlo en `public/modelos/` e insertar la fila en `nyx.modelos_3d` a mano,
-  con las medidas que devuelve el analizador.
+- **Sustituir el archivo de un modelo ya subido.** Se puede subir uno nuevo y
+  borrar el viejo, pero no reemplazarlo en sitio conservando su id.
+- **Limpiar los .glb huérfanos.** Al borrar un modelo su archivo se queda en el
+  bucket, porque un diseño guardado puede seguir apuntando a él.
 - **Guardar el diseno.** Las funciones `guardar_diseno()` y `leer_diseno()`
   estan en la migracion, pero el estudio todavia no las llama.
 - **ESLint.** `next lint` quedó obsoleto en Next 15.5 y no se ha migrado a la

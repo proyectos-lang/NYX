@@ -412,3 +412,52 @@ export async function obtenerAjustes(): Promise<Ajuste[]> {
 
   return (data ?? []) as Ajuste[]
 }
+
+// ---------------------------------------------------------------------------
+// Modelos 3D
+// ---------------------------------------------------------------------------
+
+export interface ModeloPanel {
+  id: string
+  nombre: string
+  slug: string
+  archivoUrl: string
+  mapeo: string
+  escala: number
+  visible: boolean
+  materialesExcluidos: string[]
+  uvProporcion: number | null
+  uvVertices: number | null
+  creadoEn: string
+}
+
+export async function obtenerModelosPanel(): Promise<ModeloPanel[]> {
+  comprobarConfiguracion()
+  const supabase = await crearClienteServidor()
+
+  const { data, error } = await supabase
+    .from('modelos_3d')
+    .select(
+      `id, nombre, slug, archivo_url, mapeo, escala, visible,
+       materiales_excluidos, uv_proporcion_dentro, uv_vertices, creado_en`
+    )
+    .order('orden')
+
+  if (error) throw new SinConexion(error)
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  return (data ?? []).map((m: any) => ({
+    id: m.id,
+    nombre: m.nombre,
+    slug: m.slug,
+    archivoUrl: m.archivo_url,
+    mapeo: m.mapeo,
+    escala: Number(m.escala) || 1,
+    visible: m.visible,
+    materialesExcluidos: m.materiales_excluidos ?? [],
+    uvProporcion: m.uv_proporcion_dentro === null ? null : Number(m.uv_proporcion_dentro),
+    uvVertices: m.uv_vertices,
+    creadoEn: m.creado_en,
+  }))
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}

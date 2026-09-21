@@ -8,6 +8,7 @@ const SECCIONES = [
   { href: '/panel/pedidos', etiqueta: 'Pedidos' },
   { href: '/panel/catalogo', etiqueta: 'Catálogo' },
   { href: '/panel/categorias', etiqueta: 'Categorías' },
+  { href: '/panel/modelos', etiqueta: 'Modelos 3D' },
   { href: '/panel/contenido', etiqueta: 'Contenido' },
   { href: '/panel/preguntas', etiqueta: 'Preguntas' },
   { href: '/panel/ajustes', etiqueta: 'Contacto y ajustes' },
