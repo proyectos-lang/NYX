@@ -209,3 +209,27 @@ insert into nyx.ajustes (clave, valor, descripcion, publico) values
   ('notificaciones',
    '{"destinatarios": ["pedidos@nyx.ec"], "avisar_pedido_nuevo": true, "avisar_resumen_diario": true, "avisar_stock_bajo": false}'::jsonb,
    'A dónde llegan los avisos de pedidos nuevos. Privado.', false);
+
+-- ---------------------------------------------------------------------------
+-- Modelo 3D de prueba
+--
+-- El archivo lo genera `npm run modelo:demo` y se sirve desde public/. Las
+-- medidas son las que devuelve el analizador sobre ese .glb concreto: si se
+-- cambia la silueta del generador hay que volver a medirlas, y el script de
+-- comprobacion avisa si dejan de coincidir.
+-- ---------------------------------------------------------------------------
+
+insert into nyx.modelos_3d (
+  nombre, slug, archivo_url, mapeo, escala, centro_x, centro_y, centro_z,
+  uv_proporcion_dentro, uv_vertices, orden
+) values (
+  'Camisa (modelo de prueba)',
+  'camisa-demo',
+  '/modelos/camisa-demo.glb',
+  'proyeccion',   -- solo el 1,6% de sus UVs cae en [0,1]
+  0.01358575,     -- 73,6 unidades en el lado mayor
+  0, 0, 0,        -- el generador ya lo centra
+  0.0160,
+  2244,
+  1
+);

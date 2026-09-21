@@ -12,7 +12,10 @@
  */
 
 import * as THREE from 'three'
+import { readFileSync, existsSync } from 'node:fs'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { aplicarMapeo, analizarUV, medirModelo, UMBRAL_UV_VALIDAS } from '../lib/estudio/mapeo.ts'
+import { MODELO_DEMO } from '../lib/estudio/modelo-demo.ts'
 
 let fallos = 0
 
@@ -152,6 +155,111 @@ console.log('\nCaso degenerado')
 const vacio = new THREE.Group()
 const ajusteVacio = medirModelo(vacio)
 comprobar('un modelo vacio no da escala infinita', Number.isFinite(ajusteVacio.escala))
+
+
+// ===========================================================================
+// El .glb real que genera `npm run modelo:demo`
+//
+// Hasta aqui todo se probaba sobre una malla inventada en memoria. Esto carga
+// el archivo de verdad, con su cabecera glTF y sus UVs de ExtrudeGeometry, que
+// son exactamente del tipo que no sirve para colocar un diseno.
+// ===========================================================================
+
+
+const RUTA_GLB = 'public/modelos/camisa-demo.glb'
+
+console.log('\nModelo .glb real')
+
+if (!existsSync(RUTA_GLB)) {
+  comprobar(`existe ${RUTA_GLB}`, false, 'ejecuta: npm run modelo:demo')
+} else {
+  const datos = readFileSync(RUTA_GLB)
+  const buffer = datos.buffer.slice(datos.byteOffset, datos.byteOffset + datos.byteLength)
+
+  const escena = await new Promise<THREE.Object3D>((resolver, rechazar) => {
+    new GLTFLoader().parse(buffer as ArrayBuffer, '', (g) => resolver(g.scene), rechazar)
+  })
+
+  let mallas = 0
+  escena.traverse((o) => {
+    if (o instanceof THREE.Mesh) mallas++
+  })
+
+  comprobar('el archivo se parsea como glTF valido', mallas > 0, `${mallas} mallas`)
+
+  // La forma del material importa: three solo interpreta un array cuando la
+  // geometria tiene grupos, y envolver un material unico en un array de uno
+  // deja la malla SIN DIBUJAR.
+  let materialEnArray = false
+  escena.traverse((o) => {
+    if (o instanceof THREE.Mesh && Array.isArray(o.material)) materialEnArray = true
+  })
+  comprobar('el material NO viene envuelto en un array', !materialEnArray)
+
+  const uvOriginal = analizarUV(escena)
+  console.log(
+    `  UVs del archivo: rango U ${uvOriginal.rango.uMin.toFixed(1)}..${uvOriginal.rango.uMax.toFixed(1)} · ` +
+      `${(uvOriginal.proporcionDentro * 100).toFixed(1)}% dentro de [0,1]`
+  )
+  comprobar(
+    'el analizador las descarta y pide proyeccion',
+    uvOriginal.mapeoSugerido === 'proyeccion'
+  )
+
+  aplicarMapeo(escena, 'proyeccion')
+  const uvFinal = analizarUV(escena)
+  comprobar(
+    'tras proyectar, el 100% cae en [0,1]',
+    uvFinal.dentro === uvFinal.vertices,
+    `${uvFinal.dentro}/${uvFinal.vertices}`
+  )
+
+  // Las dos mitades del atlas tienen que usarse de verdad: si todo cayera en
+  // una, el frente mostraria tambien el diseno de la espalda.
+  let enFrente = 0
+  let enEspalda = 0
+  escena.traverse((o) => {
+    if (!(o instanceof THREE.Mesh)) return
+    const uv = o.geometry.attributes.uv
+    for (let i = 0; i < uv.count; i++) (uv.getX(i) < 0.5 ? enFrente++ : enEspalda++)
+  })
+  comprobar('se usan las dos mitades del atlas', enFrente > 0 && enEspalda > 0,
+    `frente ${enFrente} / espalda ${enEspalda}`)
+
+  const ajusteGlb = medirModelo(escena)
+  console.log(
+    `  normalizacion: escala ${ajusteGlb.escala.toFixed(5)} · ` +
+      `centro y=${ajusteGlb.centro.y.toFixed(2)}`
+  )
+  comprobar('la escala lleva el modelo a ~1 unidad', Math.abs(ajusteGlb.escala) > 0 && Number.isFinite(ajusteGlb.escala))
+
+  const cajaFinal = new THREE.Box3().setFromObject(escena)
+  const mayor = Math.max(...cajaFinal.getSize(new THREE.Vector3()).toArray())
+  comprobar(
+    'la camara a 1.9 queda fuera de la prenda normalizada',
+    1.9 > (mayor * ajusteGlb.escala) / 2
+  )
+
+  // Las medidas de MODELO_DEMO estan escritas a mano, como las que se guardan
+  // en nyx.modelos_3d. Si alguien cambia la silueta del generador y se olvida
+  // de actualizarlas, la prenda saldria descentrada o a destiempo de escala:
+  // esto lo detecta antes de que llegue a producirse.
+  comprobar(
+    'MODELO_DEMO.escala coincide con el archivo',
+    Math.abs(MODELO_DEMO.escala - ajusteGlb.escala) < 1e-6,
+    `constante ${MODELO_DEMO.escala} vs archivo ${ajusteGlb.escala.toFixed(8)}`
+  )
+  comprobar(
+    'MODELO_DEMO.centro coincide con el archivo',
+    Math.abs(MODELO_DEMO.centro.x - ajusteGlb.centro.x) < 1e-4 &&
+      Math.abs(MODELO_DEMO.centro.y - ajusteGlb.centro.y) < 1e-4 &&
+      Math.abs(MODELO_DEMO.centro.z - ajusteGlb.centro.z) < 1e-4
+  )
+  comprobar(
+    'MODELO_DEMO.mapeo coincide con lo que sugiere el analizador',
+    MODELO_DEMO.mapeo === uvOriginal.mapeoSugerido
+  )
+}
 
 console.log(fallos === 0 ? '\nTodo correcto.\n' : `\n${fallos} comprobacion(es) fallidas.\n`)
 process.exit(fallos === 0 ? 0 : 1)

@@ -313,13 +313,12 @@ git config user.email "tu@correo.com"
   `enlace_productos` están creadas, pero la pantalla del panel no.
 - **Versión en inglés del sitio.** La base guarda todo en dos idiomas y el panel
   los edita, pero el sitio público solo sirve español.
-- **Modelos 3D.** El esquema y el visor estan listos, pero no hay ningun .glb
-  cargado ni pantalla en el panel para subirlos: hay que insertar la fila en
-  `nyx.modelos_3d` a mano. El analizador (`analizarUV`, `medirModelo`) existe y
-  esta comprobado, pero todavia no hay interfaz que lo ejecute al subir.
-- **El visor 3D no se ha probado con un modelo real.** Sin .glb no hay forma de
-  confirmar que la prenda se ve como debe; la matematica del mapeo si esta
-  comprobada en `npm run verificar`.
+- **Un modelo de prenda de verdad.** El `.glb` que hay es el que genera
+  `npm run modelo:demo`: una silueta extruida, sin arrugas ni caida de tela.
+  Sirve para probar el visor, no para ensenarselo a un cliente.
+- **Subir modelos desde el panel.** No hay pantalla: hay que generar el `.glb`,
+  dejarlo en `public/modelos/` e insertar la fila en `nyx.modelos_3d` a mano,
+  con las medidas que devuelve el analizador.
 - **Guardar el diseno.** Las funciones `guardar_diseno()` y `leer_diseno()`
   estan en la migracion, pero el estudio todavia no las llama.
 - **ESLint.** `next lint` quedó obsoleto en Next 15.5 y no se ha migrado a la
