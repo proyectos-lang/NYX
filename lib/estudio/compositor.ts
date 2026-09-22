@@ -8,7 +8,15 @@
  * Solo funciona en el navegador (usa `Image` y `document`).
  */
 
-import { VISTAS, type CaraDiseno, type CapaLogo, type DisenoEstudio, type Vista } from './tipos'
+import {
+  VISTAS,
+  type CapaLogo,
+  type CapaTexto,
+  type CaraDiseno,
+  type DisenoEstudio,
+  type Vista,
+} from './tipos'
+import { buscarFuente } from './preajustes'
 
 /** Potencia de dos: es lo que espera WebGL para poder generar mipmaps. */
 export const LADO_TEXTURA = 1024
@@ -73,8 +81,13 @@ function urlsDe(diseno: DisenoEstudio): Set<string> {
 }
 
 export async function precargarDiseno(diseno: DisenoEstudio): Promise<void> {
+  const fuentes = new Set((diseno.textos ?? []).map((t) => t.fuente))
+
   // allSettled y no all: una imagen rota no debe tumbar la composición entera.
-  await Promise.allSettled([...urlsDe(diseno)].map((url) => cargarImagen(url)))
+  await Promise.allSettled([
+    ...[...urlsDe(diseno)].map((url) => cargarImagen(url)),
+    ...[...fuentes].map((f) => cargarFuente(f)),
+  ])
 }
 
 /**
@@ -94,6 +107,9 @@ export function disenoListo(diseno: DisenoEstudio): boolean {
   for (const url of urlsDe(diseno)) {
     if (!resueltas.has(url)) return false
   }
+  for (const capa of diseno.textos ?? []) {
+    if (!fuentesResueltas.has(capa.fuente)) return false
+  }
   return true
 }
 
@@ -101,6 +117,62 @@ export function disenoListo(diseno: DisenoEstudio): boolean {
 export function vaciarCache(): void {
   cacheImagenes.clear()
   resueltas.clear()
+  cacheFuentes.clear()
+  fuentesResueltas.clear()
+}
+
+// ---------------------------------------------------------------------------
+// Fuentes
+//
+// Mismo problema que con las imagenes y misma solucion: el dibujo es sincrono
+// y no puede esperar. Si se pinta un texto antes de que su familia este
+// cargada, el canvas usa una de reserva y el resultado no se parece a lo que
+// el cliente eligio -- y lo peor es que no vuelve a pintarse solo.
+// ---------------------------------------------------------------------------
+
+const cacheFuentes = new Map<string, Promise<void>>()
+const fuentesResueltas = new Set<string>()
+
+/**
+ * La familia real detras de la variable CSS.
+ *
+ * next/font genera nombres ofuscados que cambian en cada compilacion, asi que
+ * no se pueden escribir a mano; la variable si es estable.
+ */
+function familiaDe(variable: string): string {
+  if (typeof document === 'undefined') return 'sans-serif'
+
+  const valor = getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
+  return valor ? `${valor}, sans-serif` : 'sans-serif'
+}
+
+/** Descripcion de fuente tal como la entienden ctx.font y document.fonts. */
+function descripcionFuente(idFuente: string, px: number): string {
+  const fuente = buscarFuente(idFuente)
+  return `${fuente.peso} ${px}px ${familiaDe(fuente.variable)}`
+}
+
+export function cargarFuente(idFuente: string): Promise<void> {
+  const cacheada = cacheFuentes.get(idFuente)
+  if (cacheada) return cacheada
+
+  // El tamano da igual para cargarla: se pide uno cualquiera y queda
+  // disponible para todos.
+  const descripcion = descripcionFuente(idFuente, 64)
+
+  const promesa = (async () => {
+    try {
+      await document.fonts.load(descripcion)
+    } catch (error) {
+      // Una familia que no carga no debe tumbar la composicion: se pintara con
+      // la de reserva, que es feo pero visible.
+      console.error(`[nyx] no se pudo cargar la fuente ${idFuente}`, error)
+    }
+    fuentesResueltas.add(idFuente)
+  })()
+
+  cacheFuentes.set(idFuente, promesa)
+  return promesa
 }
 
 // ---------------------------------------------------------------------------
@@ -173,6 +245,43 @@ function pintarLogo(
 }
 
 /**
+ * Texto.
+ *
+ * El tamano va en % del alto del lienzo y no en pixeles, por lo mismo que las
+ * coordenadas: asi el mismo diseno sirve para una miniatura y para un atlas de
+ * 2048 sin que la letra cambie de proporcion.
+ *
+ * Se admiten varias lineas separando con saltos: escribir dos palabras una
+ * debajo de otra es de lo primero que pide cualquiera.
+ */
+function pintarTexto(ctx: CanvasRenderingContext2D, capa: CapaTexto, lado: number): void {
+  const px = (capa.tamano / 100) * lado
+  if (px <= 0) return
+
+  ctx.save()
+  ctx.globalAlpha = acotar(capa.opacidad, 0, 1)
+  ctx.fillStyle = capa.color || '#000000'
+  ctx.font = descripcionFuente(capa.fuente, px)
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  ctx.translate((capa.x / 100) * lado, (capa.y / 100) * lado)
+  if (capa.rotacion) ctx.rotate((capa.rotacion * Math.PI) / 180)
+
+  const lineas = capa.texto.split(/\r?\n/)
+  const alturaLinea = px * 1.15
+  // Se centra el bloque entero, no la primera linea, para que anadir una
+  // segunda no desplace lo que ya estaba colocado.
+  const inicio = -((lineas.length - 1) * alturaLinea) / 2
+
+  lineas.forEach((linea, i) => {
+    ctx.fillText(linea, 0, inicio + i * alturaLinea)
+  })
+
+  ctx.restore()
+}
+
+/**
  * Pinta una cara completa.
  *
  * Síncrona a propósito: el visor repinta dentro de su bucle de animación y no
@@ -202,13 +311,23 @@ export function componerCara(
     if (img) pintarTextura(ctx, img, cara, lado)
   }
 
-  const logos = diseno.logos
-    .filter((l) => l.vista === vista)
-    .sort((a, b) => a.z - b.z)
+  // Logos y textos se apilan en la MISMA escala de z y se ordenan juntos: si
+  // se pintaran por separado, un texto siempre quedaria por encima o por
+  // debajo de todos los logos, sin poder intercalarlos.
+  const capas = [
+    ...diseno.logos.filter((l) => l.vista === vista).map((l) => ({ z: l.z, logo: l })),
+    ...(diseno.textos ?? [])
+      .filter((x) => x.vista === vista)
+      .map((x) => ({ z: x.z, texto: x })),
+  ].sort((a, b) => a.z - b.z)
 
-  for (const logo of logos) {
-    const img = imagenLista(logo.url)
-    if (img) pintarLogo(ctx, img, logo, lado)
+  for (const capa of capas) {
+    if ('logo' in capa) {
+      const img = imagenLista(capa.logo.url)
+      if (img) pintarLogo(ctx, img, capa.logo, lado)
+    } else {
+      pintarTexto(ctx, capa.texto, lado)
+    }
   }
 }
 

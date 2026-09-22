@@ -17,6 +17,7 @@ import {
   ETIQUETA_VISTA,
   VISTAS,
   type CapaLogo,
+  type CapaTexto,
   type DisenoEstudio,
   type DiagnosticoVisor,
   type Modelo3D,
@@ -28,7 +29,7 @@ import {
   subirImagen,
   subirVistaPrevia,
 } from '@/lib/estudio/subir'
-import { POSICIONES, TEXTURAS } from '@/lib/estudio/preajustes'
+import { FUENTES, POSICIONES, TEXTURAS } from '@/lib/estudio/preajustes'
 import Editor2D from './Editor2D'
 import Visor from './Visor'
 import e from './Estudio.module.css'
@@ -42,6 +43,48 @@ const PALETA = [
 
 /** Donde el navegador recuerda el diseño entre visitas. */
 const CLAVE_TOKEN = 'nyx-diseno'
+
+/**
+ * ¿El color de la prenda es claro?
+ *
+ * Se usa para elegir el color inicial del texto. Sin esto, escribir sobre una
+ * camisa blanca daría letra blanca: el texto existiría pero parecería que no
+ * se ha añadido nada.
+ *
+ * La fórmula es la luminancia percibida, que pondera el verde por encima del
+ * rojo y el azul porque el ojo lo ve más brillante.
+ */
+function esClaro(hex: string): boolean {
+  const limpio = hex.replace('#', '')
+  if (limpio.length < 6) return true
+
+  const r = parseInt(limpio.slice(0, 2), 16)
+  const g = parseInt(limpio.slice(2, 4), 16)
+  const b = parseInt(limpio.slice(4, 6), 16)
+
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55
+}
+
+/** Flechas curvas de deshacer y rehacer. */
+function FlechaDeshacer({ invertida = false }: { invertida?: boolean }) {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={invertida ? { transform: 'scaleX(-1)' } : undefined}
+    >
+      <path d="M3 8h10a6 6 0 0 1 0 12H8" />
+      <polyline points="7 4 3 8 7 12" />
+    </svg>
+  )
+}
 
 interface Props {
   modelos: Modelo3D[]
@@ -102,7 +145,8 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
       fusionar
     )
 
-  const moverLogo = useCallback(
+  /** Sirve para logos y para textos: el editor arrastra los dos igual. */
+  const moverCapa = useCallback(
     (id: string, x: number, y: number, fusionar: boolean) => {
       setHistorial((h) =>
         aplicar(
@@ -110,6 +154,9 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           {
             ...h.presente,
             logos: h.presente.logos.map((l) => (l.id === id ? { ...l, x, y } : l)),
+            textos: (h.presente.textos ?? []).map((x2) =>
+              x2.id === id ? { ...x2, x, y } : x2
+            ),
           },
           fusionar
         )
@@ -120,6 +167,42 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
 
   const borrarLogo = (id: string) => {
     editar({ ...diseno, logos: diseno.logos.filter((l) => l.id !== id) })
+    setSeleccionado(null)
+  }
+
+  const textoActivo = (diseno.textos ?? []).find((x) => x.id === seleccionado) ?? null
+
+  const cambiarTexto = (id: string, patch: Partial<CapaTexto>, fusionar = false) =>
+    editar(
+      {
+        ...diseno,
+        textos: (diseno.textos ?? []).map((x) => (x.id === id ? { ...x, ...patch } : x)),
+      },
+      fusionar
+    )
+
+  const anadirTexto = () => {
+    const nuevo: CapaTexto = {
+      id: crypto.randomUUID(),
+      texto: 'TU TEXTO',
+      fuente: 'sans',
+      vista,
+      x: 50,
+      y: 55,
+      tamano: 8,
+      // Negro o blanco segun el fondo, para que se vea desde el primer momento
+      // en vez de aparecer invisible sobre una prenda del mismo color.
+      color: esClaro(cara.color) ? '#0B0B0B' : '#FFFFFF',
+      rotacion: 0,
+      opacidad: 1,
+      z: diseno.logos.length + (diseno.textos ?? []).length,
+    }
+    editar({ ...diseno, textos: [...(diseno.textos ?? []), nuevo] })
+    setSeleccionado(nuevo.id)
+  }
+
+  const borrarTexto = (id: string) => {
+    editar({ ...diseno, textos: (diseno.textos ?? []).filter((x) => x.id !== id) })
     setSeleccionado(null)
   }
 
@@ -276,19 +359,23 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
         <div className={e.barra}>
           <button
             type="button"
-            className={e.botonTenue}
+            className={e.botonIcono}
             onClick={() => setHistorial(deshacer)}
             disabled={!puedeDeshacer(historial)}
+            title="Deshacer"
+            aria-label="Deshacer"
           >
-            Deshacer
+            <FlechaDeshacer />
           </button>
           <button
             type="button"
-            className={e.botonTenue}
+            className={e.botonIcono}
             onClick={() => setHistorial(rehacer)}
             disabled={!puedeRehacer(historial)}
+            title="Rehacer"
+            aria-label="Rehacer"
           >
-            Rehacer
+            <FlechaDeshacer invertida />
           </button>
           <button type="button" className={e.botonTenue} onClick={exportar}>
             Exportar PNG
@@ -383,7 +470,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               vista={vista}
               seleccionado={seleccionado}
               onSeleccionar={setSeleccionado}
-                onMoverLogo={moverLogo}
+                onMoverCapa={moverCapa}
               />
             </>
           ) : (
@@ -699,6 +786,196 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           </div>
 
           {/* ------------------------------------------- Logo seleccionado */}
+          {/* ------------------------------------------------------- Textos */}
+          <div className={e.bloque}>
+            <div className={e.tituloBloque}>Texto</div>
+
+            <button
+              type="button"
+              className={e.archivo}
+              onClick={anadirTexto}
+              style={{ marginBottom: (diseno.textos ?? []).length > 0 ? 14 : 0 }}
+            >
+              {(diseno.textos ?? []).length === 0 ? 'Añadir texto' : 'Añadir otro texto'}
+            </button>
+
+            {(diseno.textos ?? []).length > 0 && (
+              <div className={e.listaCapas}>
+                {[...(diseno.textos ?? [])]
+                  .sort((a, b) => b.z - a.z)
+                  .map((x) => (
+                    <button
+                      key={x.id}
+                      type="button"
+                      className={e.capa}
+                      data-seleccionada={seleccionado === x.id}
+                      onClick={() => {
+                        setSeleccionado(x.id)
+                        setVista(x.vista)
+                      }}
+                    >
+                      <span className={e.nombreCapa}>{x.texto.split('\n')[0]}</span>
+                      <span className={e.vistaCapa}>{ETIQUETA_VISTA[x.vista]}</span>
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* --------------------------------------------- Texto seleccionado */}
+          {textoActivo && (
+            <div className={e.bloque}>
+              <div className={e.tituloBloque}>Editar texto</div>
+
+              <textarea
+                className={e.campoTexto}
+                value={textoActivo.texto}
+                maxLength={200}
+                rows={2}
+                onChange={(ev) => cambiarTexto(textoActivo.id, { texto: ev.target.value }, true)}
+                style={{ width: '100%', marginBottom: 14, resize: 'vertical' }}
+                placeholder="Escribe aquí"
+              />
+              <p
+                style={{
+                  margin: '-8px 0 14px',
+                  font: '300 10.5px/1.6 var(--fuente-sans), sans-serif',
+                  color: 'var(--gris-suave)',
+                }}
+              >
+                Salta de línea para poner varias.
+              </p>
+
+              {/* Cada botón se muestra con SU tipografía: es la única forma de
+                  elegir una sin tener que probarlas todas. */}
+              <span className={e.etiqueta}>Tipografía</span>
+              <div className={e.fuentes}>
+                {FUENTES.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className={e.fuente}
+                    data-activa={textoActivo.fuente === f.id}
+                    onClick={() => cambiarTexto(textoActivo.id, { fuente: f.id })}
+                    title={f.nombre}
+                  >
+                    <span
+                      className={e.fuenteMuestra}
+                      style={{ fontFamily: `var(${f.variable})`, fontWeight: f.peso }}
+                    >
+                      {f.muestra}
+                    </span>
+                    <span className={e.fuenteNombre}>{f.nombre}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Color</span>
+                <input
+                  className={e.color}
+                  type="color"
+                  value={textoActivo.color}
+                  onChange={(ev) =>
+                    cambiarTexto(textoActivo.id, { color: ev.target.value }, true)
+                  }
+                  aria-label="Color del texto"
+                />
+                <span className={e.valor}>{textoActivo.color}</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Tamaño</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={2}
+                  max={30}
+                  step={0.5}
+                  value={textoActivo.tamano}
+                  onChange={(ev) =>
+                    cambiarTexto(textoActivo.id, { tamano: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{textoActivo.tamano.toFixed(0)}%</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Giro</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={-180}
+                  max={180}
+                  value={textoActivo.rotacion}
+                  onChange={(ev) =>
+                    cambiarTexto(textoActivo.id, { rotacion: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{Math.round(textoActivo.rotacion)}°</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Horizontal</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={0.5}
+                  value={textoActivo.x}
+                  onChange={(ev) =>
+                    cambiarTexto(textoActivo.id, { x: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{textoActivo.x.toFixed(0)}%</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Vertical</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={0.5}
+                  value={textoActivo.y}
+                  onChange={(ev) =>
+                    cambiarTexto(textoActivo.id, { y: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{textoActivo.y.toFixed(0)}%</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Cara</span>
+                <select
+                  className={e.campoTexto}
+                  value={textoActivo.vista}
+                  onChange={(ev) => {
+                    const v = ev.target.value as Vista
+                    cambiarTexto(textoActivo.id, { vista: v })
+                    setVista(v)
+                  }}
+                >
+                  {VISTAS.map((v) => (
+                    <option key={v} value={v}>
+                      {ETIQUETA_VISTA[v]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                className={e.botonBorrar}
+                onClick={() => borrarTexto(textoActivo.id)}
+              >
+                Eliminar texto
+              </button>
+            </div>
+          )}
+
           {logoActivo && (
             <div className={e.bloque}>
               <div className={e.tituloBloque}>Ajustar «{logoActivo.nombre}»</div>

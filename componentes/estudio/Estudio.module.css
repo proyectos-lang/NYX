@@ -60,6 +60,10 @@
   max-width: 660px;
   margin: 0 auto;
   overflow: hidden;
+  /* Para poder dimensionar el texto en cqh (1% del alto del contenedor) y que
+     coincida con el % que guarda la capa. Sin esto habria que medir el lienzo
+     en JavaScript y mantenerlo sincronizado al redimensionar. */
+  container-type: size;
   background: var(--negro-4);
   border: 1px solid var(--linea-oro);
 }
@@ -492,4 +496,98 @@
 
 .diagnosticoMal {
   color: #e59a9a;
+}
+
+/* Capa de texto sobre el lienzo del editor. */
+.texto {
+  position: absolute;
+  transform-origin: center;
+  cursor: grab;
+  user-select: none;
+  white-space: pre;
+  line-height: 1.15;
+  text-align: center;
+  border: 1px dashed transparent;
+  padding: 2px 4px;
+}
+
+.texto:hover {
+  border-color: rgba(226, 189, 99, 0.6);
+}
+
+.texto[data-seleccionado='true'] {
+  border-color: var(--oro-claro);
+  border-style: solid;
+}
+
+.texto[data-arrastrando='true'] {
+  cursor: grabbing;
+}
+
+/* Selector de tipografia: cada boton se muestra con SU familia, que es la
+   unica forma de elegir una sin probarlas todas. */
+.fuentes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.fuente {
+  min-width: 52px;
+  padding: 8px 10px;
+  background: var(--negro-4);
+  border: 1px solid var(--linea);
+  color: var(--blanco);
+  cursor: pointer;
+  transition: 0.2s ease;
+  line-height: 1.1;
+}
+
+.fuente:hover {
+  border-color: var(--oro-claro);
+}
+
+.fuente[data-activa='true'] {
+  border-color: var(--oro);
+  background: rgba(201, 154, 46, 0.12);
+}
+
+.fuenteMuestra {
+  display: block;
+  font-size: 19px;
+}
+
+.fuenteNombre {
+  display: block;
+  margin-top: 4px;
+  font: 400 9px/1.2 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+}
+
+/* Boton solo de icono, para deshacer y rehacer. Cuadrado y del mismo alto que
+   los demas botones de la barra. */
+.botonIcono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 38px;
+  color: var(--gris-texto);
+  background: none;
+  border: 1px solid var(--linea);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.botonIcono:hover:not(:disabled) {
+  color: var(--blanco);
+  border-color: var(--blanco);
+}
+
+.botonIcono:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }

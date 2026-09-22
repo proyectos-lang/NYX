@@ -67,6 +67,40 @@ comprobar('una opacidad negativa se acota a 0', corrupto.logos[0].opacidad === 0
 const sinUrl = normalizarDiseno({ caras: { frontal: { textura: { nombre: 'X' } } } })
 comprobar('una textura sin url se descarta', sinUrl.caras.frontal.textura === null)
 
+console.log('\nCapas de texto')
+
+// El caso que de verdad preocupa: un diseno guardado ANTES de que existieran
+// los textos no trae la lista. Sin respaldo, el editor reventaria al
+// recorrerla y el cliente perderia un trabajo que si habia guardado.
+const sinTextos = normalizarDiseno({ caras: { frontal: { color: '#fff' } }, logos: [] })
+comprobar('un diseno antiguo recibe la lista de textos', Array.isArray(sinTextos.textos))
+comprobar('y llega vacia, no indefinida', sinTextos.textos.length === 0)
+
+const conTexto = normalizarDiseno({
+  textos: [
+    { texto: 'NYX', fuente: 'impacto', x: 30, y: 40, tamano: 12, color: '#fff' },
+    { texto: '   ' }, // solo espacios: no es un texto
+    { fuente: 'sans' }, // sin contenido
+    { texto: 'Fuera de rango', x: -50, y: 900, tamano: 999, opacidad: 4 },
+  ],
+})
+
+comprobar('se descartan los textos vacios', conTexto.textos.length === 2)
+comprobar('se conserva el contenido', conTexto.textos[0].texto === 'NYX')
+comprobar('se conserva la tipografia', conTexto.textos[0].fuente === 'impacto')
+comprobar('cada texto recibe un id', Boolean(conTexto.textos[0].id))
+comprobar(
+  'las coordenadas se acotan a 0..100',
+  conTexto.textos[1].x === 0 && conTexto.textos[1].y === 100
+)
+comprobar('el tamano se acota', conTexto.textos[1].tamano <= 60)
+comprobar('la opacidad se acota a 1', conTexto.textos[1].opacidad === 1)
+comprobar('un texto sin fuente cae en la de por defecto', conTexto.textos[1].fuente === 'sans')
+
+// Un texto larguisimo no debe poder inflar el documento guardado.
+const textoLargo = normalizarDiseno({ textos: [{ texto: 'a'.repeat(5000) }] })
+comprobar('el contenido se recorta', textoLargo.textos[0].texto.length === 200)
+
 console.log('\nHistorial')
 
 const a = disenoVacio()

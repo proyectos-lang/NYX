@@ -63,3 +63,39 @@ export const POSICIONES: PosicionLogo[] = [
   { id: 'manga-izq', nombre: 'Manga izquierda', x: 11, y: 36, ancho: 11 },
   { id: 'manga-der', nombre: 'Manga derecha', x: 89, y: 36, ancho: 11 },
 ]
+
+export interface FuentePredefinida {
+  id: string
+  nombre: string
+  /**
+   * Variable CSS donde vive la familia real.
+   *
+   * No se guarda el nombre de la familia porque next/font genera nombres
+   * ofuscados distintos en cada compilacion (`__Bebas_Neue_a1b2c3`). El
+   * compositor la resuelve en tiempo de pintado leyendo la variable, que es
+   * estable.
+   */
+  variable: string
+  peso: number
+  /** Como se ve en el selector, sin tener que aplicarla. */
+  muestra: string
+}
+
+/**
+ * Familias disponibles para los textos de la prenda.
+ *
+ * Cinco y muy distintas entre si: la utilidad aqui no es tener muchas, es que
+ * de un vistazo se vea cual encaja. Las dos primeras ya las usa el sitio; las
+ * otras tres se cargan solo en el estudio.
+ */
+export const FUENTES: FuentePredefinida[] = [
+  { id: 'sans', nombre: 'Moderna', variable: '--fuente-sans', peso: 700, muestra: 'Aa' },
+  { id: 'serif', nombre: 'Elegante', variable: '--fuente-serif', peso: 600, muestra: 'Aa' },
+  { id: 'condensada', nombre: 'Condensada', variable: '--fuente-bebas', peso: 400, muestra: 'Aa' },
+  { id: 'manuscrita', nombre: 'Manuscrita', variable: '--fuente-pacifico', peso: 400, muestra: 'Aa' },
+  { id: 'impacto', nombre: 'Impacto', variable: '--fuente-archivo', peso: 400, muestra: 'Aa' },
+]
+
+export function buscarFuente(id: string): FuentePredefinida {
+  return FUENTES.find((f) => f.id === id) ?? FUENTES[0]
+}

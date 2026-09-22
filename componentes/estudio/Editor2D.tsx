@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { componerCara, precargarDiseno } from '@/lib/estudio/compositor'
 import type { DisenoEstudio, Vista } from '@/lib/estudio/tipos'
+import { buscarFuente } from '@/lib/estudio/preajustes'
 import e from './Estudio.module.css'
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
   seleccionado: string | null
   onSeleccionar: (id: string | null) => void
   /** `fusionar` en true mientras dura un arrastre; false al soltar. */
-  onMoverLogo: (id: string, x: number, y: number, fusionar: boolean) => void
+  onMoverCapa: (id: string, x: number, y: number, fusionar: boolean) => void
 }
 
 /**
@@ -29,7 +30,7 @@ export default function Editor2D({
   vista,
   seleccionado,
   onSeleccionar,
-  onMoverLogo,
+  onMoverCapa,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const contenedorRef = useRef<HTMLDivElement>(null)
@@ -42,8 +43,9 @@ export default function Editor2D({
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // Se pinta solo el fondo: los logos son DOM y ya se ven encima.
-    componerCara(canvas, { ...diseno, logos: [] }, vista)
+    // Se pinta SOLO el fondo. Logos y textos son elementos del DOM encima del
+    // lienzo, así que pintarlos aquí también los duplicaría.
+    componerCara(canvas, { ...diseno, logos: [], textos: [] }, vista)
   }, [diseno, vista])
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function Editor2D({
       const y = Math.max(0, Math.min(100, ((ev.clientY - caja.top) / caja.height) * 100))
 
       // fusionar: el movimiento no apila un estado nuevo en cada píxel.
-      onMoverLogo(arrastrando, x, y, true)
+      onMoverCapa(arrastrando, x, y, true)
     }
 
     const soltar = () => setArrastrando(null)
@@ -89,11 +91,13 @@ export default function Editor2D({
       window.removeEventListener('pointerup', soltar)
       window.removeEventListener('pointercancel', soltar)
     }
-  }, [arrastrando, onMoverLogo])
+  }, [arrastrando, onMoverCapa])
 
   const logos = diseno.logos
     .filter((l) => l.vista === vista)
     .sort((a, b) => a.z - b.z)
+
+  const textos = (diseno.textos ?? []).filter((x) => x.vista === vista)
 
   return (
     <div className={e.lienzo} ref={contenedorRef}>
@@ -101,7 +105,7 @@ export default function Editor2D({
 
       {/* Estado vacío: un lienzo con solo un color no dice qué se espera de ti.
           Desaparece en cuanto hay un logo en esta cara. */}
-      {logos.length === 0 && (
+      {logos.length === 0 && textos.length === 0 && (
         <div className={e.lienzoVacio}>
           Sube un logotipo desde el panel de la derecha
           <br />y arrástralo hasta donde lo quieras.
@@ -142,6 +146,41 @@ export default function Editor2D({
             <img src={logo.url} alt={logo.nombre} draggable={false} />
           </div>
         ))}
+
+        {textos.map((capa) => {
+          const fuente = buscarFuente(capa.fuente)
+
+          return (
+            <div
+              key={capa.id}
+              className={e.texto}
+              data-seleccionado={seleccionado === capa.id}
+              data-arrastrando={arrastrando === capa.id}
+              style={{
+                left: `${capa.x}%`,
+                top: `${capa.y}%`,
+                // cqh es 1% del alto del contenedor, que es exactamente la
+                // unidad en la que la capa guarda su tamano. Asi el texto de
+                // pantalla y el del lienzo 3D miden lo mismo sin medir nada
+                // en JavaScript.
+                fontSize: `${capa.tamano}cqh`,
+                fontFamily: `var(${fuente.variable})`,
+                fontWeight: fuente.peso,
+                color: capa.color,
+                opacity: capa.opacidad,
+                zIndex: capa.z + 1,
+                transform: `translate(-50%, -50%) rotate(${capa.rotacion}deg)`,
+              }}
+              onPointerDown={(ev) => {
+                ev.preventDefault()
+                onSeleccionar(capa.id)
+                setArrastrando(capa.id)
+              }}
+            >
+              {capa.texto}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

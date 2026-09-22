@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { obtenerModelos3D } from '@/lib/estudio/servidor'
 import Estudio from '@/componentes/estudio/Estudio'
 import { cargarDiseno } from './acciones'
+import { CLASES_FUENTES } from './fuentes'
 
 // El estudio es interactivo de principio a fin: no tiene sentido prerenderizarlo.
 export const dynamic = 'force-dynamic'
@@ -25,12 +26,17 @@ export default async function PaginaEstudio({
   const diseno = token ? await cargarDiseno(token) : null
 
   return (
-    <Estudio
-      modelos={modelos}
-      disenoInicial={diseno ?? undefined}
-      // Si el token no resolvio a nada (borrado, o mal copiado), se empieza en
-      // blanco en vez de arrastrar un token muerto que luego no actualizaria.
-      tokenInicial={diseno ? token : undefined}
-    />
+    // Las variables de fuente cuelgan de aqui y no del <html>: solo hacen falta
+    // en esta pagina.
+    <div className={CLASES_FUENTES}>
+      <Estudio
+        modelos={modelos}
+        disenoInicial={diseno ?? undefined}
+        // Si el token no resolvio a nada (borrado, o mal copiado), se empieza
+        // en blanco en vez de arrastrar un token muerto que luego no
+        // actualizaria.
+        tokenInicial={diseno ? token : undefined}
+      />
+    </div>
   )
 }

@@ -39,6 +39,27 @@ export interface CapaLogo {
   z: number
 }
 
+export interface CapaTexto {
+  id: string
+  texto: string
+  /** Id de la familia, de FUENTES en preajustes.ts. */
+  fuente: string
+  vista: Vista
+  /** Centro, % del ancho y del alto. */
+  x: number
+  y: number
+  /** Altura de la letra en % del alto del lienzo. Asi el texto escala con la
+   *  textura y no depende de la resolucion a la que se componga. */
+  tamano: number
+  color: string
+  /** Grados. */
+  rotacion: number
+  /** 0–1. */
+  opacidad: number
+  /** Orden de apilado; comparte escala con los logos. */
+  z: number
+}
+
 export interface CapaTextura {
   url: string
   nombre: string
@@ -61,6 +82,12 @@ export interface DisenoEstudio {
   caras: Record<Vista, CaraDiseno>
   /** De ambas caras; se filtran por `vista` al pintar. */
   logos: CapaLogo[]
+  /**
+   * Los textos van en su propia lista y no dentro de logos porque se pintan
+   * distinto: un logo es una imagen con proporcion fija, un texto se compone
+   * con una fuente que ademas hay que esperar a que cargue.
+   */
+  textos: CapaTexto[]
 }
 
 /**
@@ -102,6 +129,7 @@ export function disenoVacio(modeloId: string | null = null): DisenoEstudio {
     modeloId,
     caras: { frontal: caraVacia(), trasera: caraVacia() },
     logos: [],
+    textos: [],
   }
 }
 
@@ -155,6 +183,31 @@ function normalizarLogo(crudo: unknown, indice: number): CapaLogo | null {
   }
 }
 
+function normalizarTexto(crudo: unknown, indice: number): CapaTexto | null {
+  if (!crudo || typeof crudo !== 'object') return null
+  const c = crudo as Record<string, unknown>
+
+  // Se recorta ANTES de decidir si está vacío: un texto de solo espacios
+  // crearía una capa invisible que el cliente no puede ver ni seleccionar, y
+  // que solo descubriría al no poder borrarla.
+  const contenido = texto(c.texto).trim().slice(0, 200)
+  if (!contenido) return null
+
+  return {
+    id: texto(c.id) || `texto-${indice}-${Math.random().toString(36).slice(2, 8)}`,
+    texto: contenido,
+    fuente: texto(c.fuente, 'sans') || 'sans',
+    vista: c.vista === 'trasera' ? 'trasera' : 'frontal',
+    x: acotar(numero(c.x, 50), 0, 100),
+    y: acotar(numero(c.y, 50), 0, 100),
+    tamano: acotar(numero(c.tamano, 8), 1, 60),
+    color: texto(c.color, '#0B0B0B') || '#0B0B0B',
+    rotacion: numero(c.rotacion, 0),
+    opacidad: acotar(numero(c.opacidad, 1), 0, 1),
+    z: numero(c.z, indice),
+  }
+}
+
 /**
  * Rellena lo que falte al leer un diseño de la base de datos.
  *
@@ -183,11 +236,20 @@ export function normalizarDiseno(crudo: unknown): DisenoEstudio {
         .filter((l): l is CapaLogo => l !== null)
     : []
 
+  // Los disenos guardados antes de que existieran los textos no traen la
+  // lista: sin este respaldo, el editor reventaria al recorrerla.
+  const textos = Array.isArray(d.textos)
+    ? d.textos
+        .map((x, i) => normalizarTexto(x, i))
+        .filter((x): x is CapaTexto => x !== null)
+    : []
+
   return {
     version: 1,
     modeloId: typeof d.modeloId === 'string' ? d.modeloId : null,
     caras,
     logos,
+    textos,
   }
 }
 
