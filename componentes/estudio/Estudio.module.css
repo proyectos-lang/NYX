@@ -591,3 +591,54 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+/* ---------------------------------------------------------------------------
+   El lienzo se queda a la vista mientras se editan los controles.
+
+   Sin esto, al bajar a ajustar el texto la prenda se salia de pantalla y habia
+   que subir despues de cada cambio para ver el resultado: editar a ciegas y
+   comprobar a posteriori, que es justo lo contrario de un editor visual.
+   --------------------------------------------------------------------------- */
+
+.columnaLienzo {
+  position: sticky;
+  /* Pegado arriba del todo en movil, donde cada pixel cuenta. */
+  top: 0;
+  z-index: 5;
+  /* Fondo propio: al desplazarse, los controles pasan por debajo. */
+  background: var(--negro-2);
+  padding-bottom: 12px;
+}
+
+/* En pantalla estrecha el lienzo se encoge para que quepan tambien los
+   controles: un cuadrado a ancho completo ocuparia la pantalla entera y el
+   problema seguiria igual. */
+@media (max-width: 1099px) {
+  .lienzo {
+    max-width: min(100%, 46vh);
+  }
+}
+
+@media (min-width: 1100px) {
+  .columnaLienzo {
+    /* Un respiro por arriba: en escritorio no hay barra que esquivar. */
+    top: 18px;
+    padding-bottom: 0;
+  }
+}
+
+/* Muestras rapidas de color para el texto. El selector del sistema sigue ahi
+   para cualquier tono, pero elegir entre negro, blanco y los de la marca es lo
+   que se hace el 90% de las veces. */
+.muestraTexto {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+}
+
+.muestraTexto[data-activa='true'] {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 2px;
+}

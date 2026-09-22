@@ -41,6 +41,18 @@ const PALETA = [
   '#F2C9D4', '#CFE1F2', '#E9C877', '#2438C9',
 ]
 
+/**
+ * Colores de tinta habituales.
+ *
+ * Casi todo el texto de una prenda es blanco, negro o un tono de marca; el
+ * selector del sistema sigue estando para cualquier otro, pero abrirlo para
+ * poner negro es un paso de más.
+ */
+const TINTAS = [
+  '#FFFFFF', '#0B0B0B', '#C99A2E', '#E2BD63',
+  '#8C2F2F', '#3A5A8C', '#1F3D2E', '#C9C9C9',
+]
+
 /** Donde el navegador recuerda el diseño entre visitas. */
 const CLAVE_TOKEN = 'nyx-diseno'
 
@@ -415,7 +427,10 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
       )}
 
       <div className={e.cuerpo}>
-        <div>
+        {/* Esta columna queda fija al desplazar: si el lienzo se va de
+            pantalla, se edita a ciegas y hay que subir después de cada cambio
+            para ver el resultado. */}
+        <div className={e.columnaLienzo}>
           <div className={e.pestanas}>
             <button
               type="button"
@@ -882,6 +897,20 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   aria-label="Color del texto"
                 />
                 <span className={e.valor}>{textoActivo.color}</span>
+              </div>
+
+              <div className={e.paleta} style={{ marginBottom: 14 }}>
+                {TINTAS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={e.muestraTexto}
+                    style={{ background: c }}
+                    data-activa={textoActivo.color.toUpperCase() === c}
+                    onClick={() => cambiarTexto(textoActivo.id, { color: c })}
+                    aria-label={`Color de texto ${c}`}
+                  />
+                ))}
               </div>
 
               <div className={e.fila}>
