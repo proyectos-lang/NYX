@@ -15,7 +15,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, OrbitControls, useGLTF } from '@react-three/drei'
 
 import { componerAtlas, disenoListo, precargarDiseno, LADO_TEXTURA } from '@/lib/estudio/compositor'
-import { aplicarMapeo } from '@/lib/estudio/mapeo'
+import { aplicarMapeo, esMalla } from '@/lib/estudio/mapeo'
 import type { DisenoEstudio, Modelo3D, PropsVisor } from '@/lib/estudio/tipos'
 
 // ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
     const copia = scene.clone(true)
 
     copia.traverse((obj) => {
-      if (obj instanceof THREE.Mesh) obj.geometry = obj.geometry.clone()
+      if (esMalla(obj)) obj.geometry = obj.geometry.clone()
     })
 
     return copia
@@ -126,8 +126,10 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
       return nuevo
     }
 
+    let pintadas = 0
+
     clon.traverse((obj) => {
-      if (!(obj instanceof THREE.Mesh)) return
+      if (!esMalla(obj)) return
 
       // CONSERVA LA FORMA del material. three solo interpreta un array cuando
       // la geometría tiene grupos; envolver un material único en un array de
@@ -135,7 +137,22 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
       obj.material = Array.isArray(obj.material)
         ? obj.material.map(pintar)
         : pintar(obj.material)
+
+      pintadas++
     })
+
+    // Sin esto, el fallo es mudo: la prenda sale blanca y no hay nada en
+    // consola que lo explique. Que pase significa que el recorrido no reconoce
+    // las mallas del .glb, o que todos sus materiales estan excluidos.
+    if (pintadas === 0) {
+      console.error(
+        '[nyx] el visor no pinto ninguna malla del modelo. ' +
+          'La prenda se vera con su material original, sin el diseno. ' +
+          'Revisa que el .glb tenga mallas y que no esten todas en materiales excluidos.'
+      )
+    } else {
+      console.info(`[nyx] visor: ${pintadas} malla(s) con la textura del diseno aplicada`)
+    }
   }, [clon, textura, modelo.materialesExcluidos])
 
   // Escala y centro vienen medidos al subir el modelo; medir aquí en cada carga

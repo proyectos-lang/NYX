@@ -23,6 +23,23 @@ import * as THREE from 'three'
 import type { Mapeo } from './tipos'
 
 /**
+ * ¿Es una malla?
+ *
+ * Se mira la marca `isMesh` y NO `instanceof THREE.Mesh`, que es como lo hace
+ * el propio three internamente y por el mismo motivo: `instanceof` falla si en
+ * el paquete acaban dos copias de three. Aquí es un riesgo real, porque el
+ * visor la importa de forma estática y el analizador del panel de forma
+ * dinámica, así que pueden caer en chunks distintos.
+ *
+ * Cuando falla, falla en silencio y de la peor manera: el recorrido no
+ * encuentra ninguna malla, no se sustituye ningún material y la prenda sale
+ * blanca sin que nada dé error.
+ */
+export function esMalla(obj: THREE.Object3D): obj is THREE.Mesh {
+  return (obj as THREE.Mesh).isMesh === true
+}
+
+/**
  * Regenera las UVs con una proyección planar frontal.
  *
  * Con `mapeo === 'original'` no toca nada: hay modelos bien desplegados a los
@@ -50,7 +67,7 @@ export function aplicarMapeo(raiz: THREE.Object3D, mapeo: Mapeo): void {
   const mallas: { geo: THREE.BufferGeometry; aLocal: THREE.Matrix4 }[] = []
 
   raiz.traverse((obj) => {
-    if (!(obj instanceof THREE.Mesh)) return
+    if (!esMalla(obj)) return
     const geo = obj.geometry as THREE.BufferGeometry
     if (!geo.attributes.position) return
 
@@ -186,7 +203,7 @@ export function analizarUV(raiz: THREE.Object3D): AnalisisUV {
   let vMax = -Infinity
 
   raiz.traverse((obj) => {
-    if (!(obj instanceof THREE.Mesh)) return
+    if (!esMalla(obj)) return
 
     const geo = obj.geometry as THREE.BufferGeometry
     const uv = geo.attributes.uv

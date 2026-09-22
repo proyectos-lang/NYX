@@ -65,7 +65,7 @@ export default function SubirModelo() {
     setEstado('analizando')
 
     try {
-      const [THREE, { GLTFLoader }, { analizarUV, medirModelo }] = await Promise.all([
+      const [THREE, { GLTFLoader }, { analizarUV, medirModelo, esMalla }] = await Promise.all([
         import('three'),
         import('three/examples/jsm/loaders/GLTFLoader.js'),
         import('@/lib/estudio/mapeo'),
@@ -84,7 +84,7 @@ export default function SubirModelo() {
       const materiales = new Set<string>()
 
       escena.traverse((obj) => {
-        if (!(obj instanceof THREE.Mesh)) return
+        if (!esMalla(obj)) return
         vertices += obj.geometry.attributes.position?.count ?? 0
         indices += obj.geometry.getIndex()?.count ?? obj.geometry.attributes.position?.count ?? 0
         for (const m of Array.isArray(obj.material) ? obj.material : [obj.material]) {
