@@ -375,7 +375,7 @@ export async function eliminarPregunta(datos: FormData): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function guardarBloque(datos: FormData): Promise<void> {
-  const base = '/panel/contenido'
+  const base = volverA(datos, '/panel/inicio')
 
   // Los campos llegan como campo_<id>_es y campo_<id>_en: así un bloque entero
   // se guarda de una vez, que es como lo edita la persona.
@@ -407,6 +407,88 @@ export async function guardarBloque(datos: FormData): Promise<void> {
     destino = conAviso(base, 'Contenido publicado')
   } catch (error) {
     destino = conError(base, error, 'no se pudo guardar el bloque de contenido')
+  }
+
+  redirect(destino)
+}
+
+/**
+ * Reemplaza la imagen de un hueco del sitio.
+ *
+ * La URL ya viene subida al bucket por SubirImagen.tsx: aquí solo llega texto.
+ *
+ * Es un `upsert` por (bloque_id, clave) y no un `update` porque un hueco puede
+ * no existir todavía: si alguien añade una sección nueva a la web, su imagen se
+ * crea la primera vez que se sube una, sin tener que tocar la base a mano.
+ */
+export async function guardarMedia(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/inicio')
+
+  const bloqueId = texto(datos, 'bloque_id')
+  const clave = texto(datos, 'clave')
+  const url = texto(datos, 'url')
+  const tipo = texto(datos, 'tipo') === 'video' ? 'video' : 'imagen'
+  const alt = texto(datos, 'alt')
+
+  if (!bloqueId || !clave || !url) {
+    redirect(conAviso(base, 'No se recibió ninguna imagen'))
+  }
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { error } = await supabase
+      .from('contenido_media')
+      .upsert(
+        { bloque_id: bloqueId, clave, url, tipo, alt: alt || null },
+        { onConflict: 'bloque_id,clave' }
+      )
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Imagen actualizada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo guardar la imagen del sitio')
+  }
+
+  redirect(destino)
+}
+
+/**
+ * Cambia la foto de portada de una categoría.
+ *
+ * Va aparte de `guardarCategoria` porque la subida ocurre en el navegador y
+ * necesita su propio formulario, y un formulario no puede anidarse dentro de
+ * otro. Quien edita solo ve dos botones distintos, que es lo razonable: cambiar
+ * la foto y cambiar el nombre son dos gestos separados.
+ */
+export async function guardarFotoCategoria(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/categorias')
+
+  const id = texto(datos, 'id')
+  const url = texto(datos, 'url')
+
+  if (!id || !url) redirect(conAviso(base, 'No se recibió ninguna imagen'))
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { error } = await supabase
+      .from('categorias')
+      .update({ imagen_portada: url })
+      .eq('id', id)
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto de la categoría actualizada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo guardar la foto de la categoría')
   }
 
   redirect(destino)

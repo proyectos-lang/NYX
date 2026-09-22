@@ -355,7 +355,8 @@ export interface BloquePanel {
     valorEn: string | null
     multilinea: boolean
   }[]
-  media: { id: string; url: string; tipo: string }[]
+  /** `clave` identifica el hueco del sitio: 'hero-1', 'nosotros-foto'… */
+  media: { id: string; clave: string | null; url: string; tipo: string; alt: string | null }[]
 }
 
 export async function obtenerBloquesPanel(): Promise<BloquePanel[]> {
@@ -367,7 +368,7 @@ export async function obtenerBloquesPanel(): Promise<BloquePanel[]> {
     .select(
       `id, clave, seccion, titulo, nota, bloqueado, orden,
        contenido_campos ( id, clave, etiqueta, valor_es, valor_en, multilinea, orden ),
-       contenido_media ( id, url, tipo, orden )`
+       contenido_media ( id, clave, url, tipo, alt, orden )`
     )
     .order('orden')
 
@@ -395,8 +396,10 @@ export async function obtenerBloquesPanel(): Promise<BloquePanel[]> {
       .sort((x: any, y: any) => x.orden - y.orden)
       .map((m: any) => ({
         id: m.id,
+        clave: m.clave ?? null,
         url: m.url.startsWith('/') || m.url.startsWith('http') ? m.url : `/${m.url}`,
         tipo: m.tipo,
+        alt: m.alt ?? null,
       })),
   }))
   /* eslint-enable @typescript-eslint/no-explicit-any */

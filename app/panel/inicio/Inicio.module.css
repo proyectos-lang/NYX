@@ -1,0 +1,79 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Las secciones que se editan en otra pantalla, o que son parte del diseño,
+   van más apagadas: se ven para no romper el recorrido, pero no compiten con
+   las que sí se tocan aquí. */
+.tarjetaTenue {
+  background: #fafafa;
+}
+
+.cabeceraSeccion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* El número es la posición en la web, contando desde arriba. Es lo que permite
+   decir "la tercera sección" y que signifique lo mismo en el panel y en la
+   pantalla del cliente. */
+.posicion {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--negro);
+  color: var(--blanco);
+  font: 500 11px/1 var(--fuente-sans), sans-serif;
+}
+
+.nombreSeccion {
+  margin: 0;
+  font: 400 18px/1.25 var(--fuente-serif), Georgia, serif;
+  color: var(--negro);
+}
+
+.explicacion {
+  margin: 0 0 14px;
+  font: 300 12px/1.65 var(--fuente-sans), sans-serif;
+  color: #6f6f6f;
+  max-width: 62ch;
+}
+
+.explicacion:last-child {
+  margin-bottom: 0;
+}
+
+.nota {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  font: 300 11px/1.6 var(--fuente-sans), sans-serif;
+  color: #8a8a8a;
+}
+
+/* Plegable del inglés. */
+.ingles {
+  margin-top: 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 14px;
+}
+
+.ingles summary {
+  cursor: pointer;
+  font: 600 9.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+.ingles summary:hover {
+  color: var(--negro);
+}

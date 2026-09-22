@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { obtenerCategoriasPanel } from '@/lib/panel'
-import { eliminarCategoria, guardarCategoria } from '../acciones'
+import { eliminarCategoria, guardarCategoria, guardarFotoCategoria } from '../acciones'
+import SubirImagen from '@/componentes/panel/SubirImagen'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
 import c from '../catalogo/Catalogo.module.css'
@@ -22,7 +23,33 @@ function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
   const prefijo = categoria?.id ?? 'nueva'
 
   return (
-    <form action={guardarCategoria}>
+    <>
+      {categoria ? (
+        <div style={{ marginBottom: 20 }}>
+          <div className={e.etiqueta} style={{ marginBottom: 10 }}>
+            Foto de portada
+          </div>
+          <SubirImagen
+            bucket="productos"
+            accion={guardarFotoCategoria}
+            campos={{ volver: '/panel/categorias', id: categoria.id }}
+            urlActual={categoria.imagen}
+            etiqueta={`Se ve en la portada y en el catálogo`}
+          />
+        </div>
+      ) : (
+        <p
+          style={{
+            margin: '0 0 18px',
+            font: '300 11.5px/1.6 var(--fuente-sans), sans-serif',
+            color: '#8a8a8a',
+          }}
+        >
+          Crea primero la categoría; después podrás subirle la foto.
+        </p>
+      )}
+
+      <form action={guardarCategoria}>
       {categoria && <input type="hidden" name="id" value={categoria.id} />}
 
       <div className={e.rejillaCampos}>
@@ -84,29 +111,11 @@ function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
           </select>
         </div>
 
-        <div className={e.completo}>
-          <label className={e.etiqueta} htmlFor={`imagen-${prefijo}`}>
-            Foto de portada
-          </label>
-          <input
-            className={e.campo}
-            id={`imagen-${prefijo}`}
-            name="imagen"
-            maxLength={400}
-            defaultValue={categoria?.imagen ?? ''}
-            placeholder="assets/bottle-create.jpeg o URL del bucket 'productos'"
-          />
-          <p
-            style={{
-              marginTop: 8,
-              font: '300 11px/1.6 var(--fuente-sans), sans-serif',
-              color: '#8a8a8a',
-            }}
-          >
-            Ruta dentro de <code>public/</code> o URL pública del bucket. La subida de
-            imágenes desde el panel todavía no está implementada.
-          </p>
-        </div>
+        {/* La foto se cambia con el botón de arriba, que tiene su propio
+            formulario. Viaja aquí oculta para que guardar el nombre no la
+            borre: `guardarCategoria` escribe todos los campos a la vez, y un
+            campo ausente llegaría vacío. */}
+        <input type="hidden" name="imagen" defaultValue={categoria?.imagen ?? ''} />
       </div>
 
       <div className={e.acciones}>
@@ -114,7 +123,8 @@ function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
           {categoria ? 'Guardar cambios' : 'Crear categoría'}
         </button>
       </div>
-    </form>
+      </form>
+    </>
   )
 }
 
