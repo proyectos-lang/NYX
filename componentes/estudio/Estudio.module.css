@@ -208,6 +208,15 @@
   margin-bottom: 16px;
 }
 
+/* Aclaracion bajo el titulo de un bloque. La usa el color de la prenda para
+   decir que es uno solo: los clientes daban por hecho que podian poner un
+   color delante y otro detras, y solo lo descubrian al cotizar. */
+.notaBloque {
+  margin: -10px 0 14px;
+  font: 400 11px/1.45 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}
+
 .fila {
   display: flex;
   align-items: center;

@@ -355,8 +355,8 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           </span>
           <h1 className={e.titulo}>Diseña tu prenda</h1>
           <p className={e.pista}>
-            Elige el color, añade una textura y coloca tu logotipo. Gíralo en 3D para verlo
-            antes de pedirlo.
+            Elige el color de la prenda, coloca tu logotipo y añade texto. Gíralo en 3D
+            para verlo antes de pedirlo.
           </p>
         </div>
 
@@ -443,6 +443,19 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
 
             <span style={{ flex: 1 }} />
 
+            {/* Se rotulan porque sin la palabra "cara" estos dos botones se
+                confunden con elegir un color por delante y otro por detras.
+                Lo que cambian es el lado sobre el que se colocan los logos. */}
+            <span
+              style={{
+                font: '400 11px/1 var(--fuente-sans), sans-serif',
+                color: 'var(--gris-suave)',
+                marginRight: 2,
+              }}
+            >
+              Cara
+            </span>
+
             {VISTAS.map((v) => (
               <button
                 key={v}
@@ -462,7 +475,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   arrastrar desde el principio, pero nada lo decia. */}
               <div className={e.guia}>
                 <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>1</span> Elige color o textura a la derecha
+                  <span className={e.guiaNumero}>1</span> Elige el color de la prenda a la derecha
                 </span>
                 <span className={e.guiaPaso}>
                   <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
@@ -571,6 +584,10 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           {/* ---------------------------------------------------- Prenda */}
           <div className={e.bloque}>
             <div className={e.tituloBloque}>Color de la prenda</div>
+            <p className={e.notaBloque}>
+              El color es el mismo por delante y por detrás: la prenda se compra ya
+              hecha y encima se estampa.
+            </p>
 
             {modelos.length > 1 && (
               <div className={e.fila}>

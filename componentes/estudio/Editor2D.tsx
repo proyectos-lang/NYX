@@ -18,7 +18,7 @@ interface Props {
 /**
  * Editor 2D.
  *
- * El fondo (color + textura) se pinta en un `<canvas>` con el mismo compositor
+ * El fondo (el color de la prenda) se pinta en un `<canvas>` con el mismo compositor
  * que alimenta al visor 3D, para que ambos muestren exactamente lo mismo.
  *
  * Los logos, en cambio, van ENCIMA como elementos del DOM. Así se pueden
