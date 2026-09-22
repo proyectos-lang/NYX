@@ -55,9 +55,60 @@
   position: relative;
   aspect-ratio: 1;
   width: 100%;
+  /* Tope de tamaño: el editor necesita sitio para arrastrar con precisión,
+     pero un cuadrado de mil pixeles no ayuda a nadie. */
+  max-width: 660px;
+  margin: 0 auto;
   overflow: hidden;
   background: var(--negro-4);
   border: 1px solid var(--linea-oro);
+}
+
+/* El 3D se queda más pequeño: ahí no se edita nada, solo se comprueba. */
+.lienzoCompacto {
+  max-width: 480px;
+}
+
+/* Guía de uso sobre el lienzo del editor. La colocación de los logos se hacía
+   arrastrando desde el principio, pero nada lo decía. */
+.guia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  max-width: 660px;
+  margin: 0 auto 12px;
+  padding: 11px 14px;
+  background: var(--negro-3);
+  border: 1px solid var(--linea-tenue);
+}
+
+.guiaPaso {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font: 300 11.5px/1.5 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+}
+
+.guiaNumero {
+  flex: none;
+  font: 400 11px/1 var(--fuente-serif), Georgia, serif;
+  color: var(--oro);
+}
+
+/* Estado vacío dentro del lienzo, cuando todavía no hay ningún logo. */
+.lienzoVacio {
+  position: absolute;
+  inset: 12%;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  font: 300 12.5px/1.8 var(--fuente-sans), sans-serif;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
 }
 
 .lienzo canvas {

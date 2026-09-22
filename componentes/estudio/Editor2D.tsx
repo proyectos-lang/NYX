@@ -99,6 +99,15 @@ export default function Editor2D({
     <div className={e.lienzo} ref={contenedorRef}>
       <canvas ref={canvasRef} />
 
+      {/* Estado vacío: un lienzo con solo un color no dice qué se espera de ti.
+          Desaparece en cuanto hay un logo en esta cara. */}
+      {logos.length === 0 && (
+        <div className={e.lienzoVacio}>
+          Sube un logotipo desde el panel de la derecha
+          <br />y arrástralo hasta donde lo quieras.
+        </div>
+      )}
+
       <div
         className={e.zonaLogos}
         onPointerDown={(ev) => {

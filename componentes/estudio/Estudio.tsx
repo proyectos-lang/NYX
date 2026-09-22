@@ -363,15 +363,31 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           </div>
 
           {pestana === '2d' ? (
-            <Editor2D
+            <>
+              {/* La guia esta porque el editor no se explicaba solo: se podia
+                  arrastrar desde el principio, pero nada lo decia. */}
+              <div className={e.guia}>
+                <span className={e.guiaPaso}>
+                  <span className={e.guiaNumero}>1</span> Elige color o textura a la derecha
+                </span>
+                <span className={e.guiaPaso}>
+                  <span className={e.guiaNumero}>2</span> Sube tu logotipo
+                </span>
+                <span className={e.guiaPaso}>
+                  <span className={e.guiaNumero}>3</span> Arrástralo sobre la prenda
+                </span>
+              </div>
+
+              <Editor2D
               diseno={diseno}
               vista={vista}
               seleccionado={seleccionado}
               onSeleccionar={setSeleccionado}
-              onMoverLogo={moverLogo}
-            />
+                onMoverLogo={moverLogo}
+              />
+            </>
           ) : (
-            <div className={e.lienzo}>
+            <div className={`${e.lienzo} ${e.lienzoCompacto}`}>
               {modelo ? (
                 <Visor
                   modelo={modelo}
@@ -645,7 +661,11 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               disabled={subiendo}
               style={{ marginBottom: 14 }}
             >
-              {subiendo ? 'Subiendo…' : 'Subir un logotipo'}
+              {subiendo
+                ? 'Subiendo…'
+                : diseno.logos.length === 0
+                  ? 'Subir un logotipo'
+                  : 'Añadir otro logotipo'}
             </button>
 
             {diseno.logos.length === 0 ? (
@@ -707,8 +727,45 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   color: 'var(--gris-suave)',
                 }}
               >
-                También puedes arrastrarlo con el ratón en la pestaña Editar.
+                O arrástralo con el ratón en la pestaña Editar, o ajústalo al milímetro aquí
+                abajo.
               </p>
+
+              {/* Posición numérica.
+                  Arrastrar sirve para colocar a ojo; esto, para repetir la
+                  misma colocación en varias prendas o para afinar dos puntos
+                  que a mano no se cogen. */}
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Horizontal</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={0.5}
+                  value={logoActivo.x}
+                  onChange={(ev) =>
+                    cambiarLogo(logoActivo.id, { x: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{logoActivo.x.toFixed(0)}%</span>
+              </div>
+
+              <div className={e.fila}>
+                <span className={e.etiqueta}>Vertical</span>
+                <input
+                  className={e.deslizador}
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={0.5}
+                  value={logoActivo.y}
+                  onChange={(ev) =>
+                    cambiarLogo(logoActivo.id, { y: Number(ev.target.value) }, true)
+                  }
+                />
+                <span className={e.valor}>{logoActivo.y.toFixed(0)}%</span>
+              </div>
 
               <div className={e.fila}>
                 <span className={e.etiqueta}>Tamaño</span>
