@@ -31,7 +31,48 @@ import type { Mapeo } from './tipos'
 export function aplicarMapeo(raiz: THREE.Object3D, mapeo: Mapeo): void {
   if (mapeo === 'original') return
 
-  const caja = new THREE.Box3().setFromObject(raiz)
+  // TODO se calcula en el espacio de `raiz`, nunca en el del mundo.
+  //
+  // Esto costó un fallo real. Antes la caja se medía con
+  // `Box3().setFromObject(raiz)`, que trabaja en coordenadas del mundo,
+  // mientras que las posiciones de los vértices son locales. En el visor la
+  // prenda cuelga de un grupo con escala ~0,014 para normalizarla, así que la
+  // caja daba ~1 unidad y los vértices seguían valiendo ~73: las UVs salían
+  // disparadas a 73 en vez de quedarse en [0,1], la textura se recortaba
+  // contra el borde y la prenda aparecía sin color ni logo.
+  //
+  // Trabajar respecto a `raiz` lo arregla y además cubre los modelos cuyas
+  // mallas traen transformaciones propias en sus nodos, que antes tampoco se
+  // tenían en cuenta.
+  raiz.updateWorldMatrix(true, true)
+  const aRaiz = new THREE.Matrix4().copy(raiz.matrixWorld).invert()
+
+  const mallas: { geo: THREE.BufferGeometry; aLocal: THREE.Matrix4 }[] = []
+
+  raiz.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return
+    const geo = obj.geometry as THREE.BufferGeometry
+    if (!geo.attributes.position) return
+
+    mallas.push({
+      geo,
+      aLocal: new THREE.Matrix4().multiplyMatrices(aRaiz, obj.matrixWorld),
+    })
+  })
+
+  if (mallas.length === 0) return
+
+  // --- Primera pasada: la caja envolvente ----------------------------------
+  const caja = new THREE.Box3()
+  const punto = new THREE.Vector3()
+
+  for (const { geo, aLocal } of mallas) {
+    const pos = geo.attributes.position
+    for (let i = 0; i < pos.count; i++) {
+      caja.expandByPoint(punto.fromBufferAttribute(pos, i).applyMatrix4(aLocal))
+    }
+  }
+
   const min = caja.min
   const tam = caja.getSize(new THREE.Vector3())
 
@@ -39,33 +80,41 @@ export function aplicarMapeo(raiz: THREE.Object3D, mapeo: Mapeo): void {
   const anchoX = tam.x > 0 ? tam.x : 1
   const altoY = tam.y > 0 ? tam.y : 1
 
-  raiz.traverse((obj) => {
-    if (!(obj instanceof THREE.Mesh)) return
+  // --- Segunda pasada: las UVs ---------------------------------------------
+  const normal = new THREE.Vector3()
+  const matrizNormal = new THREE.Matrix3()
 
-    const geo = obj.geometry as THREE.BufferGeometry
+  for (const { geo, aLocal } of mallas) {
     const pos = geo.attributes.position
     const nor = geo.attributes.normal
-    if (!pos) return
 
+    matrizNormal.getNormalMatrix(aLocal)
     const uv = new Float32Array(pos.count * 2)
 
     for (let i = 0; i < pos.count; i++) {
-      // La normal en Z separa las dos caras de la prenda. Sin normales, todo
-      // se trata como frente: es mejor que repartirlo al azar.
-      const alFrente = !nor || nor.getZ(i) >= 0
+      punto.fromBufferAttribute(pos, i).applyMatrix4(aLocal)
 
-      const u = (pos.getX(i) - min.x) / anchoX
+      // La normal en Z separa las dos caras de la prenda, y también hay que
+      // llevarla al espacio de `raiz`: una manga girada en su nodo tendría la
+      // normal apuntando a otro lado.
+      let alFrente = true
+      if (nor) {
+        normal.fromBufferAttribute(nor, i).applyMatrix3(matrizNormal)
+        alFrente = normal.z >= 0
+      }
+
+      const u = (punto.x - min.x) / anchoX
 
       // El atlas es frente|espalda: [0, 0.5) frente, [0.5, 1] espalda.
       //
       // La espalda se REFLEJA en U porque se mira desde el otro lado. Sin
       // reflejarla, un texto sale al revés como en un espejo.
       uv[i * 2] = alFrente ? u * 0.5 : 1 - u * 0.5
-      uv[i * 2 + 1] = (pos.getY(i) - min.y) / altoY
+      uv[i * 2 + 1] = (punto.y - min.y) / altoY
     }
 
     geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
-  })
+  }
 }
 
 // ---------------------------------------------------------------------------

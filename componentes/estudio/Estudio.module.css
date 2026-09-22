@@ -373,3 +373,50 @@
   background: rgba(201, 154, 46, 0.1);
   border: 1px solid rgba(201, 154, 46, 0.35);
 }
+
+/* Miniatura de textura predefinida. El patron se ve en pequeno sobre un gris
+   medio, que es lo que mas se parece a como quedara sobre la prenda. */
+.muestraTextura {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: #8a8a8a;
+  background-size: 40px 40px;
+  background-repeat: repeat;
+  cursor: pointer;
+  padding: 0;
+  transition: 0.2s ease;
+}
+
+.muestraTextura:hover {
+  border-color: var(--oro-claro);
+}
+
+.muestraTextura[data-activa='true'] {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 2px;
+}
+
+/* Botones de colocacion rapida del logo */
+.posiciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.posicion {
+  font: 400 11px/1.2 var(--fuente-sans), sans-serif;
+  color: var(--gris-texto);
+  background: var(--negro-4);
+  border: 1px solid var(--linea);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.posicion:hover {
+  color: var(--negro);
+  background: var(--oro-claro);
+  border-color: var(--oro-claro);
+}

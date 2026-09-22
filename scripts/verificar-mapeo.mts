@@ -261,5 +261,93 @@ if (!existsSync(RUTA_GLB)) {
   )
 }
 
+// ===========================================================================
+// El modelo TAL COMO LO MONTA EL VISOR
+//
+// Esta seccion existe por un fallo que las pruebas de arriba no cazaron. Todas
+// median el objeto suelto, sin padre, donde las coordenadas locales y las del
+// mundo coinciden. El visor, en cambio, cuelga la prenda de un grupo con
+// escala ~0,014 para normalizarla y de otro con la traslacion del centro.
+//
+// Midiendo en coordenadas del mundo, la caja daba ~1 unidad mientras los
+// vertices seguian valiendo ~73: las UVs salian a 73 en vez de a 1, la textura
+// se recortaba contra el borde y la prenda aparecia sin color ni logo.
+// ===========================================================================
+
+console.log('\nModelo montado como en el visor (dentro de grupos con escala)')
+
+{
+  const malla = prendaDePrueba()
+
+  // La misma jerarquia que arma visor-impl.tsx.
+  const grupoEscala = new THREE.Group()
+  grupoEscala.scale.setScalar(1 / 90)
+
+  const grupoCentro = new THREE.Group()
+  grupoCentro.position.set(0, -136, 0)
+
+  grupoCentro.add(malla)
+  grupoEscala.add(grupoCentro)
+
+  // Una escena por encima, para que las matrices del mundo no sean la
+  // identidad ni por casualidad.
+  const escenaR3F = new THREE.Scene()
+  escenaR3F.add(grupoEscala)
+  escenaR3F.updateMatrixWorld(true)
+
+  aplicarMapeo(malla, 'proyeccion')
+  const uv = analizarUV(malla)
+
+  console.log(
+    `  rango U ${uv.rango.uMin.toFixed(3)}..${uv.rango.uMax.toFixed(3)} · ` +
+      `${(uv.proporcionDentro * 100).toFixed(1)}% dentro de [0,1]`
+  )
+
+  comprobar(
+    'las UVs no se disparan por la escala del padre',
+    uv.dentro === uv.vertices,
+    `${uv.dentro}/${uv.vertices}`
+  )
+  comprobar('el rango en U sigue siendo 0..1', uv.rango.uMin >= -1e-6 && uv.rango.uMax <= 1 + 1e-6)
+  comprobar('el rango en V sigue siendo 0..1', uv.rango.vMin >= -1e-6 && uv.rango.vMax <= 1 + 1e-6)
+
+  // Y las dos caras siguen separadas: que las UVs esten en rango no basta si
+  // el frente y la espalda acaban en la misma mitad del atlas.
+  let frente = 0
+  let espalda = 0
+  malla.traverse((o) => {
+    if (!(o instanceof THREE.Mesh)) return
+    const a = o.geometry.attributes.uv
+    for (let i = 0; i < a.count; i++) (a.getX(i) <= 0.5 ? frente++ : espalda++)
+  })
+  comprobar('las dos caras siguen en mitades distintas', frente > 0 && espalda > 0)
+}
+
+// Una malla con transformacion propia en su nodo, que es lo normal en un .glb
+// exportado desde Blender con el objeto movido de sitio.
+console.log('\nMalla con transformacion propia en su nodo')
+
+{
+  const raiz = new THREE.Group()
+  const interior = new THREE.Group()
+  interior.position.set(500, -200, 12)
+  interior.rotation.z = 0.3
+  interior.scale.setScalar(2.5)
+
+  const plano = new THREE.Mesh(new THREE.PlaneGeometry(40, 60, 3, 3))
+  interior.add(plano)
+  raiz.add(interior)
+  raiz.updateMatrixWorld(true)
+
+  aplicarMapeo(raiz, 'proyeccion')
+  const uv = analizarUV(raiz)
+
+  comprobar(
+    'la transformacion del nodo no descuadra las UVs',
+    uv.dentro === uv.vertices,
+    `${uv.dentro}/${uv.vertices}`
+  )
+}
+
 console.log(fallos === 0 ? '\nTodo correcto.\n' : `\n${fallos} comprobacion(es) fallidas.\n`)
 process.exit(fallos === 0 ? 0 : 1)

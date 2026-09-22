@@ -27,6 +27,7 @@ import {
   subirImagen,
   subirVistaPrevia,
 } from '@/lib/estudio/subir'
+import { POSICIONES, TEXTURAS } from '@/lib/estudio/preajustes'
 import Editor2D from './Editor2D'
 import Visor from './Visor'
 import e from './Estudio.module.css'
@@ -449,6 +450,33 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           <div className={e.bloque}>
             <div className={e.tituloBloque}>Textura</div>
 
+            {/* Los preajustes van siempre visibles, también con una textura ya
+                puesta: cambiar de estampado es un clic y no hay que quitarla. */}
+            <div className={e.paleta} style={{ marginBottom: cara.textura ? 18 : 14 }}>
+              {TEXTURAS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={e.muestraTextura}
+                  data-activa={cara.textura?.url === t.url}
+                  title={t.nombre}
+                  aria-label={`Textura ${t.nombre}`}
+                  style={{ backgroundImage: `url(${t.url})` }}
+                  onClick={() =>
+                    cambiarCara({
+                      textura: {
+                        url: t.url,
+                        nombre: t.nombre,
+                        escala: t.escala,
+                        opacidad: t.opacidad,
+                        rotacion: 0,
+                      },
+                    })
+                  }
+                />
+              ))}
+            </div>
+
             {cara.textura ? (
               <>
                 <div className={e.fila}>
@@ -533,7 +561,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   onClick={() => entradaTextura.current?.click()}
                   disabled={subiendo}
                 >
-                  {subiendo ? 'Subiendo…' : 'Añadir una textura en mosaico'}
+                  {subiendo ? 'Subiendo…' : 'O sube tu propio estampado'}
                 </button>
               </>
             )}
@@ -594,6 +622,33 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           {logoActivo && (
             <div className={e.bloque}>
               <div className={e.tituloBloque}>Ajustar «{logoActivo.nombre}»</div>
+
+              {/* Colocación rápida: casi todo el mundo quiere el logo en uno de
+                  estos sitios, y llevarlo a ojo hasta el pecho izquierdo cuesta
+                  más que pulsar un botón. Después se sigue pudiendo arrastrar. */}
+              <span className={e.etiqueta}>Colocar en</span>
+              <div className={e.posiciones}>
+                {POSICIONES.filter((p) => !p.vista || p.vista === logoActivo.vista).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={e.posicion}
+                    onClick={() => cambiarLogo(logoActivo.id, { x: p.x, y: p.y, ancho: p.ancho })}
+                  >
+                    {p.nombre}
+                  </button>
+                ))}
+              </div>
+
+              <p
+                style={{
+                  margin: '0 0 16px',
+                  font: '300 10.5px/1.6 var(--fuente-sans), sans-serif',
+                  color: 'var(--gris-suave)',
+                }}
+              >
+                También puedes arrastrarlo con el ratón en la pestaña Editar.
+              </p>
 
               <div className={e.fila}>
                 <span className={e.etiqueta}>Tamaño</span>

@@ -86,7 +86,21 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
 
   // useGLTF cachea la escena: mutar sus materiales afectaría a cualquier otro
   // visor que cargue el mismo archivo.
-  const clon = useMemo(() => scene.clone(true), [scene])
+  //
+  // Y no basta con scene.clone(): Mesh.clone() comparte la geometría por
+  // referencia, así que regenerar las UVs pisaría las del original en la
+  // caché. Se vería al cambiar un modelo a mapeo "original": mostraría las
+  // proyectadas de una visita anterior y no habría forma de recuperarlas sin
+  // recargar la página.
+  const clon = useMemo(() => {
+    const copia = scene.clone(true)
+
+    copia.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) obj.geometry = obj.geometry.clone()
+    })
+
+    return copia
+  }, [scene])
 
   const textura = useTexturaDiseno(diseno)
 
