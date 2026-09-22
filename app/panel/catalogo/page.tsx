@@ -1,11 +1,20 @@
 import Image from 'next/image'
-import { obtenerCategoriasPanel, obtenerProductosPanel } from '@/lib/panel'
+import { obtenerCategoriasPanel, obtenerProductosPanel, type ProductoPanel } from '@/lib/panel'
 import { ETIQUETA_TIPO } from '@/lib/database.types'
 import { precio, stock as textoStock } from '@/lib/formato'
-import { alternarVisibilidad, eliminarProducto, guardarProducto } from '../acciones'
+import {
+  alternarVisibilidad,
+  anadirFotoProducto,
+  eliminarFotoProducto,
+  eliminarProducto,
+  guardarProducto,
+  marcarPortadaProducto,
+} from '../acciones'
+import SubirImagen from '@/componentes/panel/SubirImagen'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
 import c from './Catalogo.module.css'
+import f from './Fotos.module.css'
 import e from '../Panel.module.css'
 
 export const metadata = { title: 'Catálogo' }
@@ -179,6 +188,87 @@ function FormularioProducto({
   )
 }
 
+/**
+ * Las fotos del producto.
+ *
+ * Van fuera del formulario de la ficha, y no por capricho: la subida ocurre en
+ * el navegador y necesita su propio formulario, y un formulario no puede
+ * anidarse dentro de otro.
+ *
+ * La primera de la fila es la portada: es la que sale en el catálogo y en la
+ * portada del sitio. Las demás se ven al abrir la ficha del producto.
+ */
+function FotosProducto({ producto }: { producto: ProductoPanel }) {
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div className={e.etiqueta} style={{ marginBottom: 4 }}>
+        Fotos
+      </div>
+      <p
+        style={{
+          margin: '0 0 12px',
+          font: '300 11px/1.6 var(--fuente-sans), sans-serif',
+          color: '#8a8a8a',
+        }}
+      >
+        {producto.fotos.length === 0
+          ? 'Sin fotos, este producto sale en la web con el texto «foto pendiente».'
+          : 'La marcada como portada es la que se ve en el catálogo. Las demás salen en la ficha.'}
+      </p>
+
+      <div className={f.tira}>
+        {producto.fotos.map((foto) => (
+          <div key={foto.id} className={f.foto} data-portada={foto.esPortada}>
+            {/* Imagen del bucket, de dimensiones desconocidas: <img> normal en
+                vez de next/image, que exige tamaño o dominio configurado. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={foto.url} alt="" />
+
+            {foto.esPortada && <span className={f.insignia}>Portada</span>}
+
+            <div className={f.acciones}>
+              {!foto.esPortada && (
+                <form action={marcarPortadaProducto}>
+                  <input type="hidden" name="volver" value="/panel/catalogo" />
+                  <input type="hidden" name="producto_id" value={producto.id} />
+                  <input type="hidden" name="foto_id" value={foto.id} />
+                  <button type="submit" className={f.accion}>
+                    Hacer portada
+                  </button>
+                </form>
+              )}
+
+              <form action={eliminarFotoProducto}>
+                <input type="hidden" name="volver" value="/panel/catalogo" />
+                <input type="hidden" name="producto_id" value={producto.id} />
+                <input type="hidden" name="foto_id" value={foto.id} />
+                <button type="submit" className={`${f.accion} ${f.accionPeligro}`}>
+                  Quitar
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 10 }}>
+        <SubirImagen
+          bucket="productos"
+          accion={anadirFotoProducto}
+          campos={{ volver: '/panel/catalogo', producto_id: producto.id }}
+          urlActual={null}
+          etiqueta={
+            producto.fotos.length === 0
+              ? 'Sube la primera foto: será la portada'
+              : 'Añadir otra foto'
+          }
+          textoVacio="Añadir foto"
+        />
+      </div>
+    </div>
+  )
+}
+
 export default async function CatalogoPanel({
   searchParams,
 }: {
@@ -283,6 +373,10 @@ export default async function CatalogoPanel({
               <details>
                 <summary className={c.filaEditar}>Editar ficha</summary>
                 <div className={c.editorCuerpo}>
+                  {/* Las fotos primero: es lo que más se cambia de un producto
+                      ya creado, y lo que decide si se ve bien en la web. */}
+                  <FotosProducto producto={prod} />
+
                   <FormularioProducto categorias={opciones} producto={prod} />
 
                   <form action={eliminarProducto} style={{ marginTop: 20 }}>

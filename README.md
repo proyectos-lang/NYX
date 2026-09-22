@@ -28,7 +28,7 @@ maquetar y revisar el diseño; el panel, en cambio, sí necesita base de datos.
 | `/cotizar` | Formulario de solicitud de cotización |
 | `/estudio` | Estudio de diseño: color, logotipos, textos y visor 3D |
 | `/login` | Acceso al panel |
-| `/panel/…` | Pedidos, catálogo, categorías, modelos 3D, contenido, preguntas, ajustes |
+| `/panel/…` | Pedidos, página principal, catálogo, categorías, preguntas, contacto, modelos 3D |
 | `/maquetas` | Las maquetas originales, como referencia visual |
 
 Las maquetas `.dc.html` viven en `public/` y siguen navegables, pero ya no son

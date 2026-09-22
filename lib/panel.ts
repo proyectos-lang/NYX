@@ -211,7 +211,10 @@ export interface ProductoPanel {
   visible: boolean
   orden: number
   descripcion: string | null
+  /** La portada, para la miniatura de la tabla. */
   foto: string | null
+  /** Todas, ordenadas y con la portada primero: el panel las gestiona una a una. */
+  fotos: { id: string; url: string; esPortada: boolean }[]
 }
 
 export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
@@ -224,19 +227,25 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
       `id, sku, slug, nombre_es, categoria_id, precio_referencia, tipo, stock,
        bajo_pedido, visible, orden, descripcion_es,
        categorias ( nombre_es ),
-       producto_fotos ( url, es_portada, orden )`
+       producto_fotos ( id, url, es_portada, orden )`
     )
     .order('orden')
 
   if (error) throw new SinConexion(error)
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
+  const conBarra = (url: string) =>
+    url.startsWith('/') || url.startsWith('http') ? url : `/${url}`
+
   return (data ?? []).map((p: any) => {
-    const fotos = p.producto_fotos ?? []
-    const portada =
-      fotos.find((f: any) => f.es_portada) ??
-      [...fotos].sort((a: any, b: any) => a.orden - b.orden)[0]
-    const url: string | undefined = portada?.url
+    // La portada primero y el resto por su orden: es como se ven en la ficha
+    // del producto en la web, así que el panel las enseña igual.
+    const fotos = [...(p.producto_fotos ?? [])].sort((a: any, b: any) => {
+      if (a.es_portada !== b.es_portada) return a.es_portada ? -1 : 1
+      return a.orden - b.orden
+    })
+
+    const url: string | undefined = fotos[0]?.url
 
     return {
       id: p.id,
@@ -252,7 +261,12 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
       visible: p.visible,
       orden: p.orden,
       descripcion: p.descripcion_es,
-      foto: url ? (url.startsWith('/') || url.startsWith('http') ? url : `/${url}`) : null,
+      foto: url ? conBarra(url) : null,
+      fotos: fotos.map((f: any) => ({
+        id: f.id,
+        url: conBarra(f.url),
+        esPortada: f.es_portada,
+      })),
     }
   })
   /* eslint-enable @typescript-eslint/no-explicit-any */

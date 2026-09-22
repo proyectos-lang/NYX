@@ -457,6 +457,147 @@ export async function guardarMedia(datos: FormData): Promise<void> {
   redirect(destino)
 }
 
+// ---------------------------------------------------------------------------
+// Fotos de los productos
+//
+// Sin fotos, un producto sale en la web con el texto "foto pendiente", y la
+// sección de entrega inmediata queda con huecos grises. Es lo primero que se
+// nota al abrir el catálogo.
+//
+// `producto_fotos` tiene un índice único que solo permite UNA portada por
+// producto. No es un detalle: cualquier escritura que deje dos marcadas falla
+// entera, así que siempre hay que apagar la anterior antes de encender la
+// nueva, nunca al revés.
+// ---------------------------------------------------------------------------
+
+/** Añade una foto. La primera de un producto se queda de portada sola. */
+export async function anadirFotoProducto(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/catalogo')
+
+  const productoId = texto(datos, 'producto_id')
+  const url = texto(datos, 'url')
+
+  if (!productoId || !url) redirect(conAviso(base, 'No se recibió ninguna imagen'))
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { data: existentes, error: errorLectura } = await supabase
+      .from('producto_fotos')
+      .select('orden')
+      .eq('producto_id', productoId)
+
+    if (errorLectura) throw errorLectura
+
+    const cuantas = existentes?.length ?? 0
+    const siguiente = cuantas === 0 ? 1 : Math.max(...existentes.map((f) => f.orden)) + 1
+
+    const { error } = await supabase.from('producto_fotos').insert({
+      producto_id: productoId,
+      url,
+      orden: siguiente,
+      // Si es la primera, tiene que ser la portada: un producto con fotos pero
+      // ninguna marcada saldría igualmente sin imagen en la web.
+      es_portada: cuantas === 0,
+    })
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto añadida')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo añadir la foto del producto')
+  }
+
+  redirect(destino)
+}
+
+/** Marca una foto como la principal. */
+export async function marcarPortadaProducto(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/catalogo')
+
+  const productoId = texto(datos, 'producto_id')
+  const fotoId = texto(datos, 'foto_id')
+
+  if (!productoId || !fotoId) redirect(base)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    // Primero se apagan TODAS y después se enciende la elegida. Al revés, el
+    // índice único rechazaría el update por tener dos portadas a la vez.
+    const { error: errorApagar } = await supabase
+      .from('producto_fotos')
+      .update({ es_portada: false })
+      .eq('producto_id', productoId)
+
+    if (errorApagar) throw errorApagar
+
+    const { error } = await supabase
+      .from('producto_fotos')
+      .update({ es_portada: true })
+      .eq('id', fotoId)
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Portada cambiada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo cambiar la portada del producto')
+  }
+
+  redirect(destino)
+}
+
+/** Quita una foto. Si era la portada, asciende la siguiente. */
+export async function eliminarFotoProducto(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/catalogo')
+
+  const productoId = texto(datos, 'producto_id')
+  const fotoId = texto(datos, 'foto_id')
+
+  if (!productoId || !fotoId) redirect(base)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { error } = await supabase.from('producto_fotos').delete().eq('id', fotoId)
+    if (error) throw error
+
+    // Borrar la portada dejaría al producto con fotos pero sin ninguna
+    // principal, y la web lo enseñaría como si no tuviera imagen.
+    const { data: quedan, error: errorLectura } = await supabase
+      .from('producto_fotos')
+      .select('id, es_portada, orden')
+      .eq('producto_id', productoId)
+      .order('orden')
+
+    if (errorLectura) throw errorLectura
+
+    if (quedan?.length && !quedan.some((f) => f.es_portada)) {
+      const { error: errorAscenso } = await supabase
+        .from('producto_fotos')
+        .update({ es_portada: true })
+        .eq('id', quedan[0].id)
+
+      if (errorAscenso) throw errorAscenso
+    }
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto eliminada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo eliminar la foto del producto')
+  }
+
+  redirect(destino)
+}
+
 /**
  * Cambia la foto de portada de una categoría.
  *
