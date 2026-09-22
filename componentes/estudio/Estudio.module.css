@@ -642,3 +642,47 @@
   outline: 2px solid var(--oro-claro);
   outline-offset: 2px;
 }
+
+/* ---------------------------------------------------------------------------
+   El panel de controles se desplaza por dentro.
+
+   Con el lienzo fijo ya no se perdia de vista, pero la pagina entera seguia
+   moviendose. Dandole su propio desplazamiento, en escritorio no se mueve
+   nada: la prenda y los controles estan siempre donde se dejaron.
+
+   Solo en pantalla ancha. En movil un area con desplazamiento propio dentro
+   de una pagina que tambien se desplaza es un lio: ahi manda el flujo normal.
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 1100px) {
+  .panel {
+    position: sticky;
+    top: 18px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 154, 46, 0.35) var(--negro-2);
+    /* 18px de margen arriba y otros tantos abajo. */
+    max-height: calc(100vh - 36px);
+    overflow-y: auto;
+    /* Sitio para la barra, que si no tapa el borde de los bloques. */
+    padding-right: 4px;
+    overscroll-behavior: contain;
+  }
+
+  /* Barra discreta pero visible: si no se ve, nadie sabe que hay mas abajo. */
+  .panel::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .panel::-webkit-scrollbar-track {
+    background: var(--negro-2);
+  }
+
+  .panel::-webkit-scrollbar-thumb {
+    background: rgba(201, 154, 46, 0.35);
+    border-radius: 4px;
+  }
+
+  .panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(201, 154, 46, 0.6);
+  }
+}
