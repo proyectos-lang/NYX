@@ -619,3 +619,46 @@ export async function cambiarMapeoModelo(datos: FormData): Promise<void> {
 
   redirect(destino)
 }
+
+/**
+ * Cambiar que partes del modelo NO se pintan.
+ *
+ * Hacia falta poder corregirlo sin volver a subir el archivo: marcar todos los
+ * materiales al subir deja el modelo mudo -- carga, se mapea y no recibe el
+ * diseno en ninguna malla -- y hasta ahora no habia forma de deshacerlo.
+ */
+export async function guardarMaterialesExcluidos(datos: FormData): Promise<void> {
+  const base = '/panel/modelos'
+  const id = texto(datos, 'id')
+
+  if (!id) redirect(conError(base, new Error('Falta el modelo.'), 'modelo sin id'))
+
+  const excluidos = texto(datos, 'materiales_excluidos')
+    .split(',')
+    .map((m) => m.trim())
+    .filter(Boolean)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase
+      .from('modelos_3d')
+      .update({ materiales_excluidos: excluidos })
+      .eq('id', id)
+
+    if (error) throw error
+
+    revalidatePath(base)
+    revalidatePath('/estudio')
+    destino = conAviso(
+      base,
+      excluidos.length === 0
+        ? 'Ahora se pinta la prenda entera'
+        : `${excluidos.length} parte(s) quedan sin pintar`
+    )
+  } catch (error) {
+    destino = conError(base, error, 'no se pudieron guardar los materiales excluidos')
+  }
+
+  redirect(destino)
+}

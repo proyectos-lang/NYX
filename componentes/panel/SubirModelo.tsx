@@ -323,7 +323,9 @@ export default function SubirModelo() {
 
               {analisis.materiales.length > 0 && (
                 <div style={{ marginTop: 18 }}>
-                  <span className={e.etiqueta}>Partes que NO se pintan</span>
+                  <span className={e.etiqueta}>
+                    Partes que NO llevarán el diseño
+                  </span>
                   <p
                     style={{
                       margin: '0 0 10px',
@@ -331,8 +333,20 @@ export default function SubirModelo() {
                       color: '#8a8a8a',
                     }}
                   >
-                    Marca cremalleras, botones o cordones: conservarán su material original.
+                    <strong>Deja todo sin marcar si toda la prenda va estampada.</strong> Marca
+                    solo cremalleras, botones o cordones: esas partes conservarán su material
+                    original y el diseño no las tocará.
                   </p>
+
+                  {/* Marcarlos todos deja el modelo mudo: carga, se mapea y no
+                      recibe el diseño en ninguna malla. Ha pasado, y sin aviso
+                      era indistinguible de un fallo del visor. */}
+                  {excluidos.length === analisis.materiales.length && (
+                    <div className={`${e.aviso} ${e.avisoError}`} style={{ marginBottom: 12 }}>
+                      Están marcadas <strong>todas</strong> las partes. Así la prenda no se
+                      pintará en ningún sitio y el cliente no verá su diseño.
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
                     {analisis.materiales.map((m) => (
                       <label

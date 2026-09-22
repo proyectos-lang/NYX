@@ -1,7 +1,12 @@
 import Link from 'next/link'
 import { obtenerModelosPanel } from '@/lib/panel'
 import { fecha } from '@/lib/formato'
-import { alternarVisibilidadModelo, cambiarMapeoModelo, eliminarModelo3D } from '../acciones'
+import {
+  alternarVisibilidadModelo,
+  cambiarMapeoModelo,
+  eliminarModelo3D,
+  guardarMaterialesExcluidos,
+} from '../acciones'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
 import SubirModelo from '@/componentes/panel/SubirModelo'
@@ -132,6 +137,54 @@ export default async function ModelosPanel({
                         </div>
                       </div>
                     </div>
+
+                    {/* Corregir las partes sin pintar sin volver a subir.
+                        Si se marcan TODOS los materiales al subir, el modelo
+                        queda mudo: carga, se mapea y no recibe el diseño en
+                        ninguna malla. Pasó, y no había forma de deshacerlo. */}
+                    <form action={guardarMaterialesExcluidos} style={{ marginTop: 22 }}>
+                      <input type="hidden" name="id" value={m.id} />
+
+                      {m.materialesExcluidos.length > 0 && (
+                        <div
+                          className={e.aviso}
+                          style={{ marginBottom: 14 }}
+                          role={m.materialesExcluidos.length >= 1 ? 'status' : undefined}
+                        >
+                          Estas partes <strong>no llevan el diseño</strong> y conservan el
+                          material del archivo. Si el cliente no ve su diseño en el estudio,
+                          es lo primero que hay que revisar: con todas marcadas, la prenda no
+                          se pinta en ningún sitio.
+                        </div>
+                      )}
+
+                      <label className={e.etiqueta} htmlFor={`excl-${m.id}`}>
+                        Nombres de los materiales que NO se pintan
+                      </label>
+                      <input
+                        className={e.campo}
+                        id={`excl-${m.id}`}
+                        name="materiales_excluidos"
+                        defaultValue={m.materialesExcluidos.join(', ')}
+                        placeholder="Vacío = se pinta la prenda entera"
+                      />
+                      <p
+                        style={{
+                          margin: '8px 0 0',
+                          font: '300 11px/1.6 var(--fuente-sans), sans-serif',
+                          color: '#8a8a8a',
+                        }}
+                      >
+                        Separados por comas. Aquí van cremalleras, botones o cordones — no la
+                        tela.
+                      </p>
+
+                      <div className={e.acciones}>
+                        <button type="submit" className={e.boton}>
+                          Guardar
+                        </button>
+                      </div>
+                    </form>
 
                     {/* Cambiar el mapeo después de subir.
                         Hace falta porque el analizador acierta la mayoría de
