@@ -7,7 +7,9 @@ import {
   obtenerDestacados,
   obtenerDisponiblesHoy,
   obtenerFaq,
+  obtenerMedia,
   enlaceWhatsapp,
+  type Media,
 } from '@/lib/consultas'
 import { MOSAICO_DEMO } from '@/lib/demo'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
@@ -23,14 +25,37 @@ const PALABRAS_MARQUESINA = [
   'Tazas', 'Termos', 'Llaveros', 'Corporativo',
 ]
 
+/**
+ * Las imágenes de la portada, con su valor por defecto.
+ *
+ * Cada una se puede reemplazar desde el panel: la clave (`hero-1`…) es la que
+ * identifica el hueco en `contenido_media`. La ruta de `/assets` se queda como
+ * respaldo para que la portada se vea entera aunque la base no responda — que
+ * es justo el momento en el que menos conviene enseñar huecos grises.
+ */
 const FOTOS_PORTADA = [
-  { src: '/assets/tee-newplan.jpeg', alt: 'Camiseta personalizada NYX' },
-  { src: '/assets/bottle-create.jpeg', alt: 'Termo personalizado NYX' },
-  { src: '/assets/kit-blue.jpeg', alt: 'Kit corporativo NYX' },
+  { clave: 'hero-1', src: '/assets/tee-newplan.jpeg', alt: 'Camiseta personalizada NYX' },
+  { clave: 'hero-2', src: '/assets/bottle-create.jpeg', alt: 'Termo personalizado NYX' },
+  { clave: 'hero-3', src: '/assets/kit-blue.jpeg', alt: 'Kit corporativo NYX' },
 ]
 
+/** Busca un hueco concreto; si no está en la base, devuelve el valor de siempre. */
+function media(
+  m: Media,
+  bloque: string,
+  clave: string,
+  porDefecto: string,
+  altPorDefecto = ''
+): { src: string; alt: string } {
+  const encontrado = m[bloque]?.[clave]
+  return {
+    src: encontrado?.url ?? porDefecto,
+    alt: encontrado?.alt || altPorDefecto,
+  }
+}
+
 export default async function Portada() {
-  const [categorias, destacados, disponibles, preguntas, contenido, contacto] =
+  const [categorias, destacados, disponibles, preguntas, contenido, contacto, imagenes] =
     await Promise.all([
       obtenerCategorias(),
       obtenerDestacados(6),
@@ -38,6 +63,7 @@ export default async function Portada() {
       obtenerFaq(),
       obtenerContenido(),
       obtenerContacto(),
+      obtenerMedia(),
     ])
 
   const portada = contenido.portada ?? {}
@@ -64,17 +90,20 @@ export default async function Portada() {
       {/* ---------------------------------------------------------- Portada */}
       <section className={s.hero}>
         <div className={s.heroFondo}>
-          {FOTOS_PORTADA.map((f, i) => (
-            <div key={f.src} className={s.heroImagen}>
-              <Image
-                src={f.src}
-                alt={f.alt}
-                fill
-                priority={i === 0}
-                sizes="(max-width: 720px) 100vw, 33vw"
-              />
-            </div>
-          ))}
+          {FOTOS_PORTADA.map((f, i) => {
+            const foto = media(imagenes, 'portada', f.clave, f.src, f.alt)
+            return (
+              <div key={f.clave} className={s.heroImagen}>
+                <Image
+                  src={foto.src}
+                  alt={foto.alt}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 720px) 100vw, 33vw"
+                />
+              </div>
+            )
+          })}
         </div>
         <div className={s.heroVelo} />
 
@@ -207,16 +236,20 @@ export default async function Portada() {
           </div>
 
           <div className={s.mosaico}>
-            {MOSAICO_DEMO.map((src, i) => (
-              <div key={src} className={s.mosaicoFoto}>
+            {MOSAICO_DEMO.map((src, i) => {
+              const clave = `mosaico-${String(i + 1).padStart(2, '0')}`
+              const foto = media(imagenes, 'trabajos-reales', clave, src, `Trabajo NYX ${i + 1}`)
+              return (
+              <div key={clave} className={s.mosaicoFoto}>
                 <Image
-                  src={src}
-                  alt={`Trabajo NYX ${i + 1}`}
+                  src={foto.src}
+                  alt={foto.alt}
                   fill
                   sizes="(max-width: 720px) 50vw, 20vw"
                 />
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -253,8 +286,13 @@ export default async function Portada() {
             <div className={s.previsualizacion}>
               <span className={s.cinta}>VISTA PREVIA</span>
               <Image
-                src="/assets/tee-max.jpeg"
-                alt="Vista previa de un logotipo sobre camiseta"
+                {...media(
+                  imagenes,
+                  'como-funciona',
+                  'proceso-muestra',
+                  '/assets/tee-max.jpeg',
+                  'Vista previa de un logotipo sobre camiseta'
+                )}
                 fill
                 sizes="(max-width: 900px) 100vw, 45vw"
               />
@@ -324,8 +362,13 @@ export default async function Portada() {
           <div className={s.empresasMedia}>
             <div className={s.empresasFoto}>
               <Image
-                src="/assets/kit-blue.jpeg"
-                alt="Kit corporativo NYX"
+                {...media(
+                  imagenes,
+                  'empresas',
+                  'empresas-foto',
+                  '/assets/kit-blue.jpeg',
+                  'Kit corporativo NYX'
+                )}
                 width={600}
                 height={800}
               />
@@ -333,7 +376,9 @@ export default async function Portada() {
             <div className={s.empresasVideo}>
               <span className={s.cinta}>PROCESO NYX</span>
               <video
-                src="/assets/nyx-proceso.mp4"
+                src={
+                  media(imagenes, 'empresas', 'empresas-video', '/assets/nyx-proceso.mp4').src
+                }
                 autoPlay
                 muted
                 loop
@@ -375,8 +420,7 @@ export default async function Portada() {
         <div className={`contenedor ${s.dosColumnas} al-entrar`}>
           <div>
             <Image
-              src="/assets/nyx-logo.jpeg"
-              alt="NYX"
+              {...media(imagenes, 'nosotros', 'nosotros-logo', '/assets/nyx-logo.jpeg', 'NYX')}
               width={190}
               height={90}
               style={{ margin: '0 0 26px', mixBlendMode: 'multiply', height: 'auto' }}
@@ -405,8 +449,13 @@ export default async function Portada() {
 
           <div className={s.retrato}>
             <Image
-              src="/assets/key-studio.jpeg"
-              alt="Llaveros personalizados NYX"
+              {...media(
+                imagenes,
+                'nosotros',
+                'nosotros-foto',
+                '/assets/key-studio.jpeg',
+                'Llaveros personalizados NYX'
+              )}
               width={600}
               height={750}
             />

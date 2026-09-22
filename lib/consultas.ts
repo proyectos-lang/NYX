@@ -16,13 +16,24 @@ import type { TipoProducto } from '@/lib/database.types'
 /**
  * Capa de lectura del sitio público.
  *
- * Todas las funciones siguen el mismo patrón: si no hay Supabase configurado, o
- * si la consulta falla, devuelven los datos de demostración en lugar de romper
- * la página. Así el sitio se puede desarrollar y desplegar antes de que exista
- * la base de datos, y conectarla después es solo poner las variables de entorno.
+ * Si no hay Supabase configurado, o si la consulta falla, se devuelven los
+ * datos de demostración en lugar de romper la página. Así el sitio se puede
+ * desarrollar y desplegar antes de que exista la base de datos, y conectarla
+ * después es solo poner las variables de entorno.
  *
  * El fallback se avisa siempre por consola del servidor: si ves esos mensajes
  * en producción, es que la web está mostrando datos inventados.
+ *
+ * UNA TABLA VACÍA NO ES UN FALLO, Y NO CAE AL DEMO.
+ *
+ * Antes sí lo hacía, y el resultado confundía a quien administra el sitio: la
+ * web enseñaba siete preguntas frecuentes y el panel no enseñaba ninguna,
+ * porque cada uno miraba un sitio distinto. Peor aún, borrar la última
+ * pregunta desde el panel hacía reaparecer las siete de relleno, como si el
+ * panel no funcionara.
+ *
+ * Con la base conectada, lo que hay en la base es lo que se ve — aunque no
+ * haya nada. El relleno queda solo para cuando no hay base en absoluto.
  */
 
 export function hayBaseDeDatos(): boolean {
@@ -67,10 +78,6 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
       .order('orden')
 
     if (error) throw error
-    if (!data?.length) {
-      avisar('No hay categorías en la base')
-      return CATEGORIAS_DEMO
-    }
 
     type FilaCategoria = {
       slug: string
@@ -80,7 +87,7 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
       productos: { count: number }[] | null
     }
 
-    return (data as unknown as FilaCategoria[]).map((c) => ({
+    return ((data ?? []) as unknown as FilaCategoria[]).map((c) => ({
       slug: c.slug,
       nombre: c.nombre_es,
       imagen: rutaImagen(c.imagen_portada),
@@ -154,9 +161,8 @@ export async function obtenerDestacados(limite = 6): Promise<ProductoVista[]> {
       .limit(limite)
 
     if (error) throw error
-    if (!data?.length) return PRODUCTOS_DEMO.slice(0, limite)
 
-    return (data as unknown as FilaProducto[]).map(aProductoVista)
+    return ((data ?? []) as unknown as FilaProducto[]).map(aProductoVista)
   } catch (error) {
     avisar('Error al leer productos destacados', error)
     return PRODUCTOS_DEMO.slice(0, limite)
@@ -180,9 +186,8 @@ export async function obtenerDisponiblesHoy(limite = 6): Promise<ProductoVista[]
       .limit(limite)
 
     if (error) throw error
-    if (!data?.length) return deDemo
 
-    return (data as unknown as FilaProducto[]).map(aProductoVista)
+    return ((data ?? []) as unknown as FilaProducto[]).map(aProductoVista)
   } catch (error) {
     avisar('Error al leer productos de entrega inmediata', error)
     return deDemo
@@ -329,9 +334,10 @@ export async function obtenerFaq(): Promise<FaqVista[]> {
       .order('orden')
 
     if (error) throw error
-    if (!data?.length) return FAQ_DEMO
 
-    return data.map((f) => ({ pregunta: f.pregunta_es, respuesta: f.respuesta_es }))
+    // Sin respaldo si la lista viene vacía: es la tabla que el panel edita, y
+    // borrar la última pregunta tiene que borrarla también de la web.
+    return (data ?? []).map((f) => ({ pregunta: f.pregunta_es, respuesta: f.respuesta_es }))
   } catch (error) {
     avisar('Error al leer las preguntas frecuentes', error)
     return FAQ_DEMO
@@ -348,6 +354,13 @@ export type Contenido = Record<string, Record<string, string>>
  * Devuelve los textos indexados por bloque y campo, con respaldo campo a campo:
  * si la base tiene el bloque pero le falta un campo, se usa el de demostración
  * en lugar de dejar un hueco en la página.
+ *
+ * Aquí el respaldo SÍ se mantiene aunque haya base conectada, al revés que en
+ * las listas. La diferencia es qué pasa cuando falta el dato: una lista vacía
+ * de preguntas frecuentes es una sección que no se dibuja, y se entiende; un
+ * titular vacío es un hueco en mitad de la portada que parece un error del
+ * sitio. Un texto que falta casi nunca es una decisión, es un campo que nadie
+ * llegó a rellenar.
  */
 export async function obtenerContenido(): Promise<Contenido> {
   if (!hayBaseDeDatos()) return CONTENIDO_DEMO
@@ -379,6 +392,69 @@ export async function obtenerContenido(): Promise<Contenido> {
   } catch (error) {
     avisar('Error al leer el contenido del sitio', error)
     return CONTENIDO_DEMO
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Imágenes editables
+// ---------------------------------------------------------------------------
+
+export interface MediaVista {
+  url: string
+  alt: string
+  esVideo: boolean
+}
+
+/** Indexado por clave de bloque y luego por clave de hueco: media.portada['hero-1']. */
+export type Media = Record<string, Record<string, MediaVista>>
+
+/**
+ * Las imágenes que el panel puede reemplazar.
+ *
+ * Existe porque hasta ahora no la usaba nadie: la tabla `contenido_media`
+ * estaba en el esquema, el panel la leía y la enseñaba, pero el sitio público
+ * nunca la consultaba. Lo que se subiera ahí no llegaba a ninguna parte, y las
+ * doce imágenes de la portada seguían siendo rutas fijas dentro del .tsx.
+ *
+ * Cada hueco se identifica por `clave` y no por su posición, para que
+ * reordenar o borrar una imagen no cambie cuál se muestra en otro sitio.
+ */
+export async function obtenerMedia(): Promise<Media> {
+  if (!hayBaseDeDatos()) return {}
+
+  try {
+    const supabase = await crearClienteServidor()
+    const { data, error } = await supabase
+      .from('contenido_bloques')
+      .select('clave, contenido_media ( clave, url, tipo, alt )')
+
+    if (error) throw error
+
+    const salida: Media = {}
+    for (const bloque of data ?? []) {
+      const huecos: Record<string, MediaVista> = {}
+      const lista = bloque.contenido_media as unknown as
+        | { clave: string | null; url: string; tipo: string; alt: string | null }[]
+        | null
+
+      for (const m of lista ?? []) {
+        // Las filas sin clave son del esquema anterior: no hay forma de saber a
+        // qué hueco corresponden, así que se ignoran en vez de adivinar.
+        if (!m.clave) continue
+        const url = rutaImagen(m.url)
+        if (!url) continue
+        huecos[m.clave] = { url, alt: m.alt ?? '', esVideo: m.tipo === 'video' }
+      }
+
+      salida[bloque.clave] = huecos
+    }
+
+    return salida
+  } catch (error) {
+    // Sin respaldo: cada punto de uso ya trae su imagen por defecto, así que la
+    // portada se ve igual que siempre aunque esta consulta falle.
+    avisar('Error al leer las imágenes del sitio', error)
+    return {}
   }
 }
 

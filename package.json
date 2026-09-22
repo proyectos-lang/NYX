@@ -23,7 +23,8 @@
     "verificar:mapeo": "node scripts/verificar-mapeo.mts",
     "verificar:estudio": "node scripts/verificar-estudio.mts",
     "verificar:whatsapp": "node scripts/verificar-whatsapp.mts",
-    "verificar": "npm run verificar:mapeo && npm run verificar:estudio && npm run verificar:whatsapp",
+    "verificar:contenido": "node scripts/verificar-contenido.mts",
+    "verificar": "npm run verificar:mapeo && npm run verificar:estudio && npm run verificar:whatsapp && npm run verificar:contenido",
     "modelo:demo": "node scripts/generar-modelo-demo.mts",
     "sql:instalacion": "node scripts/generar-instalacion.mts"
   },
