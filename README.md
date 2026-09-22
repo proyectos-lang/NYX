@@ -134,9 +134,12 @@ ni siquiera llegarían a consultarse. Quien decide de verdad son las políticas.
 
 ### 4. Crear el primer administrador
 
-Registra el usuario desde *Authentication → Users* en Supabase. El trigger
-`crear_perfil_al_registrar` le crea el perfil con rol `editor`. Para el primer
-administrador, en el SQL Editor:
+Lo más rápido es **`supabase/crear-admin.sql`**: cambia el correo y la clave de
+las dos líneas marcadas, pégalo en el SQL Editor y listo. Es idempotente, así
+que sirve también para recuperar el acceso si olvidas la contraseña.
+
+El otro camino es *Authentication → Users → Add user* (marcando **Auto Confirm
+User**) y luego, en el SQL Editor:
 
 ```sql
 update nyx.perfiles set rol = 'admin' where id = (
@@ -144,7 +147,10 @@ update nyx.perfiles set rol = 'admin' where id = (
 );
 ```
 
-Sin fila en `perfiles` no se entra al panel, aunque la contraseña sea correcta.
+El login comprueba **dos cosas**: que la contraseña sea correcta, y que el
+usuario tenga fila en `nyx.perfiles`. Sin esa fila el acceso es válido pero se
+cierra la sesión con "Tu cuenta no tiene acceso al panel" — está separado a
+propósito, porque alguien puede tener cuenta en Auth sin ser del equipo.
 
 ### 5. Regenerar los tipos
 
