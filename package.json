@@ -22,7 +22,8 @@
     "db:types": "supabase gen types typescript --linked --schema nyx > lib/database.types.ts",
     "verificar:mapeo": "node scripts/verificar-mapeo.mts",
     "verificar:estudio": "node scripts/verificar-estudio.mts",
-    "verificar": "npm run verificar:mapeo && npm run verificar:estudio",
+    "verificar:whatsapp": "node scripts/verificar-whatsapp.mts",
+    "verificar": "npm run verificar:mapeo && npm run verificar:estudio && npm run verificar:whatsapp",
     "modelo:demo": "node scripts/generar-modelo-demo.mts",
     "sql:instalacion": "node scripts/generar-instalacion.mts"
   },

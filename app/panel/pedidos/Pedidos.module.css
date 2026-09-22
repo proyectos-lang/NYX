@@ -298,3 +298,35 @@
   border-color: var(--negro);
   color: var(--blanco);
 }
+
+/* ---------------------------------------------------------------- WhatsApp */
+
+/* Verde de marca de WhatsApp. Se usa el suyo y no el oro de NYX porque el
+   boton tiene que reconocerse de un vistazo entre pedidos. */
+.whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  font: 500 11.5px/1 var(--fuente-sans), sans-serif;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.whatsapp:hover {
+  background: #1da851;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Cuando no hay numero se explica por que, en vez de esconder el boton sin
+   mas: si no, parece que el panel se olvido de ponerlo. */
+.whatsappNo {
+  margin: 12px 0 0;
+  font: 300 11px/1.6 var(--fuente-sans), sans-serif;
+  color: #9a9a9a;
+}
