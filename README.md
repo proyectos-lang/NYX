@@ -102,6 +102,13 @@ cárgala cuando haya algo que la necesite y nunca con prefijo `NEXT_PUBLIC_`.
 
 Todo vive en el esquema **`nyx`**, no en `public`.
 
+Sin CLI, pegando en el SQL Editor: **`supabase/instalacion-completa.sql`**. Es
+las cinco migraciones en un solo archivo y re-ejecutable, así que sirve también
+cuando no se sabe cuánto se aplicó antes. Se regenera con
+`npm run sql:instalacion`; no se edita a mano.
+
+Con CLI:
+
 ```bash
 npm run db:link
 npm run db:push
