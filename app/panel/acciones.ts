@@ -591,3 +591,31 @@ export async function eliminarModelo3D(datos: FormData): Promise<void> {
 
   redirect(destino)
 }
+
+export async function cambiarMapeoModelo(datos: FormData): Promise<void> {
+  const base = '/panel/modelos'
+  const id = texto(datos, 'id')
+  const mapeo = texto(datos, 'mapeo')
+
+  if (!id || (mapeo !== 'original' && mapeo !== 'proyeccion')) {
+    redirect(conError(base, new Error('Mapeo no valido.'), 'mapeo invalido'))
+  }
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('modelos_3d').update({ mapeo }).eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    revalidatePath('/estudio')
+    destino = conAviso(
+      base,
+      mapeo === 'proyeccion' ? 'Ahora se regeneran las UVs' : 'Ahora se respetan las UVs del archivo'
+    )
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo cambiar el mapeo')
+  }
+
+  redirect(destino)
+}

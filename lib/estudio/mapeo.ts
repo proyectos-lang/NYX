@@ -241,6 +241,22 @@ export function analizarUV(raiz: THREE.Object3D): AnalisisUV {
     dentro,
     proporcionDentro,
     rango: { uMin, uMax, vMin, vMax },
-    mapeoSugerido: proporcionDentro >= UMBRAL_UV_VALIDAS ? 'original' : 'proyeccion',
+
+    // Se sugiere SIEMPRE proyección, incluso con las UVs del archivo en rango.
+    //
+    // Antes se sugería 'original' cuando el archivo venía bien desplegado, y
+    // era la pregunta equivocada: que las UVs estén en [0,1] significa que el
+    // modelo tiene un despliegue coherente, no que ese despliegue coincida con
+    // el atlas frente|espalda que espera el estudio. Para un .glb de terceros
+    // no coincide nunca, y el resultado es que el diseño sale descuadrado o
+    // directamente no aparece.
+    //
+    // Y es justo lo que pasa con los modelos buenos: como traen UVs correctas,
+    // se elegía 'original' y no funcionaban. Los malos, en cambio, sí.
+    //
+    // 'original' solo tiene sentido en un modelo desplegado a propósito para
+    // este estudio, y eso lo sabe una persona, no el analizador. Se cambia a
+    // mano desde el panel.
+    mapeoSugerido: 'proyeccion',
   }
 }

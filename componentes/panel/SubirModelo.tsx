@@ -226,7 +226,7 @@ export default function SubirModelo() {
                   marginBottom: 12,
                 }}
               >
-                {uvSirven ? 'Las UVs del archivo sirven' : 'Las UVs del archivo no sirven'}
+                {uvSirven ? 'El modelo viene bien desplegado' : 'Las UVs del archivo no sirven'}
               </div>
               <p
                 style={{
@@ -238,7 +238,11 @@ export default function SubirModelo() {
                 {uvSirven ? (
                   <>
                     El {(analisis.proporcionDentro * 100).toFixed(1)}% de sus coordenadas cae en
-                    el rango [0,1], así que se pueden respetar tal cual.
+                    el rango [0,1]. Aun así se regeneran por proyección: que el despliegue sea
+                    coherente no significa que coincida con el reparto frente|espalda que
+                    espera el estudio, y para un archivo de terceros no coincide nunca.
+                    Respetar las del archivo solo funciona si el modelo se desplegó pensando en
+                    esto.
                   </>
                 ) : (
                   <>

@@ -14,10 +14,17 @@ import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, OrbitControls, useGLTF } from '@react-three/drei'
 
-import { componerAtlas, disenoListo, precargarDiseno, LADO_TEXTURA } from '@/lib/estudio/compositor'
+import {
+  componerAtlas,
+  componerCara,
+  disenoListo,
+  precargarDiseno,
+  LADO_TEXTURA,
+} from '@/lib/estudio/compositor'
 import { aplicarMapeo, esMalla } from '@/lib/estudio/mapeo'
 import type {
   DiagnosticoVisor,
+  Mapeo,
   DisenoEstudio,
   Modelo3D,
   PropsVisor,
@@ -62,30 +69,50 @@ class LimiteDeError extends Component<
  * Devuelve SIEMPRE la misma instancia de CanvasTexture; lo que cambia es su
  * contenido. Recrearla en cada edición obligaría a recompilar el material.
  */
-function useTexturaDiseno(diseno: DisenoEstudio) {
+function useTexturaDiseno(diseno: DisenoEstudio, mapeo: Mapeo) {
+  // La textura TIENE que corresponderse con el mapeo, y no siempre fue asi.
+  //
+  // Con 'proyeccion' las UVs las genera aplicarMapeo() y mandan cada cara a su
+  // mitad de un atlas 2:1. Con 'original' se respetan las del .glb, que son un
+  // despliegue propio sobre el cuadrado 0-1 completo: darle el atlas significa
+  // que la prenda muestrea a caballo entre las dos mitades segun SU reparto, y
+  // el diseno sale descuadrado o irreconocible.
+  //
+  // Es justo lo que le pasa a un modelo de prenda bien hecho: como trae UVs
+  // correctas, el analizador elige 'original' y el resultado no se parece a
+  // nada.
+  const esAtlas = mapeo === 'proyeccion'
+
   const canvas = useMemo(() => {
     const c = document.createElement('canvas')
-    c.width = LADO_TEXTURA * 2 // atlas frente|espalda
+    c.width = esAtlas ? LADO_TEXTURA * 2 : LADO_TEXTURA
     c.height = LADO_TEXTURA
     return c
-  }, [])
+  }, [esAtlas])
 
   const textura = useMemo(() => {
     const t = new THREE.CanvasTexture(canvas)
     t.colorSpace = THREE.SRGBColorSpace
 
-    // flipY = true porque las UVs se generan a partir de la Y del modelo, que
-    // crece hacia arriba, mientras el canvas crece hacia abajo. La convención
-    // de glTF (flipY = false) NO aplica: el mapeo del archivo no se usa.
-    t.flipY = true
+    // Con 'proyeccion', flipY = true: las UVs salen de la Y del modelo, que
+    // crece hacia arriba, mientras el canvas crece hacia abajo.
+    //
+    // Con 'original' manda la convencion de glTF, que es flipY = false. Ponerlo
+    // al reves deja el diseno boca abajo sobre la prenda.
+    t.flipY = esAtlas
 
     return t
-  }, [canvas])
+  }, [canvas, esAtlas])
 
   const repintar = useCallback(() => {
-    componerAtlas(canvas, diseno)
-    textura.needsUpdate = true // avisa a la GPU de que el canvas cambió
-  }, [canvas, textura, diseno])
+    // Con las UVs del archivo no hay forma de saber que region es la espalda,
+    // asi que se pinta la cara frontal en todo el mapa. Es una limitacion real
+    // de 'original', y una razon mas para preferir 'proyeccion'.
+    if (esAtlas) componerAtlas(canvas, diseno)
+    else componerCara(canvas, diseno, 'frontal')
+
+    textura.needsUpdate = true // avisa a la GPU de que el canvas cambio
+  }, [canvas, textura, diseno, esAtlas])
 
   useEffect(() => {
     let vivo = true
@@ -146,7 +173,7 @@ function Prenda({
     return copia
   }, [scene])
 
-  const textura = useTexturaDiseno(diseno)
+  const textura = useTexturaDiseno(diseno, modelo.mapeo)
 
   // Las UVs se regeneran una vez por clon, antes de pintar nada.
   useEffect(() => {
@@ -173,7 +200,11 @@ function Prenda({
     alDiagnosticar?.({
       mallas,
       rangoUV: Number.isFinite(min) ? { min, max } : undefined,
-      atlas: `${LADO_TEXTURA * 2}x${LADO_TEXTURA}`,
+      mapeo: modelo.mapeo,
+      atlas:
+        modelo.mapeo === 'proyeccion'
+          ? `${LADO_TEXTURA * 2}x${LADO_TEXTURA} (atlas)`
+          : `${LADO_TEXTURA}x${LADO_TEXTURA} (cara)`,
     })
   }, [clon, modelo.mapeo, alDiagnosticar])
 

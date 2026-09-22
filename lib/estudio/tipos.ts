@@ -230,6 +230,8 @@ export interface DiagnosticoVisor {
   pintadas?: number
   /** Rango de las UVs tras aplicar el mapeo; deberia ser 0..1. */
   rangoUV?: { min: number; max: number }
+  /** Como se esta mapeando la textura sobre la malla. */
+  mapeo?: Mapeo
   /** Tamano del lienzo que alimenta la textura. */
   atlas?: string
 }

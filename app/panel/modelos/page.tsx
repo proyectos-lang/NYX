@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { obtenerModelosPanel } from '@/lib/panel'
 import { fecha } from '@/lib/formato'
-import { alternarVisibilidadModelo, eliminarModelo3D } from '../acciones'
+import { alternarVisibilidadModelo, cambiarMapeoModelo, eliminarModelo3D } from '../acciones'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
 import SubirModelo from '@/componentes/panel/SubirModelo'
@@ -132,6 +132,50 @@ export default async function ModelosPanel({
                         </div>
                       </div>
                     </div>
+
+                    {/* Cambiar el mapeo después de subir.
+                        Hace falta porque el analizador acierta la mayoría de
+                        veces pero no siempre: un modelo con UVs correctas para
+                        SU despliegue las tiene bien según el análisis, y aun
+                        así el diseño no encaja, porque el estudio espera su
+                        propio reparto frente|espalda. Cuando en el estudio el
+                        diseño no aparece o sale descuadrado, esto es lo
+                        primero que hay que probar. */}
+                    <form action={cambiarMapeoModelo} style={{ marginTop: 22 }}>
+                      <input type="hidden" name="id" value={m.id} />
+                      <input
+                        type="hidden"
+                        name="mapeo"
+                        value={m.mapeo === 'proyeccion' ? 'original' : 'proyeccion'}
+                      />
+                      <span className={e.etiqueta}>Mapeo de la textura</span>
+                      <p
+                        style={{
+                          margin: '0 0 12px',
+                          font: '300 11.5px/1.7 var(--fuente-sans), sans-serif',
+                          color: '#5c5c5c',
+                        }}
+                      >
+                        {m.mapeo === 'proyeccion' ? (
+                          <>
+                            Ahora se <strong>regeneran</strong> las UVs por proyección, con el
+                            diseño repartido entre cara frontal y trasera. Es lo que funciona
+                            con casi cualquier modelo.
+                          </>
+                        ) : (
+                          <>
+                            Ahora se <strong>respetan</strong> las UVs del archivo. Solo
+                            funciona si el modelo se desplegó pensando en este estudio; si no,
+                            el diseño sale descuadrado o no aparece.
+                          </>
+                        )}
+                      </p>
+                      <button type="submit" className={e.botonTenue}>
+                        {m.mapeo === 'proyeccion'
+                          ? 'Respetar las UVs del archivo'
+                          : 'Regenerar las UVs por proyección'}
+                      </button>
+                    </form>
 
                     <form action={eliminarModelo3D} style={{ marginTop: 20 }}>
                       <input type="hidden" name="id" value={m.id} />

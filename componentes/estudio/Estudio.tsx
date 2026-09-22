@@ -442,7 +442,13 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                       {diagnostico.rangoUV.max.toFixed(2)}
                     </span>
                   )}
-                  {diagnostico.atlas && <span>atlas {diagnostico.atlas}</span>}
+                  {diagnostico.mapeo && (
+                    <span className={diagnostico.mapeo === 'original' ? e.diagnosticoMal : undefined}>
+                      mapeo {diagnostico.mapeo}
+                      {diagnostico.mapeo === 'original' && ' (suele dar problemas)'}
+                    </span>
+                  )}
+                  {diagnostico.atlas && <span>{diagnostico.atlas}</span>}
                 </>
               )}
             </div>
