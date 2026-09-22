@@ -24,8 +24,7 @@
     "verificar:estudio": "node scripts/verificar-estudio.mts",
     "verificar": "npm run verificar:mapeo && npm run verificar:estudio",
     "modelo:demo": "node scripts/generar-modelo-demo.mts",
-    "sql:instalacion": "node scripts/generar-instalacion.mts",
-    "texturas": "node scripts/generar-texturas.mts"
+    "sql:instalacion": "node scripts/generar-instalacion.mts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

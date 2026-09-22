@@ -1,37 +1,57 @@
 import type { Vista } from './tipos'
 
 /**
- * Preajustes del estudio: texturas listas y sitios habituales para el logo.
+ * Preajustes del estudio: colores de prenda, sitios habituales para las capas
+ * y tipografias.
  *
- * Existen porque una hoja en blanco con un botón de "sube un archivo" no
- * invita a nada. Con estos, el cliente prueba algo en dos clics y luego ya
- * ajusta.
+ * Existen porque una hoja en blanco con un boton de "sube un archivo" no
+ * invita a nada. Con estos, el cliente prueba algo en dos clics y luego ajusta.
  */
 
-export interface TexturaPredefinida {
-  id: string
+export interface ColorPrenda {
+  hex: string
   nombre: string
-  url: string
-  /** Tamaño del mosaico con el que se ve bien de entrada. */
-  escala: number
-  opacidad: number
 }
 
 /**
- * Los archivos los genera `npm run texturas`.
+ * Colores de prenda.
  *
- * Son blanco y negro semitransparentes, no estampados de color: así la textura
- * tiñe la prenda en vez de taparla, y la misma malla deportiva se ve azul
- * sobre una camisa azul. Con patrones de color haría falta una versión por
- * cada color del catálogo.
+ * Uno solo se aplica a la prenda entera: NYX no confecciona, aplica el diseno
+ * sobre una prenda ya hecha, asi que frente y espalda son del mismo color.
+ *
+ * Ordenados de claro a oscuro y luego por familia, que es como se mira una
+ * carta de colores.
  */
-export const TEXTURAS: TexturaPredefinida[] = [
-  { id: 'deportiva', nombre: 'Deportiva', url: '/texturas/deportiva.png', escala: 1, opacidad: 0.85 },
-  { id: 'rayas', nombre: 'Rayas', url: '/texturas/rayas.png', escala: 1, opacidad: 0.7 },
-  { id: 'cuadros', nombre: 'Cuadros', url: '/texturas/cuadros.png', escala: 1, opacidad: 0.8 },
-  { id: 'puntos', nombre: 'Puntos', url: '/texturas/puntos.png', escala: 1, opacidad: 0.75 },
-  { id: 'camuflaje', nombre: 'Camuflaje', url: '/texturas/camuflaje.png', escala: 1.4, opacidad: 0.9 },
-  { id: 'fibra', nombre: 'Fibra', url: '/texturas/fibra.png', escala: 0.7, opacidad: 0.65 },
+export const COLORES: ColorPrenda[] = [
+  // Neutros
+  { hex: '#FFFFFF', nombre: 'Blanco' },
+  { hex: '#F3EFE7', nombre: 'Hueso' },
+  { hex: '#D9D4CC', nombre: 'Arena' },
+  { hex: '#C9C9C9', nombre: 'Gris claro' },
+  { hex: '#8A8A8A', nombre: 'Gris' },
+  { hex: '#4A4A4A', nombre: 'Gris oscuro' },
+  { hex: '#3A3733', nombre: 'Grafito' },
+  { hex: '#0B0B0B', nombre: 'Negro' },
+
+  // Calidos
+  { hex: '#F2C9D4', nombre: 'Rosa' },
+  { hex: '#E8927C', nombre: 'Coral' },
+  { hex: '#C2452D', nombre: 'Rojo' },
+  { hex: '#8C2F2F', nombre: 'Vino' },
+  { hex: '#E9C877', nombre: 'Mostaza' },
+  { hex: '#C99A2E', nombre: 'Oro NYX' },
+  { hex: '#A8622A', nombre: 'Terracota' },
+  { hex: '#6B4A2F', nombre: 'Chocolate' },
+
+  // Frios
+  { hex: '#CFE1F2', nombre: 'Celeste' },
+  { hex: '#5B8FC7', nombre: 'Azul claro' },
+  { hex: '#3A5A8C', nombre: 'Azul' },
+  { hex: '#1E2A4A', nombre: 'Azul marino' },
+  { hex: '#2438C9', nombre: 'Azul electrico' },
+  { hex: '#7FB89A', nombre: 'Menta' },
+  { hex: '#2F7A57', nombre: 'Verde' },
+  { hex: '#1F3D2E', nombre: 'Verde bosque' },
 ]
 
 export interface PosicionLogo {

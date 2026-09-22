@@ -26,7 +26,7 @@ maquetar y revisar el diseño; el panel, en cambio, sí necesita base de datos.
 | `/catalogo` | Catálogo con filtros por categoría, tipo y búsqueda |
 | `/catalogo/[slug]` | Ficha de producto con galería y relacionados |
 | `/cotizar` | Formulario de solicitud de cotización |
-| `/estudio` | Estudio de diseño: color, textura, logos y visor 3D |
+| `/estudio` | Estudio de diseño: color, logotipos, textos y visor 3D |
 | `/login` | Acceso al panel |
 | `/panel/…` | Pedidos, catálogo, categorías, modelos 3D, contenido, preguntas, ajustes |
 | `/maquetas` | Las maquetas originales, como referencia visual |
@@ -218,9 +218,15 @@ olvidar.
 
 ## Estudio de diseño 3D
 
-En `/estudio` el cliente arma un diseño —color base, textura en mosaico y
-logotipos que coloca con el ratón— y lo ve aplicado sobre un modelo `.glb` que
-puede girar.
+En `/estudio` el cliente arma un diseño —color de la prenda, logotipos y textos
+que coloca con el ratón— y lo ve aplicado sobre un modelo `.glb` que puede
+girar. Al terminar lo exporta como una lámina con las **cuatro caras** (frente,
+costados y espalda), que es lo que el taller necesita para cotizar.
+
+El color es **uno solo para toda la prenda**, y no hay texturas. No es una
+simplificación: NYX no confecciona, estampa sobre una prenda ya hecha. El frente
+y la espalda no pueden ser de colores distintos, ni llevar un tejido que el
+proveedor no vende.
 
 Tres piezas separadas:
 

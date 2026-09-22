@@ -29,17 +29,10 @@ import {
   subirImagen,
   subirVistaPrevia,
 } from '@/lib/estudio/subir'
-import { FUENTES, POSICIONES, TEXTURAS } from '@/lib/estudio/preajustes'
+import { COLORES, FUENTES, POSICIONES } from '@/lib/estudio/preajustes'
 import Editor2D from './Editor2D'
 import Visor from './Visor'
 import e from './Estudio.module.css'
-
-/** Colores de prenda habituales en sublimación. */
-const PALETA = [
-  '#FFFFFF', '#0B0B0B', '#3A3733', '#C9C9C9',
-  '#C99A2E', '#8C2F2F', '#3A5A8C', '#1F3D2E',
-  '#F2C9D4', '#CFE1F2', '#E9C877', '#2438C9',
-]
 
 /**
  * Colores de tinta habituales.
@@ -126,7 +119,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
   const router = useRouter()
   const capturarRef = useRef<(() => string | null) | null>(null)
   const entradaLogo = useRef<HTMLInputElement>(null)
-  const entradaTextura = useRef<HTMLInputElement>(null)
 
   const diseno = historial.presente
 
@@ -138,7 +130,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
     setHistorial((h) => aplicar(h, siguiente, fusionar))
   }, [])
 
-  const cara = diseno.caras[vista]
   const logoActivo = diseno.logos.find((l) => l.id === seleccionado) ?? null
 
   const modelo = useMemo(
@@ -148,8 +139,8 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
 
   // --- Operaciones sobre el diseño -----------------------------------------
 
-  const cambiarCara = (patch: Partial<typeof cara>) =>
-    editar({ ...diseno, caras: { ...diseno.caras, [vista]: { ...cara, ...patch } } })
+  /** El color es de la prenda entera, no de una cara. */
+  const cambiarColor = (color: string) => editar({ ...diseno, color })
 
   const cambiarLogo = (id: string, patch: Partial<CapaLogo>, fusionar = false) =>
     editar(
@@ -204,7 +195,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
       tamano: 8,
       // Negro o blanco segun el fondo, para que se vea desde el primer momento
       // en vez de aparecer invisible sobre una prenda del mismo color.
-      color: esClaro(cara.color) ? '#0B0B0B' : '#FFFFFF',
+      color: esClaro(diseno.color) ? '#0B0B0B' : '#FFFFFF',
       rotacion: 0,
       opacidad: 1,
       z: diseno.logos.length + (diseno.textos ?? []).length,
@@ -340,15 +331,16 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
 
   // --- Exportar -------------------------------------------------------------
 
+  /** Descarga el compuesto de las cuatro vistas que arma el visor. */
   const exportar = () => {
     const png = capturarRef.current?.()
     if (!png) {
-      setAviso('Abre la vista 3D antes de exportar la imagen.')
+      setAviso('Abre la vista 3D antes de exportar: las cuatro vistas salen de ahí.')
       return
     }
     const enlace = document.createElement('a')
     enlace.href = png
-    enlace.download = 'nyx-diseno.png'
+    enlace.download = 'nyx-diseno-4-vistas.png'
     enlace.click()
   }
 
@@ -390,7 +382,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
             <FlechaDeshacer invertida />
           </button>
           <button type="button" className={e.botonTenue} onClick={exportar}>
-            Exportar PNG
+            Exportar 4 vistas
           </button>
           <button
             type="button"
@@ -578,7 +570,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
 
           {/* ---------------------------------------------------- Prenda */}
           <div className={e.bloque}>
-            <div className={e.tituloBloque}>Prenda · {ETIQUETA_VISTA[vista]}</div>
+            <div className={e.tituloBloque}>Color de la prenda</div>
 
             {modelos.length > 1 && (
               <div className={e.fila}>
@@ -602,147 +594,27 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               <input
                 className={e.color}
                 type="color"
-                value={cara.color}
-                onChange={(ev) => cambiarCara({ color: ev.target.value })}
+                value={diseno.color}
+                onChange={(ev) => cambiarColor(ev.target.value)}
                 aria-label="Color de la prenda"
               />
-              <span className={e.valor}>{cara.color}</span>
+              <span className={e.valor}>{diseno.color}</span>
             </div>
 
             <div className={e.paleta}>
-              {PALETA.map((c) => (
+              {COLORES.map((c) => (
                 <button
-                  key={c}
+                  key={c.hex}
                   type="button"
                   className={e.muestra}
-                  style={{ background: c }}
-                  data-activa={cara.color.toUpperCase() === c}
-                  onClick={() => cambiarCara({ color: c })}
-                  aria-label={`Color ${c}`}
+                  style={{ background: c.hex }}
+                  data-activa={diseno.color.toUpperCase() === c.hex}
+                  onClick={() => cambiarColor(c.hex)}
+                  title={c.nombre}
+                  aria-label={`Color ${c.nombre}`}
                 />
               ))}
             </div>
-          </div>
-
-          {/* --------------------------------------------------- Textura */}
-          <div className={e.bloque}>
-            <div className={e.tituloBloque}>Textura</div>
-
-            {/* Los preajustes van siempre visibles, también con una textura ya
-                puesta: cambiar de estampado es un clic y no hay que quitarla. */}
-            <div className={e.paleta} style={{ marginBottom: cara.textura ? 18 : 14 }}>
-              {TEXTURAS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={e.muestraTextura}
-                  data-activa={cara.textura?.url === t.url}
-                  title={t.nombre}
-                  aria-label={`Textura ${t.nombre}`}
-                  style={{ backgroundImage: `url(${t.url})` }}
-                  onClick={() =>
-                    cambiarCara({
-                      textura: {
-                        url: t.url,
-                        nombre: t.nombre,
-                        escala: t.escala,
-                        opacidad: t.opacidad,
-                        rotacion: 0,
-                      },
-                    })
-                  }
-                />
-              ))}
-            </div>
-
-            {cara.textura ? (
-              <>
-                <div className={e.fila}>
-                  <span className={e.etiqueta}>Tamaño</span>
-                  <input
-                    className={e.deslizador}
-                    type="range"
-                    min={0.1}
-                    max={4}
-                    step={0.05}
-                    value={cara.textura.escala}
-                    onChange={(ev) =>
-                      cambiarCara({
-                        textura: { ...cara.textura!, escala: Number(ev.target.value) },
-                      })
-                    }
-                  />
-                  <span className={e.valor}>{cara.textura.escala.toFixed(2)}</span>
-                </div>
-
-                <div className={e.fila}>
-                  <span className={e.etiqueta}>Giro</span>
-                  <input
-                    className={e.deslizador}
-                    type="range"
-                    min={0}
-                    max={360}
-                    value={cara.textura.rotacion}
-                    onChange={(ev) =>
-                      cambiarCara({
-                        textura: { ...cara.textura!, rotacion: Number(ev.target.value) },
-                      })
-                    }
-                  />
-                  <span className={e.valor}>{Math.round(cara.textura.rotacion)}°</span>
-                </div>
-
-                <div className={e.fila}>
-                  <span className={e.etiqueta}>Opacidad</span>
-                  <input
-                    className={e.deslizador}
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={cara.textura.opacidad}
-                    onChange={(ev) =>
-                      cambiarCara({
-                        textura: { ...cara.textura!, opacidad: Number(ev.target.value) },
-                      })
-                    }
-                  />
-                  <span className={e.valor}>{Math.round(cara.textura.opacidad * 100)}%</span>
-                </div>
-
-                <button
-                  type="button"
-                  className={e.botonBorrar}
-                  onClick={() => cambiarCara({ textura: null })}
-                >
-                  Quitar textura
-                </button>
-              </>
-            ) : (
-              <>
-                <input
-                  ref={entradaTextura}
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={(ev) =>
-                    void conArchivo(ev.target.files?.[0], (url, nombre) =>
-                      cambiarCara({
-                        textura: { url, nombre, escala: 1, opacidad: 1, rotacion: 0 },
-                      })
-                    )
-                  }
-                />
-                <button
-                  type="button"
-                  className={e.archivo}
-                  onClick={() => entradaTextura.current?.click()}
-                  disabled={subiendo}
-                >
-                  {subiendo ? 'Subiendo…' : 'O sube tu propio estampado'}
-                </button>
-              </>
-            )}
           </div>
 
           {/* ------------------------------------------------------ Logos */}

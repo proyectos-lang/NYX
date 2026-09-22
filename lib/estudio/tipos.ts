@@ -60,26 +60,17 @@ export interface CapaTexto {
   z: number
 }
 
-export interface CapaTextura {
-  url: string
-  nombre: string
-  /** Tamaño del mosaico. */
-  escala: number
-  opacidad: number
-  /** Grados. */
-  rotacion: number
-}
-
-export interface CaraDiseno {
-  /** Hex del fondo. */
-  color: string
-  textura: CapaTextura | null
-}
-
 export interface DisenoEstudio {
   version: 1
   modeloId: string | null
-  caras: Record<Vista, CaraDiseno>
+  /**
+   * Color de la prenda entera, en hex.
+   *
+   * Uno solo, no uno por cara. NYX no confecciona: aplica el diseno sobre una
+   * prenda ya hecha, asi que la prenda es del color que sea y el frente y la
+   * espalda no pueden ser distintos.
+   */
+  color: string
   /** De ambas caras; se filtran por `vista` al pintar. */
   logos: CapaLogo[]
   /**
@@ -119,15 +110,11 @@ export interface Modelo3D {
 
 export const COLOR_POR_DEFECTO = '#FFFFFF'
 
-export function caraVacia(): CaraDiseno {
-  return { color: COLOR_POR_DEFECTO, textura: null }
-}
-
 export function disenoVacio(modeloId: string | null = null): DisenoEstudio {
   return {
     version: 1,
     modeloId,
-    caras: { frontal: caraVacia(), trasera: caraVacia() },
+    color: COLOR_POR_DEFECTO,
     logos: [],
     textos: [],
   }
@@ -143,22 +130,6 @@ function acotar(valor: number, min: number, max: number): number {
 
 function texto(valor: unknown, porDefecto = ''): string {
   return typeof valor === 'string' ? valor : porDefecto
-}
-
-function normalizarTextura(crudo: unknown): CapaTextura | null {
-  if (!crudo || typeof crudo !== 'object') return null
-  const t = crudo as Record<string, unknown>
-  const url = texto(t.url)
-  if (!url) return null
-
-  return {
-    url,
-    nombre: texto(t.nombre, 'Textura'),
-    // Una escala de 0 o negativa deja el patrón invisible o invertido.
-    escala: Math.max(0.05, numero(t.escala, 1)),
-    opacidad: acotar(numero(t.opacidad, 1), 0, 1),
-    rotacion: numero(t.rotacion, 0),
-  }
 }
 
 function normalizarLogo(crudo: unknown, indice: number): CapaLogo | null {
@@ -219,16 +190,14 @@ export function normalizarDiseno(crudo: unknown): DisenoEstudio {
   if (!crudo || typeof crudo !== 'object') return disenoVacio()
 
   const d = crudo as Record<string, unknown>
-  const carasCrudas = (d.caras ?? {}) as Record<string, unknown>
 
-  const caras = {} as Record<Vista, CaraDiseno>
-  for (const vista of VISTAS) {
-    const cara = (carasCrudas[vista] ?? {}) as Record<string, unknown>
-    caras[vista] = {
-      color: texto(cara.color, COLOR_POR_DEFECTO) || COLOR_POR_DEFECTO,
-      textura: normalizarTextura(cara.textura),
-    }
-  }
+  // Los disenos anteriores guardaban un color por cara. Se recupera el de la
+  // cara frontal, que es el que el cliente estaba mirando al guardarlo.
+  const carasViejas = (d.caras ?? {}) as Record<string, { color?: unknown } | undefined>
+  const color =
+    texto(d.color) ||
+    texto(carasViejas.frontal?.color, COLOR_POR_DEFECTO) ||
+    COLOR_POR_DEFECTO
 
   const logos = Array.isArray(d.logos)
     ? d.logos
@@ -247,7 +216,7 @@ export function normalizarDiseno(crudo: unknown): DisenoEstudio {
   return {
     version: 1,
     modeloId: typeof d.modeloId === 'string' ? d.modeloId : null,
-    caras,
+    color,
     logos,
     textos,
   }

@@ -265,18 +265,81 @@ function Prenda({
 // Captura a PNG
 // ---------------------------------------------------------------------------
 
+const VISTAS_CAPTURA = ['Frente', 'Lado derecho', 'Espalda', 'Lado izquierdo']
+
+/** Lado maximo de cada vista dentro del compuesto. */
+const LADO_VISTA = 512
+
 function Capturador({ alPoderCapturar }: { alPoderCapturar?: (f: () => string | null) => void }) {
   const { gl, scene, camera } = useThree()
 
   useEffect(() => {
     if (!alPoderCapturar) return
 
+    /**
+     * Captura las CUATRO caras de la prenda en una sola imagen 2x2.
+     *
+     * Cuatro y no una porque quien recibe el pedido necesita ver la espalda y
+     * los costados: un diseno con algo en la manga o en la nuca es
+     * indistinguible de uno sin nada mirando solo el frente.
+     *
+     * Y una imagen compuesta en vez de cuatro archivos: cabe en la misma
+     * columna vista_previa, se sube de una vez y en el panel se ven las cuatro
+     * de un vistazo sin montar una galeria.
+     *
+     * Los angulos son absolutos, no relativos a como tenga el cliente girada
+     * la camara: asi el frente es siempre el frente y las etiquetas no mienten.
+     */
     alPoderCapturar(() => {
       try {
-        // Hay que renderizar justo antes de leer: el buffer ya está limpio
-        // aunque se pidiera preserveDrawingBuffer.
+        const lienzo = gl.domElement
+        const escala = Math.min(1, LADO_VISTA / Math.max(lienzo.width, lienzo.height))
+        const ancho = Math.round(lienzo.width * escala)
+        const alto = Math.round(lienzo.height * escala)
+
+        const compuesto = document.createElement('canvas')
+        compuesto.width = ancho * 2
+        compuesto.height = alto * 2
+
+        const ctx = compuesto.getContext('2d')
+        if (!ctx) return null
+
+        // El lienzo de WebGL es transparente; sin fondo, el PNG no se veria
+        // sobre el blanco del panel.
+        ctx.fillStyle = '#0b0b0b'
+        ctx.fillRect(0, 0, compuesto.width, compuesto.height)
+
+        const posicion = camera.position.clone()
+        const cuaternion = camera.quaternion.clone()
+
+        // Se conservan altura y distancia del cliente, pero no su angulo.
+        const radio = Math.hypot(posicion.x, posicion.z) || 1.9
+
+        for (let i = 0; i < 4; i++) {
+          const angulo = (i * Math.PI) / 2
+          camera.position.set(Math.sin(angulo) * radio, posicion.y, Math.cos(angulo) * radio)
+          camera.lookAt(0, 0, 0)
+          gl.render(scene, camera)
+
+          const x = (i % 2) * ancho
+          const y = Math.floor(i / 2) * alto
+          ctx.drawImage(lienzo, x, y, ancho, alto)
+
+          ctx.font = '600 11px ui-monospace, Menlo, monospace'
+          ctx.fillStyle = 'rgba(255,255,255,.65)'
+          ctx.textAlign = 'left'
+          ctx.textBaseline = 'top'
+          ctx.fillText(VISTAS_CAPTURA[i], x + 10, y + 9)
+          ctx.fillStyle = '#0b0b0b'
+        }
+
+        // Devolver la camara donde estaba y repintar, o el cliente veria la
+        // prenda saltar al ultimo angulo capturado.
+        camera.position.copy(posicion)
+        camera.quaternion.copy(cuaternion)
         gl.render(scene, camera)
-        return gl.domElement.toDataURL('image/png')
+
+        return compuesto.toDataURL('image/png')
       } catch (error) {
         // Canvas "tainted": alguna imagen vino de un host sin CORS.
         console.error('[nyx] no se pudo capturar el visor', error)

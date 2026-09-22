@@ -12,7 +12,6 @@ import {
   VISTAS,
   type CapaLogo,
   type CapaTexto,
-  type CaraDiseno,
   type DisenoEstudio,
   type Vista,
 } from './tipos'
@@ -72,12 +71,7 @@ export function cargarImagen(url: string): Promise<HTMLImageElement> {
 
 /** Todas las URLs que necesita un diseño, sin repetir. */
 function urlsDe(diseno: DisenoEstudio): Set<string> {
-  const urls = new Set<string>()
-  for (const cara of Object.values(diseno.caras)) {
-    if (cara.textura?.url) urls.add(cara.textura.url)
-  }
-  for (const logo of diseno.logos) urls.add(logo.url)
-  return urls
+  return new Set(diseno.logos.map((l) => l.url))
 }
 
 export async function precargarDiseno(diseno: DisenoEstudio): Promise<void> {
@@ -184,44 +178,6 @@ function acotar(valor: number, min: number, max: number): number {
 }
 
 /**
- * Textura en mosaico.
- *
- * El patrón de canvas se ancla al origen, así que para escalarlo y rotarlo hay
- * que transformar el contexto. El área pintada se compensa con la diagonal: si
- * se pintara solo el cuadrado, al rotar quedarían esquinas sin cubrir.
- */
-function pintarTextura(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  cara: CaraDiseno,
-  lado: number
-): void {
-  const t = cara.textura
-  if (!t) return
-
-  const patron = ctx.createPattern(img, 'repeat')
-  if (!patron) return
-
-  ctx.save()
-  ctx.globalAlpha = acotar(t.opacidad, 0, 1)
-
-  const escala = t.escala > 0 ? t.escala : 1
-  const diagonal = lado * Math.SQRT2
-
-  ctx.translate(lado / 2, lado / 2)
-  ctx.rotate(((t.rotacion || 0) * Math.PI) / 180)
-  ctx.scale(escala, escala)
-  ctx.fillStyle = patron
-  ctx.fillRect(
-    -diagonal / (2 * escala),
-    -diagonal / (2 * escala),
-    diagonal / escala,
-    diagonal / escala
-  )
-  ctx.restore()
-}
-
-/**
  * Logo.
  *
  * El alto sale de la proporción real de la imagen. Escalar los dos ejes por
@@ -300,16 +256,12 @@ export function componerCara(
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  const cara = diseno.caras[vista]
-
   ctx.clearRect(0, 0, lado, lado)
-  ctx.fillStyle = cara.color || '#FFFFFF'
-  ctx.fillRect(0, 0, lado, lado)
 
-  if (cara.textura) {
-    const img = imagenLista(cara.textura.url)
-    if (img) pintarTextura(ctx, img, cara, lado)
-  }
+  // Un solo color para toda la prenda: NYX no confecciona, aplica el diseno
+  // sobre una prenda ya hecha, asi que frente y espalda son del mismo color.
+  ctx.fillStyle = diseno.color || '#FFFFFF'
+  ctx.fillRect(0, 0, lado, lado)
 
   // Logos y textos se apilan en la MISMA escala de z y se ordenan juntos: si
   // se pintaran por separado, un texto siempre quedaria por encima o por
