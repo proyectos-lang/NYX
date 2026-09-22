@@ -18,6 +18,7 @@ import {
   VISTAS,
   type CapaLogo,
   type DisenoEstudio,
+  type DiagnosticoVisor,
   type Modelo3D,
   type Vista,
 } from '@/lib/estudio/tipos'
@@ -61,6 +62,11 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
   const [token, setToken] = useState<string | null>(tokenInicial ?? null)
   const [guardando, setGuardando] = useState(false)
   const [guardadoEn, setGuardadoEn] = useState<Date | null>(tokenInicial ? new Date() : null)
+  const [diagnostico, setDiagnostico] = useState<DiagnosticoVisor>({})
+
+  const alDiagnosticar = useCallback((d: DiagnosticoVisor) => {
+    setDiagnostico((previo) => ({ ...previo, ...d }))
+  }, [])
 
   const router = useRouter()
   const capturarRef = useRef<(() => string | null) | null>(null)
@@ -373,6 +379,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   alPoderCapturar={(f) => {
                     capturarRef.current = f
                   }}
+                  alDiagnosticar={alDiagnosticar}
                 />
               ) : (
                 <div
@@ -390,6 +397,53 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   No hay ningún modelo 3D cargado todavía. Sube un archivo .glb desde el panel
                   para poder ver la prenda.
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Diagnóstico del visor.
+              Va en pantalla y no en la consola del navegador a propósito:
+              "no se ve nada en el 3D" puede ser que el .glb no cargue, que no
+              se reconozcan las mallas, que no se sustituyan los materiales o
+              que las UVs se disparen — y cada causa se arregla en un sitio
+              distinto. Pedirle a alguien que abra las herramientas de
+              desarrollo para averiguarlo no funciona. */}
+          {pestana === '3d' && (
+            <div className={e.diagnostico}>
+              {diagnostico.error ? (
+                <span className={e.diagnosticoMal}>
+                  El modelo no se pudo cargar: {diagnostico.error}
+                </span>
+              ) : diagnostico.mallas === undefined ? (
+                <span>Cargando el modelo…</span>
+              ) : (
+                <>
+                  <span className={diagnostico.mallas > 0 ? e.diagnosticoBien : e.diagnosticoMal}>
+                    {diagnostico.mallas} malla(s)
+                  </span>
+                  <span
+                    className={
+                      diagnostico.pintadas && diagnostico.pintadas > 0
+                        ? e.diagnosticoBien
+                        : e.diagnosticoMal
+                    }
+                  >
+                    {diagnostico.pintadas ?? 0} con el diseño aplicado
+                  </span>
+                  {diagnostico.rangoUV && (
+                    <span
+                      className={
+                        diagnostico.rangoUV.min >= -0.01 && diagnostico.rangoUV.max <= 1.01
+                          ? e.diagnosticoBien
+                          : e.diagnosticoMal
+                      }
+                    >
+                      UV {diagnostico.rangoUV.min.toFixed(2)}–
+                      {diagnostico.rangoUV.max.toFixed(2)}
+                    </span>
+                  )}
+                  {diagnostico.atlas && <span>atlas {diagnostico.atlas}</span>}
+                </>
               )}
             </div>
           )}

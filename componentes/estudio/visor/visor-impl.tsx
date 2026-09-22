@@ -9,14 +9,50 @@
  * archivo explica también por qué NO está aislado del tsconfig.
  */
 
-import { Suspense, useCallback, useEffect, useMemo } from 'react'
+import { Component, Suspense, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Environment, OrbitControls, useGLTF } from '@react-three/drei'
 
 import { componerAtlas, disenoListo, precargarDiseno, LADO_TEXTURA } from '@/lib/estudio/compositor'
 import { aplicarMapeo, esMalla } from '@/lib/estudio/mapeo'
-import type { DisenoEstudio, Modelo3D, PropsVisor } from '@/lib/estudio/tipos'
+import type {
+  DiagnosticoVisor,
+  DisenoEstudio,
+  Modelo3D,
+  PropsVisor,
+} from '@/lib/estudio/tipos'
+
+/**
+ * Límite de error alrededor del modelo.
+ *
+ * Sin esto, un .glb que no carga —404, CORS, archivo corrupto— deja el lienzo
+ * en blanco y sin una sola pista de por qué. Era literalmente el caso de
+ * "no aparece nada en el 3D" y no había forma de distinguirlo de un problema
+ * de texturas.
+ *
+ * Tiene que ser un componente de clase: React no ofrece límites de error con
+ * hooks.
+ */
+class LimiteDeError extends Component<
+  { children: ReactNode; alFallar: (mensaje: string) => void },
+  { fallo: boolean }
+> {
+  state = { fallo: false }
+
+  static getDerivedStateFromError() {
+    return { fallo: true }
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('[nyx] el visor 3D fallo al cargar el modelo', error)
+    this.props.alFallar(error.message || 'Error desconocido al cargar el modelo')
+  }
+
+  render() {
+    return this.state.fallo ? null : this.props.children
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Textura viva
@@ -81,7 +117,15 @@ function useTexturaDiseno(diseno: DisenoEstudio) {
 // La prenda
 // ---------------------------------------------------------------------------
 
-function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio }) {
+function Prenda({
+  modelo,
+  diseno,
+  alDiagnosticar,
+}: {
+  modelo: Modelo3D
+  diseno: DisenoEstudio
+  alDiagnosticar?: (d: DiagnosticoVisor) => void
+}) {
   const { scene } = useGLTF(modelo.archivoUrl)
 
   // useGLTF cachea la escena: mutar sus materiales afectaría a cualquier otro
@@ -107,7 +151,31 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
   // Las UVs se regeneran una vez por clon, antes de pintar nada.
   useEffect(() => {
     aplicarMapeo(clon, modelo.mapeo)
-  }, [clon, modelo.mapeo])
+
+    // Se mide despues de mapear: unas UVs fuera de [0,1] significan que la
+    // textura se recorta contra el borde y la prenda sale de un color plano.
+    let min = Infinity
+    let max = -Infinity
+    let mallas = 0
+
+    clon.traverse((obj) => {
+      if (!esMalla(obj)) return
+      mallas++
+      const uv = obj.geometry.attributes.uv
+      if (!uv) return
+      for (let i = 0; i < uv.count; i++) {
+        const u = uv.getX(i)
+        if (u < min) min = u
+        if (u > max) max = u
+      }
+    })
+
+    alDiagnosticar?.({
+      mallas,
+      rangoUV: Number.isFinite(min) ? { min, max } : undefined,
+      atlas: `${LADO_TEXTURA * 2}x${LADO_TEXTURA}`,
+    })
+  }, [clon, modelo.mapeo, alDiagnosticar])
 
   useEffect(() => {
     const excluidos = new Set(modelo.materialesExcluidos)
@@ -144,16 +212,8 @@ function Prenda({ modelo, diseno }: { modelo: Modelo3D; diseno: DisenoEstudio })
     // Sin esto, el fallo es mudo: la prenda sale blanca y no hay nada en
     // consola que lo explique. Que pase significa que el recorrido no reconoce
     // las mallas del .glb, o que todos sus materiales estan excluidos.
-    if (pintadas === 0) {
-      console.error(
-        '[nyx] el visor no pinto ninguna malla del modelo. ' +
-          'La prenda se vera con su material original, sin el diseno. ' +
-          'Revisa que el .glb tenga mallas y que no esten todas en materiales excluidos.'
-      )
-    } else {
-      console.info(`[nyx] visor: ${pintadas} malla(s) con la textura del diseno aplicada`)
-    }
-  }, [clon, textura, modelo.materialesExcluidos])
+    alDiagnosticar?.({ pintadas })
+  }, [clon, textura, modelo.materialesExcluidos, alDiagnosticar])
 
   // Escala y centro vienen medidos al subir el modelo; medir aquí en cada carga
   // sería repetir trabajo y, peor, hacerlo antes de que la malla esté lista.
@@ -201,7 +261,12 @@ function Capturador({ alPoderCapturar }: { alPoderCapturar?: (f: () => string | 
 // Escena
 // ---------------------------------------------------------------------------
 
-export function VisorImpl({ modelo, diseno, alPoderCapturar }: PropsVisor) {
+export function VisorImpl({
+  modelo,
+  diseno,
+  alPoderCapturar,
+  alDiagnosticar,
+}: PropsVisor) {
   return (
     <Canvas
       camera={{ position: [0, 0, 1.9], fov: 35 }}
@@ -213,9 +278,11 @@ export function VisorImpl({ modelo, diseno, alPoderCapturar }: PropsVisor) {
       <directionalLight position={[3, 5, 4]} intensity={1.1} />
       <directionalLight position={[-4, 2, -3]} intensity={0.45} />
 
-      <Suspense fallback={null}>
-        <Prenda modelo={modelo} diseno={diseno} />
-      </Suspense>
+      <LimiteDeError alFallar={(mensaje) => alDiagnosticar?.({ error: mensaje })}>
+        <Suspense fallback={null}>
+          <Prenda modelo={modelo} diseno={diseno} alDiagnosticar={alDiagnosticar} />
+        </Suspense>
+      </LimiteDeError>
 
       {/* En su propio Suspense: el preset descarga un HDR de un CDN externo y
           si tarda o falla, la prenda debe verse igual con las luces de arriba. */}

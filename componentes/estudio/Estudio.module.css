@@ -420,3 +420,25 @@
   background: var(--oro-claro);
   border-color: var(--oro-claro);
 }
+
+/* Diagnostico del visor 3D. Deliberadamente discreto pero legible: no es para
+   el cliente, es para saber por que no se ve lo que deberia verse. */
+.diagnostico {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: var(--negro-4);
+  border: 1px solid var(--linea-tenue);
+  font: 400 10.5px/1.5 ui-monospace, Menlo, monospace;
+  color: var(--gris-suave);
+}
+
+.diagnosticoBien {
+  color: #7fc79a;
+}
+
+.diagnosticoMal {
+  color: #e59a9a;
+}

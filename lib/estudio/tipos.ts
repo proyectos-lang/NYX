@@ -208,4 +208,28 @@ export interface PropsVisor {
    * todavia no hay nada que capturar. Se llama una vez, al montar.
    */
   alPoderCapturar?: (capturar: () => string | null) => void
+  /** Se llama cuando el visor sabe en que estado esta. */
+  alDiagnosticar?: (d: DiagnosticoVisor) => void
+}
+
+/**
+ * Lo que el visor puede contar de si mismo.
+ *
+ * Existe porque diagnosticar el visor a distancia resulto muy caro: "no se ve
+ * nada" puede ser que el .glb no cargue, que no se reconozcan las mallas, que
+ * no se sustituyan los materiales o que las UVs se disparen, y cada causa se
+ * arregla en un sitio distinto. Esto lo pone en pantalla en vez de en la
+ * consola del navegador, que casi nadie abre.
+ */
+export interface DiagnosticoVisor {
+  /** Mensaje de error si el modelo no llego a cargar. */
+  error?: string
+  /** Mallas encontradas al recorrer el modelo. */
+  mallas?: number
+  /** Mallas a las que se les puso la textura del diseno. */
+  pintadas?: number
+  /** Rango de las UVs tras aplicar el mapeo; deberia ser 0..1. */
+  rangoUV?: { min: number; max: number }
+  /** Tamano del lienzo que alimenta la textura. */
+  atlas?: string
 }
