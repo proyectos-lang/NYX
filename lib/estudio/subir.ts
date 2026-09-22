@@ -68,3 +68,35 @@ export async function subirImagen(archivo: File): Promise<ImagenSubida> {
 
   return { url: data.publicUrl, nombre: archivo.name, temporal: false }
 }
+
+/**
+ * Sube al bucket la captura del visor y devuelve su URL.
+ *
+ * Se sube el PNG y se guarda la URL, no la imagen en base64: una captura ronda
+ * el medio mega y no tiene por que viajar dentro de cada consulta de la
+ * bandeja de pedidos, que es donde se va a mostrar.
+ *
+ * Si falla, devuelve null en vez de lanzar: perder la miniatura es molesto,
+ * perder el diseno entero por culpa de la miniatura seria absurdo.
+ */
+export async function subirVistaPrevia(dataUrl: string): Promise<string | null> {
+  if (!hayAlmacenamiento() || !dataUrl.startsWith('data:image/')) return null
+
+  try {
+    const binario = await (await fetch(dataUrl)).blob()
+
+    const supabase = crearClienteNavegador()
+    const ruta = `vistas/${crypto.randomUUID()}.png`
+
+    const { error } = await supabase.storage
+      .from('disenos')
+      .upload(ruta, binario, { contentType: 'image/png' })
+
+    if (error) throw error
+
+    return supabase.storage.from('disenos').getPublicUrl(ruta).data.publicUrl
+  } catch (error) {
+    console.error('[nyx] no se pudo subir la vista previa', error)
+    return null
+  }
+}

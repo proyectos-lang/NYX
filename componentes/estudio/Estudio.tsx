@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { guardarDisenoEstudio } from '@/app/(sitio)/estudio/acciones'
 import {
   aplicar,
   deshacer,
@@ -20,7 +21,12 @@ import {
   type Modelo3D,
   type Vista,
 } from '@/lib/estudio/tipos'
-import { ErrorImagen, hayAlmacenamiento, subirImagen } from '@/lib/estudio/subir'
+import {
+  ErrorImagen,
+  hayAlmacenamiento,
+  subirImagen,
+  subirVistaPrevia,
+} from '@/lib/estudio/subir'
 import Editor2D from './Editor2D'
 import Visor from './Visor'
 import e from './Estudio.module.css'
@@ -32,12 +38,17 @@ const PALETA = [
   '#F2C9D4', '#CFE1F2', '#E9C877', '#2438C9',
 ]
 
+/** Donde el navegador recuerda el diseño entre visitas. */
+const CLAVE_TOKEN = 'nyx-diseno'
+
 interface Props {
   modelos: Modelo3D[]
   disenoInicial?: DisenoEstudio
+  /** Token del diseño que se está retomando, si venía en la URL. */
+  tokenInicial?: string
 }
 
-export default function Estudio({ modelos, disenoInicial }: Props) {
+export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props) {
   const [historial, setHistorial] = useState<Historial<DisenoEstudio>>(() =>
     iniciar(disenoInicial ?? disenoVacio(modelos[0]?.id ?? null))
   )
@@ -46,7 +57,11 @@ export default function Estudio({ modelos, disenoInicial }: Props) {
   const [seleccionado, setSeleccionado] = useState<string | null>(null)
   const [aviso, setAviso] = useState('')
   const [subiendo, setSubiendo] = useState(false)
+  const [token, setToken] = useState<string | null>(tokenInicial ?? null)
+  const [guardando, setGuardando] = useState(false)
+  const [guardadoEn, setGuardadoEn] = useState<Date | null>(tokenInicial ? new Date() : null)
 
+  const router = useRouter()
   const capturarRef = useRef<(() => string | null) | null>(null)
   const entradaLogo = useRef<HTMLInputElement>(null)
   const entradaTextura = useRef<HTMLInputElement>(null)
@@ -147,6 +162,80 @@ export default function Estudio({ modelos, disenoInicial }: Props) {
     setSeleccionado(nuevo.id)
   }
 
+  // --- Guardar --------------------------------------------------------------
+
+  /**
+   * Si esta pestaña no traía token pero el navegador recuerda uno de una visita
+   * anterior, se recarga con ?d= para que el servidor lo traiga. Se hace por la
+   * URL y no pidiendo el diseño aquí porque así el enlace queda compartible:
+   * el cliente puede mandárselo a un compañero tal cual.
+   */
+  useEffect(() => {
+    if (tokenInicial) return
+
+    try {
+      const recordado = window.localStorage.getItem(CLAVE_TOKEN)
+      if (recordado) router.replace(`/estudio?d=${encodeURIComponent(recordado)}`)
+    } catch {
+      // Ventana privada o almacenamiento bloqueado: se empieza en blanco.
+    }
+  }, [tokenInicial, router])
+
+  const guardar = useCallback(async (): Promise<string | null> => {
+    setGuardando(true)
+    setAviso('')
+
+    try {
+      // La miniatura solo existe si el cliente llegó a abrir la vista 3D. Si no,
+      // se guarda el diseño igual: es lo que importa.
+      const png = capturarRef.current?.() ?? null
+      const vistaPrevia = png ? await subirVistaPrevia(png) : null
+
+      const resultado = await guardarDisenoEstudio({
+        documento: diseno,
+        token,
+        modeloId: diseno.modeloId,
+        vistaPrevia,
+      })
+
+      if (!resultado.ok || !resultado.token) {
+        setAviso(resultado.mensaje ?? 'No se pudo guardar el diseño.')
+        return null
+      }
+
+      setToken(resultado.token)
+      setGuardadoEn(new Date())
+
+      try {
+        window.localStorage.setItem(CLAVE_TOKEN, resultado.token)
+      } catch {
+        // Sin almacenamiento el diseño se guarda igual; solo no se recupera solo.
+      }
+
+      // replaceState y no router.replace: cambiar la URL no debe recargar la
+      // página ni perder lo que el cliente tiene en pantalla.
+      window.history.replaceState(null, '', `/estudio?d=${encodeURIComponent(resultado.token)}`)
+
+      return resultado.token
+    } finally {
+      setGuardando(false)
+    }
+  }, [diseno, token])
+
+  /** Guarda antes de ir al formulario: sin token, el pedido llegaría sin diseño. */
+  const pedirCotizacion = async () => {
+    const guardado = await guardar()
+
+    if (!guardado) {
+      setAviso(
+        'No se pudo guardar el diseño, así que la cotización no lo llevaría. Inténtalo otra vez.'
+      )
+      return
+    }
+
+    router.push(`/cotizar?diseno=${encodeURIComponent(guardado)}`)
+  }
+
   // --- Exportar -------------------------------------------------------------
 
   const exportar = () => {
@@ -197,11 +286,39 @@ export default function Estudio({ modelos, disenoInicial }: Props) {
           <button type="button" className={e.botonTenue} onClick={exportar}>
             Exportar PNG
           </button>
-          <Link href="/cotizar" className={e.boton} style={{ textDecoration: 'none' }}>
-            Pedir cotización
-          </Link>
+          <button
+            type="button"
+            className={e.botonTenue}
+            onClick={() => void guardar()}
+            disabled={guardando || !hayAlmacenamiento()}
+          >
+            {guardando ? 'Guardando…' : 'Guardar'}
+          </button>
+          <button
+            type="button"
+            className={e.boton}
+            onClick={() => void pedirCotizacion()}
+            disabled={guardando}
+          >
+            {guardando ? 'Guardando…' : 'Pedir cotización'}
+          </button>
         </div>
       </div>
+
+      {guardadoEn && (
+        <p
+          style={{
+            maxWidth: 1500,
+            margin: '0 auto 14px',
+            font: '300 11px/1.6 var(--fuente-sans), sans-serif',
+            color: 'var(--gris-suave)',
+          }}
+        >
+          Diseño guardado a las{' '}
+          {guardadoEn.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}. Este
+          enlace lo recupera tal cual, y tu navegador lo recordará en la próxima visita.
+        </p>
+      )}
 
       <div className={e.cuerpo}>
         <div>

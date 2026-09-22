@@ -97,6 +97,9 @@ export async function enviarSolicitud(
       p_metodo_entrega: metodo,
       p_observaciones: texto(datos, 'observaciones') || null,
       p_archivos: archivos,
+      // El diseno se engancha DENTRO de crear_solicitud(): la tabla es
+      // solo-staff, asi que el enlace no puede hacerse desde aqui.
+      p_diseno_token: texto(datos, 'diseno_token') || null,
     })
 
     if (error) {

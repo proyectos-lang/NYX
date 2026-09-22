@@ -27,9 +27,9 @@ const PUNTOS = [
 export default async function Cotizar({
   searchParams,
 }: {
-  searchParams: Promise<{ producto?: string }>
+  searchParams: Promise<{ producto?: string; diseno?: string }>
 }) {
-  const [{ producto: slugInicial }, contacto, catalogo] = await Promise.all([
+  const [{ producto: slugInicial, diseno: disenoToken }, contacto, catalogo] = await Promise.all([
     searchParams,
     obtenerContacto(),
     // Todo el catálogo visible cabe en el desplegable de producto.
@@ -62,6 +62,7 @@ export default async function Cotizar({
               productos={opciones}
               productoInicial={slugInicial}
               subidaDisponible={hayBaseDeDatos()}
+              disenoToken={disenoToken}
             />
           </div>
 

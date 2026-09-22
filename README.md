@@ -267,6 +267,25 @@ responde con CORS, el canvas queda "tainted" y tanto la textura del modelo como
 la exportación a PNG dejan de funcionar. Por eso el bucket `disenos` es público
 y no se usan URLs firmadas.
 
+### Del diseño al pedido
+
+El circuito cierra así: el cliente diseña, **Guardar** llama a
+`guardar_diseno()` y devuelve un token que va a la URL (`/estudio?d=…`) y al
+almacenamiento del navegador — el enlace es compartible y el diseño sobrevive a
+la recarga. **Pedir cotización** guarda primero y lleva el token al formulario,
+que lo manda como campo oculto.
+
+Quien engancha el diseño al pedido es `crear_solicitud()`, no la aplicación.
+Es a propósito: `disenos` es tabla solo-staff, así que si el enlace se hiciera
+desde el cliente cualquiera podría colgar su diseño del pedido de otro. La
+función acaba de crear el pedido, así que sabe cuál es, y solo engancha
+diseños que no estén ya en otro.
+
+En el panel, la ficha del pedido muestra la vista previa y un enlace que abre
+el diseño en el estudio. La miniatura es una URL del bucket, no el PNG en
+base64: una captura ronda el medio mega y no tiene por qué viajar en cada
+consulta de la bandeja.
+
 ### Comprobaciones
 
 ```bash
@@ -333,7 +352,5 @@ git config user.email "tu@correo.com"
   borrar el viejo, pero no reemplazarlo en sitio conservando su id.
 - **Limpiar los .glb huérfanos.** Al borrar un modelo su archivo se queda en el
   bucket, porque un diseño guardado puede seguir apuntando a él.
-- **Guardar el diseno.** Las funciones `guardar_diseno()` y `leer_diseno()`
-  estan en la migracion, pero el estudio todavia no las llama.
 - **ESLint.** `next lint` quedó obsoleto en Next 15.5 y no se ha migrado a la
   CLI de ESLint. `npm run typecheck` y `npm run build` sí comprueban tipos.

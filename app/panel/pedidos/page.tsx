@@ -110,6 +110,51 @@ async function Detalle({ pedido, volver }: { pedido: PedidoPanel; volver: string
         </div>
       </div>
 
+      {pedido.diseno && (
+        <div className={p.seccion}>
+          <div className={p.tituloSeccion}>Diseño del estudio</div>
+
+          {pedido.diseno.vistaPrevia ? (
+            <a
+              href={`/estudio?d=${encodeURIComponent(pedido.diseno.token)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'block', border: '1px solid rgba(0,0,0,.1)' }}
+            >
+              {/* Imagen del bucket, de dimensiones desconocidas: <img> normal
+                  en vez de next/image, que exige tamaño o dominio configurado. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={pedido.diseno.vistaPrevia}
+                alt="Vista previa del diseño"
+                style={{ width: '100%', display: 'block', background: '#0b0b0b' }}
+              />
+            </a>
+          ) : (
+            <p
+              style={{
+                margin: '0 0 12px',
+                font: '300 11.5px/1.7 var(--fuente-sans), sans-serif',
+                color: '#8a8a8a',
+              }}
+            >
+              Sin vista previa: el cliente no llegó a abrir la pestaña 3D. El diseño sí está
+              guardado.
+            </p>
+          )}
+
+          <a
+            href={`/estudio?d=${encodeURIComponent(pedido.diseno.token)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={p.archivoEnlace}
+            style={{ display: 'inline-block', marginTop: 12 }}
+          >
+            Abrir en el estudio
+          </a>
+        </div>
+      )}
+
       {archivos.length > 0 && (
         <div className={p.seccion}>
           <div className={p.tituloSeccion}>Archivos del cliente</div>

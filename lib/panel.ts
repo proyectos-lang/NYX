@@ -81,6 +81,8 @@ export interface PedidoPanel {
     foto: string | null
   }[]
   archivos: { id: string; nombre: string; ruta: string; bytes: number | null }[]
+  /** Diseno del estudio, si la solicitud salio de ahi. */
+  diseno: { token: string; vistaPrevia: string | null } | null
 }
 
 const SELECT_PEDIDO = `
@@ -91,7 +93,8 @@ const SELECT_PEDIDO = `
     id, nombre_producto, cantidad, especificaciones, precio_unitario,
     productos ( producto_fotos ( url, es_portada, orden ) )
   ),
-  pedido_archivos ( id, nombre_archivo, ruta_storage, bytes )
+  pedido_archivos ( id, nombre_archivo, ruta_storage, bytes ),
+  disenos ( token, vista_previa )
 `
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -128,6 +131,10 @@ function aPedidoPanel(fila: any): PedidoPanel {
       ruta: a.ruta_storage,
       bytes: a.bytes,
     })),
+    // Un pedido lleva como mucho un diseno, pero el embed llega como lista.
+    diseno: fila.disenos?.[0]
+      ? { token: fila.disenos[0].token, vistaPrevia: fila.disenos[0].vista_previa ?? null }
+      : null,
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

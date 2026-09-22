@@ -20,6 +20,8 @@ interface Props {
   productoInicial?: string
   /** Sin Supabase no hay dónde subir el logo: el campo se desactiva. */
   subidaDisponible: boolean
+  /** Token del diseño del estudio, si la solicitud viene de ahí. */
+  disenoToken?: string
 }
 
 const TIPOS_ACEPTADOS =
@@ -43,7 +45,12 @@ function BotonEnviar() {
   )
 }
 
-export default function Formulario({ productos, productoInicial, subidaDisponible }: Props) {
+export default function Formulario({
+  productos,
+  productoInicial,
+  subidaDisponible,
+  disenoToken,
+}: Props) {
   const [estado, accion] = useActionState<EstadoSolicitud, FormData>(enviarSolicitud, {
     estado: 'inicial',
   })
@@ -122,6 +129,53 @@ export default function Formulario({ productos, productoInicial, subidaDisponibl
         <p className={e.error} role="alert">
           {estado.mensaje}
         </p>
+      )}
+
+      {/* El token viaja como campo oculto: quien engancha el diseño al pedido
+          es crear_solicitud(), porque la tabla `disenos` es solo-staff. */}
+      {disenoToken && (
+        <>
+          <input type="hidden" name="diseno_token" value={disenoToken} />
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginBottom: 26,
+              padding: '16px 18px',
+              background: 'rgba(201,154,46,.08)',
+              border: '1px solid var(--linea-oro)',
+            }}
+          >
+            <span
+              style={{
+                font: '300 12.5px/1.7 var(--fuente-sans), sans-serif',
+                color: 'var(--gris-texto)',
+              }}
+            >
+              <strong style={{ color: 'var(--oro-claro)', fontWeight: 600 }}>
+                Tu diseño va adjunto.
+              </strong>{' '}
+              NYX lo verá tal como lo dejaste en el estudio.
+            </span>
+            <Link
+              href={`/estudio?d=${encodeURIComponent(disenoToken)}`}
+              style={{
+                flex: 'none',
+                font: '600 10.5px/1.2 var(--fuente-sans), sans-serif',
+                letterSpacing: '.12em',
+                textTransform: 'uppercase',
+                color: 'var(--oro-claro)',
+                borderBottom: '1px solid var(--oro)',
+                paddingBottom: 3,
+              }}
+            >
+              Seguir editándolo
+            </Link>
+          </div>
+        </>
       )}
 
       {/* --------------------------------------------------- Datos de contacto */}
