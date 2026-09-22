@@ -473,10 +473,10 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   <span className={e.guiaNumero}>1</span> Elige color o textura a la derecha
                 </span>
                 <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>2</span> Sube tu logotipo
+                  <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
                 </span>
                 <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>3</span> Arrástralo sobre la prenda
+                  <span className={e.guiaNumero}>3</span> Arrástralo donde quieras
                 </span>
               </div>
 
@@ -884,6 +884,33 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   </button>
                 ))}
               </div>
+
+              {/* Los mismos sitios que para los logos. Faltaban aquí, así que
+                  colocar un texto en el pecho izquierdo obligaba a afinarlo a
+                  mano mientras que con un logo era un clic. */}
+              <span className={e.etiqueta}>Colocar en</span>
+              <div className={e.posiciones}>
+                {POSICIONES.filter((p) => !p.vista || p.vista === textoActivo.vista).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={e.posicion}
+                    onClick={() => cambiarTexto(textoActivo.id, { x: p.x, y: p.y })}
+                  >
+                    {p.nombre}
+                  </button>
+                ))}
+              </div>
+
+              <p
+                style={{
+                  margin: '0 0 16px',
+                  font: '300 10.5px/1.6 var(--fuente-sans), sans-serif',
+                  color: 'var(--gris-suave)',
+                }}
+              >
+                O arrástralo con el ratón sobre la prenda, en la pestaña Editar.
+              </p>
 
               <div className={e.fila}>
                 <span className={e.etiqueta}>Color</span>

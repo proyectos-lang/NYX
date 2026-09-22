@@ -107,7 +107,7 @@ export default function Editor2D({
           Desaparece en cuanto hay un logo en esta cara. */}
       {logos.length === 0 && textos.length === 0 && (
         <div className={e.lienzoVacio}>
-          Sube un logotipo desde el panel de la derecha
+          Añade un logotipo o un texto desde el panel de la derecha
           <br />y arrástralo hasta donde lo quieras.
         </div>
       )}
