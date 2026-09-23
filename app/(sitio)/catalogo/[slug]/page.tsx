@@ -11,6 +11,7 @@ import {
 import { ETIQUETA_TIPO } from '@/lib/database.types'
 import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
+import BotonAnadir from '@/componentes/sitio/carrito/BotonAnadir'
 import Galeria from './Galeria'
 import e from './Producto.module.css'
 
@@ -121,6 +122,24 @@ export default async function FichaProducto({
                 </div>
               </div>
             </div>
+
+            {/* Entrega inmediata: hay stock y precio cerrado, así que se puede
+                pedir directamente. Los personalizables no tienen precio hasta
+                que NYX sabe cantidad, material y acabado. */}
+            {inmediato && (
+              <div style={{ marginBottom: 14 }}>
+                <BotonAnadir
+                  producto={{
+                    productoId: producto.id,
+                    slug: producto.slug,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    imagen: producto.imagen,
+                    stock: producto.stock,
+                  }}
+                />
+              </div>
+            )}
 
             <div className={e.acciones}>
               <Link href={`/cotizar?producto=${producto.slug}`} className="boton-oro">

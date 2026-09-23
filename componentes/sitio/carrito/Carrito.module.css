@@ -1,0 +1,270 @@
+/* --- Botón de añadir ------------------------------------------------------ */
+
+.anadirSolido,
+.anadirDiscreto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+  font: 600 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: 0.2s ease;
+}
+
+.anadirSolido {
+  width: 100%;
+  padding: 15px 20px;
+  background: #0a5c2b;
+  color: #fff;
+}
+
+.anadirSolido:hover:not(:disabled) {
+  background: #084a23;
+}
+
+.anadirDiscreto {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 14px;
+  background: transparent;
+  border: 1px solid #0a5c2b;
+  color: #0a5c2b;
+}
+
+.anadirDiscreto:hover:not(:disabled) {
+  background: #0a5c2b;
+  color: #fff;
+}
+
+.anadirSolido:disabled,
+.anadirDiscreto:disabled {
+  opacity: 0.5;
+  cursor: default;
+  letter-spacing: 0.08em;
+}
+
+.agotado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 14px;
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  font: 600 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+/* --- Insignia de la cabecera ---------------------------------------------- */
+
+/* Vive en la cabecera, que es casi negra: el verde oscuro de los botones no se
+   leería ahí, así que usa el claro y se rellena al pasar por encima. */
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border: 1px solid #5fd08a;
+  color: #5fd08a;
+  font: 600 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.insignia:hover {
+  background: #5fd08a;
+  color: #08210f;
+}
+
+.cuenta {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Página del carrito --------------------------------------------------- */
+
+.lineas {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.linea {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 720px) {
+  .linea {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+.foto {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: repeating-linear-gradient(135deg, #f2f2f2 0 8px, #e9e9e9 8px 16px);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nombre {
+  font: 400 16px/1.3 var(--fuente-serif), Georgia, serif;
+  color: var(--negro);
+}
+
+.nombre:hover {
+  color: var(--oro-oscuro);
+}
+
+.unitario {
+  margin-top: 6px;
+  font: 300 12px/1.5 var(--fuente-sans), sans-serif;
+  color: #6f6f6f;
+}
+
+.controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+@media (min-width: 720px) {
+  .controles {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+.cantidad {
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.paso {
+  width: 32px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  font: 400 16px/1 var(--fuente-sans), sans-serif;
+  color: #5c5c5c;
+  cursor: pointer;
+}
+
+.paso:hover:not(:disabled) {
+  background: #f0f0f0;
+  color: var(--negro);
+}
+
+.paso:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.valor {
+  min-width: 34px;
+  text-align: center;
+  font: 500 13px/1 var(--fuente-sans), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.subtotal {
+  min-width: 74px;
+  text-align: right;
+  font: 500 14px/1 var(--fuente-sans), sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--negro);
+}
+
+.quitar {
+  border: 0;
+  background: transparent;
+  padding: 4px 0;
+  font: 400 11px/1 var(--fuente-sans), sans-serif;
+  color: #9a9a9a;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.quitar:hover {
+  color: #7a2020;
+}
+
+.avisoStock {
+  margin-top: 6px;
+  font: 400 11px/1.5 var(--fuente-sans), sans-serif;
+  color: #8a5a00;
+}
+
+/* --- Resumen -------------------------------------------------------------- */
+
+.resumen {
+  margin-top: 26px;
+  padding: 22px;
+  background: #fafafa;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+.totalFila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.totalEtiqueta {
+  font: 600 10px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.totalCifra {
+  font: 400 26px/1 var(--fuente-serif), Georgia, serif;
+  color: var(--negro);
+  font-variant-numeric: tabular-nums;
+}
+
+.nota {
+  margin: 14px 0 0;
+  font: 300 11.5px/1.65 var(--fuente-sans), sans-serif;
+  color: #6f6f6f;
+}
+
+.vacio {
+  padding: 60px 24px;
+  text-align: center;
+  border: 1px dashed rgba(0, 0, 0, 0.16);
+}
+
+.vacioTitulo {
+  font: 400 20px/1.3 var(--fuente-serif), Georgia, serif;
+  color: var(--negro);
+}
+
+.vacioTexto {
+  margin: 12px auto 22px;
+  max-width: 48ch;
+  font: 300 12.5px/1.7 var(--fuente-sans), sans-serif;
+  color: #6f6f6f;
+}

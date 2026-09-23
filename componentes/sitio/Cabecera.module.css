@@ -69,6 +69,16 @@
   box-shadow: 0 10px 26px rgba(201, 154, 46, 0.28);
 }
 
+/* El carrito. `margin-left: auto` lo empuja a la derecha en móvil, donde la
+   navegación no existe y el space-between del contenedor lo dejaría flotando
+   en medio. */
+.acciones {
+  display: flex;
+  align-items: center;
+  flex: none;
+  margin-left: auto;
+}
+
 .hamburguesa {
   display: flex;
   flex-direction: column;

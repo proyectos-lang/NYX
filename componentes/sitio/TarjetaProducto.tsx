@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { ProductoVista } from '@/lib/demo'
 import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
+import BotonAnadir from './carrito/BotonAnadir'
 import estilos from './TarjetaProducto.module.css'
 
 interface Props {
@@ -58,9 +59,30 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
             <div className={estilos.existencias}>
               {textoStock(producto.stock, producto.bajoPedido)}
             </div>
-            <Link href={`/cotizar?producto=${producto.slug}`} className={estilos.accionSolida}>
-              Solicitar
-            </Link>
+            <span className={estilos.precio} style={{ display: 'block', margin: '10px 0' }}>
+              {formatearPrecio(producto.precio)}
+            </span>
+
+            {/* Solo los de entrega inmediata entran al carrito: los
+                personalizables no tienen precio hasta que NYX sabe cantidad,
+                material y acabado, así que siguen por la cotización. */}
+            {inmediato ? (
+              <BotonAnadir
+                variante="discreto"
+                producto={{
+                  productoId: producto.id,
+                  slug: producto.slug,
+                  nombre: producto.nombre,
+                  precio: producto.precio,
+                  imagen: producto.imagen,
+                  stock: producto.stock,
+                }}
+              />
+            ) : (
+              <Link href={`/cotizar?producto=${producto.slug}`} className={estilos.accionSolida}>
+                Solicitar
+              </Link>
+            )}
           </>
         ) : (
           <div className={estilos.pie}>

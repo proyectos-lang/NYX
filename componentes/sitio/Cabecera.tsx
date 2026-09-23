@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import InsigniaCarrito from './carrito/Insignia'
 import estilos from './Cabecera.module.css'
 
 const ENLACES = [
@@ -49,6 +50,13 @@ export default function Cabecera() {
           Solicitar cotización
         </Link>
       </nav>
+
+      {/* Fuera de <nav> a propósito: la navegación se oculta por debajo de
+          1040px y el carrito quedaría inalcanzable justo en el móvil, que es
+          donde más se compra algo que ya está hecho. */}
+      <div className={estilos.acciones}>
+        <InsigniaCarrito />
+      </div>
 
       <button
         type="button"
