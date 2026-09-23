@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { contarPorEstado, obtenerPerfil } from '@/lib/panel'
 import { cerrarSesion } from '@/app/login/acciones'
+import MenuLateral from './MenuLateral'
 import NavPanel from './NavPanel'
 import Volver from './Volver'
 import e from './Panel.module.css'
@@ -33,7 +34,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
 
   return (
     <div className={e.shell}>
-      <aside className={e.lateral}>
+      <MenuLateral>
         <div className={e.marca}>
           <Image src="/assets/nyx-logo-dark.png" alt="NYX" width={110} height={34} />
           <div>
@@ -67,7 +68,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
             </button>
           </form>
         </div>
-      </aside>
+      </MenuLateral>
 
       <main className={e.principal}>
         <Volver />

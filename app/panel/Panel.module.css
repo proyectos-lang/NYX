@@ -14,23 +14,120 @@
   }
 }
 
-/* --- Barra lateral -------------------------------------------------------- */
+/* --- Barra lateral --------------------------------------------------------
+
+   En móvil es un cajón que entra por la izquierda, no una pila de enlaces
+   encima del contenido. Apilada, lo primero de cada pantalla eran siete
+   enlaces que había que pasar de largo, y cada sección nueva empujaba el
+   trabajo más abajo.
+
+   A partir de 900px se queda fija a la vista, que es el comportamiento de
+   siempre en el ordenador.                                                  */
 
 .lateral {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: min(268px, 82vw);
+  height: 100dvh;
+  overflow-y: auto;
   background: #0b0b0b;
   padding: 22px 16px;
   display: flex;
   flex-direction: column;
   gap: 26px;
   min-width: 0;
+  transform: translateX(-100%);
+  transition: transform 0.25s var(--curva);
+}
+
+.lateral[data-abierto='true'] {
+  transform: translateX(0);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
 }
 
 @media (min-width: 900px) {
   .lateral {
     position: sticky;
-    top: 0;
+    z-index: auto;
+    width: auto;
     height: 100vh;
     padding: 26px 18px;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Botón de abrir, solo en móvil. Va fijo abajo a la izquierda y no arriba:
+   arriba compite con el título de cada pantalla, y abajo cae donde llega el
+   pulgar sin cambiar la mano de sitio. */
+.abrirMenu {
+  position: fixed;
+  z-index: 50;
+  left: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 15px 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: #0b0b0b;
+  color: var(--blanco);
+  font: 600 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
+.rayas {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rayas span {
+  display: block;
+  width: 15px;
+  height: 1.5px;
+  background: var(--oro-claro);
+}
+
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.cerrarMenu {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: none;
+  color: var(--gris-texto);
+  font: 400 13px/1 var(--fuente-sans), sans-serif;
+  cursor: pointer;
+}
+
+.cerrarMenu:hover {
+  color: var(--blanco);
+  border-color: var(--blanco);
+}
+
+@media (min-width: 900px) {
+  .abrirMenu,
+  .velo,
+  .cerrarMenu {
+    display: none;
   }
 }
 
@@ -138,7 +235,9 @@
 /* --- Área de trabajo ------------------------------------------------------ */
 
 .principal {
-  padding: 26px 20px 56px;
+  /* El hueco de abajo es para el botón de menú, que flota encima. Sin él tapa
+     lo último de cada pantalla, que casi siempre es el botón de guardar. */
+  padding: 26px 20px 96px;
   min-width: 0;
   color: var(--negro);
 }
