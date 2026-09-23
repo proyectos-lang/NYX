@@ -4,8 +4,7 @@
   z-index: 99;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   padding: 16px clamp(18px, 4vw, 40px);
   background: rgba(8, 8, 8, 0.9);
   backdrop-filter: blur(8px);
@@ -28,21 +27,35 @@
   }
 }
 
+/* La navegación se pega a la derecha con margin-left: auto, y las acciones van
+   justo detrás. Antes el reparto lo hacía space-between, pero dejó de
+   funcionar al añadir el selector de idioma: bastaba con que un hijo trajera
+   su propio margin auto para que se comiera todo el espacio libre y los demás
+   quedaran amontonados a la izquierda.
+
+   El corte sube a 1280px. Con ocho enlaces, el botón de cotizar, el carrito y
+   ES | EN, la fila necesita unos 1300px para no apretarse; por debajo se pasa
+   al menú desplegable, que cabe siempre. */
 .navegacion {
   display: none;
   align-items: center;
-  gap: 26px;
+  /* El hueco entre enlaces se ajusta al ancho. Con un valor fijo, ocho
+     enlaces mas el boton de cotizar no caben en un portatil de 1280 y la fila
+     se sale; con clamp se aprieta lo justo y respira en pantallas grandes. */
+  gap: clamp(12px, 1.1vw, 22px);
+  margin-left: auto;
 }
 
-@media (min-width: 1040px) {
+@media (min-width: 1240px) {
   .navegacion {
     display: flex;
   }
 }
 
 .enlace {
-  font: 500 12px/1 var(--fuente-sans), sans-serif;
-  letter-spacing: 0.05em;
+  font: 500 clamp(11px, 0.85vw, 12px) / 1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
   color: var(--gris-texto);
   transition: color 0.2s ease;
 }
@@ -53,12 +66,14 @@
 }
 
 .cta {
-  font: 600 11.5px/1 var(--fuente-sans), sans-serif;
-  letter-spacing: 0.1em;
+  flex: none;
+  white-space: nowrap;
+  font: 600 clamp(10.5px, 0.8vw, 11.5px) / 1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--negro);
   background: var(--oro-degradado);
-  padding: 13px 20px;
+  padding: 12px clamp(13px, 1.3vw, 20px);
   border-radius: 2px;
   transition: 0.3s var(--curva);
 }
@@ -69,14 +84,21 @@
   box-shadow: 0 10px 26px rgba(201, 154, 46, 0.28);
 }
 
-/* El carrito. `margin-left: auto` lo empuja a la derecha en móvil, donde la
-   navegación no existe y el space-between del contenedor lo dejaría flotando
-   en medio. */
+/* El carrito y el idioma. En móvil no hay navegación que los empuje, así que
+   el margin auto lo llevan ellos; en escritorio lo lleva la navegación y aquí
+   sobraría. */
 .acciones {
   display: flex;
   align-items: center;
+  gap: 10px;
   flex: none;
   margin-left: auto;
+}
+
+@media (min-width: 1240px) {
+  .acciones {
+    margin-left: 0;
+  }
 }
 
 .hamburguesa {
@@ -90,7 +112,7 @@
   cursor: pointer;
 }
 
-@media (min-width: 1040px) {
+@media (min-width: 1240px) {
   .hamburguesa {
     display: none;
   }

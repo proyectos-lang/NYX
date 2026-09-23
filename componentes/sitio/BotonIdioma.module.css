@@ -1,16 +1,23 @@
 /* ES | EN. Dos opciones pegadas, con la activa marcada, en lugar de un botón
    que dice "cambiar": así se ve en qué idioma estás sin tener que pulsarlo. */
 
+/* La altura se fija para que cuadre con la insignia del carrito, que tiene al
+   lado en la cabecera. Con paddings distintos quedaban desalineados por dos
+   pixeles: poco para saber por que, suficiente para que se vea mal. */
 .grupo {
   display: inline-flex;
+  align-items: stretch;
   flex: none;
+  height: 31px;
   border: 1px solid var(--linea);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .opcion {
-  padding: 7px 9px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
   font: 600 10px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.1em;
   color: var(--gris-suave);

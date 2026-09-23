@@ -97,7 +97,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 13px;
+  /* Misma altura que el selector de idioma, que tiene al lado. */
+  height: 31px;
+  padding: 0 12px;
   border-radius: 2px;
   border: 1px solid rgba(201, 154, 46, 0.5);
   color: var(--oro-claro);
