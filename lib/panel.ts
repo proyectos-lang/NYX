@@ -377,12 +377,17 @@ export async function obtenerBloquesPanel(): Promise<BloquePanel[]> {
   comprobarConfiguracion()
   const supabase = await crearClienteServidor()
 
+  // `contenido_media ( * )` y no la lista de columnas a propósito: la columna
+  // `clave` la añade supabase/contenido-inicial.sql, y nombrarla haría que
+  // PostgREST rechazara la consulta entera mientras ese script no se haya
+  // ejecutado. El panel se quedaba en negro con un error que no decía por qué.
+  // Pidiendo todas, la columna simplemente no viene hasta que existe.
   const { data, error } = await supabase
     .from('contenido_bloques')
     .select(
       `id, clave, seccion, titulo, nota, bloqueado, orden,
        contenido_campos ( id, clave, etiqueta, valor_es, valor_en, multilinea, orden ),
-       contenido_media ( id, clave, url, tipo, alt, orden )`
+       contenido_media ( * )`
     )
     .order('orden')
 
