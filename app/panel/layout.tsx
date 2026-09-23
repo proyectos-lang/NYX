@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { contarPorEstado, obtenerPerfil } from '@/lib/panel'
 import { cerrarSesion } from '@/app/login/acciones'
 import NavPanel from './NavPanel'
+import Volver from './Volver'
 import e from './Panel.module.css'
 
 export const metadata: Metadata = {
@@ -61,7 +62,10 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
         </div>
       </aside>
 
-      <main className={e.principal}>{children}</main>
+      <main className={e.principal}>
+        <Volver />
+        {children}
+      </main>
     </div>
   )
 }

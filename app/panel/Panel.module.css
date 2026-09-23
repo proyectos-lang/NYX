@@ -149,6 +149,27 @@
   }
 }
 
+/* Volver a la pantalla anterior. Va arriba del todo y separado del contenido:
+   es navegación, no una acción sobre lo que se está editando. */
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 7px 12px 7px 9px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: var(--blanco);
+  font: 500 11px/1 var(--fuente-sans), sans-serif;
+  color: #5c5c5c;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.volver:hover {
+  border-color: var(--negro);
+  color: var(--negro);
+}
+
 .antetituloPantalla {
   font: 600 9.5px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.2em;
