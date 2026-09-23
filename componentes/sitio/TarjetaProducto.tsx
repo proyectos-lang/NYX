@@ -99,14 +99,34 @@ export default function TarjetaProducto({
             )}
           </>
         ) : (
-          <div className={estilos.pie}>
-            <span className={estilos.precio}>
-              {formatearPrecio(producto.precio, idioma)}
-            </span>
-            <Link href={href} className={estilos.accion}>
-              {t.catalogo.verProducto}
-            </Link>
-          </div>
+          <>
+            <div className={estilos.pie}>
+              <span className={estilos.precio}>
+                {formatearPrecio(producto.precio, idioma)}
+              </span>
+              <Link href={href} className={estilos.accion}>
+                {t.catalogo.verProducto}
+              </Link>
+            </div>
+
+            {/* Tambien en el catalogo, no solo en la portada. Lo de entrega
+                inmediata ya tiene precio cerrado: obligar a entrar a la ficha
+                para poder anadirlo es un paso que no aporta nada. */}
+            {inmediato && (
+              <BotonAnadir
+                variante="discretoOscuro"
+                idioma={idioma}
+                producto={{
+                  productoId: producto.id,
+                  slug: producto.slug,
+                  nombre: producto.nombre,
+                  precio: producto.precio,
+                  imagen: producto.imagen,
+                  stock: producto.stock,
+                }}
+              />
+            )}
+          </>
         )}
       </div>
     </article>

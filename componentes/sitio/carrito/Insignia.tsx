@@ -1,35 +1,35 @@
 'use client'
 
-import Link from 'next/link'
 import { useCarrito } from './estado'
-import { ruta, type Idioma } from '@/lib/i18n'
+import { type Idioma } from '@/lib/i18n'
 import { textos } from '@/lib/textos'
 import s from './Carrito.module.css'
 
 /**
  * El acceso al carrito, en la cabecera.
  *
- * Mientras `listo` es false no se pinta el número. El carrito se lee de
- * localStorage después de montar, así que el servidor no puede saber cuántas
- * unidades hay: pintarlo antes haría que React avisara de que el HTML del
- * servidor no coincide con el del navegador.
+ * ABRE EL CAJON, no lleva a una pagina. Antes era un enlace a /carrito, y
+ * comprobar que llevabas costaba salir de donde estabas y volver atras.
  *
- * Con el carrito vacío no se enseña nada, ni el icono. Un carrito
- * permanentemente vacío en la cabecera invita a pulsarlo para no encontrar
- * nada, y este sitio vende sobre todo por cotización: el carrito es el camino
- * secundario.
+ * SE VE SIEMPRE, tambien con el carrito vacio. Antes se escondia, y un carrito
+ * que aparece y desaparece deja a quien navega sin saber si el sitio tiene o
+ * no. El numero solo sale cuando hay algo.
+ *
+ * Mientras `listo` es false no se pinta el numero: el carrito se lee de
+ * localStorage despues de montar, asi que el servidor no puede saber cuantas
+ * unidades hay, y pintarlo antes haria que React avisara de que el HTML del
+ * servidor no coincide con el del navegador.
  */
 export default function InsigniaCarrito({ idioma }: { idioma: Idioma }) {
-  const { unidades, listo } = useCarrito()
+  const { unidades, listo, abrir } = useCarrito()
   const t = textos(idioma)
 
-  if (!listo || unidades === 0) return null
-
   return (
-    <Link
-      href={ruta('/carrito', idioma)}
+    <button
+      type="button"
       className={s.insignia}
-      aria-label={`${t.carrito.verCarrito}: ${unidades}`}
+      onClick={abrir}
+      aria-label={`${t.carrito.verCarrito}${listo && unidades > 0 ? `: ${unidades}` : ''}`}
     >
       <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
         <path
@@ -43,7 +43,7 @@ export default function InsigniaCarrito({ idioma }: { idioma: Idioma }) {
         <circle cx="8.5" cy="16" r="1.2" fill="currentColor" />
         <circle cx="14.5" cy="16" r="1.2" fill="currentColor" />
       </svg>
-      <span className={s.cuenta}>{unidades}</span>
-    </Link>
+      {listo && unidades > 0 && <span className={s.cuenta}>{unidades}</span>}
+    </button>
   )
 }

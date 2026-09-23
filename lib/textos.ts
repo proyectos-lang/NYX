@@ -146,6 +146,13 @@ interface Textos {
     recibidoTitulo: string
     recibidoTexto: (referencia: string) => string
     seguirViendo: string
+    /** Cajón lateral */
+    cajonTitulo: string
+    cerrar: string
+    subtotal: string
+    verPedido: string
+    seguirComprando: string
+    sinPagoAviso: string
     errorVacio: string
     errorNombre: string
     errorCorreo: string
@@ -356,6 +363,12 @@ const ES: Textos = {
     recibidoTexto: (referencia) =>
       `Guarda esta referencia: ${referencia}. Te escribimos para confirmarte la disponibilidad y coordinar la entrega.`,
     seguirViendo: 'Seguir viendo',
+    cajonTitulo: 'Tu carrito',
+    cerrar: 'Cerrar',
+    subtotal: 'Subtotal',
+    verPedido: 'Continuar con el pedido',
+    seguirComprando: 'Seguir comprando',
+    sinPagoAviso: 'No se paga aquí. NYX confirma y coordina la entrega.',
     errorVacio: 'El carrito está vacío.',
     errorNombre: 'Escribe tu nombre para poder avisarte.',
     errorCorreo: 'Revisa el correo electrónico: no parece válido.',
@@ -579,6 +592,12 @@ const EN: Textos = {
     recibidoTexto: (referencia) =>
       `Keep this reference: ${referencia}. We will write to confirm availability and arrange delivery.`,
     seguirViendo: 'Keep browsing',
+    cajonTitulo: 'Your cart',
+    cerrar: 'Close',
+    subtotal: 'Subtotal',
+    verPedido: 'Continue with the order',
+    seguirComprando: 'Keep shopping',
+    sinPagoAviso: 'No payment here. NYX confirms and arranges delivery.',
     errorVacio: 'Your cart is empty.',
     errorNombre: 'Write your name so we can reply.',
     errorCorreo: 'Check the email address: it does not look valid.',

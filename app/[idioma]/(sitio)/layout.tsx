@@ -1,6 +1,7 @@
 import Cabecera from '@/componentes/sitio/Cabecera'
 import Pie from '@/componentes/sitio/Pie'
 import { ProveedorCarrito } from '@/componentes/sitio/carrito/estado'
+import CajonCarrito from '@/componentes/sitio/carrito/Cajon'
 import { esIdioma, type Idioma } from '@/lib/i18n'
 
 /**
@@ -27,6 +28,8 @@ export default async function LayoutSitio({
       <Cabecera idioma={idioma} />
       <main>{children}</main>
       <Pie idioma={idioma} />
+      {/* Una sola vez para todo el sitio: se abre desde cualquier pagina. */}
+      <CajonCarrito idioma={idioma} />
     </ProveedorCarrito>
   )
 }

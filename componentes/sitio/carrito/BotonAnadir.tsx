@@ -9,8 +9,11 @@ import s from './Carrito.module.css'
 
 interface Props {
   producto: Omit<LineaCarrito, 'cantidad'>
-  /** 'solido' en la ficha del producto, 'discreto' en las tarjetas. */
-  variante?: 'solido' | 'discreto'
+  /**
+   * 'solido' en la ficha del producto, 'discreto' en las tarjetas claras de la
+   * portada y 'discretoOscuro' en las del catalogo, que van sobre fondo negro.
+   */
+  variante?: 'solido' | 'discreto' | 'discretoOscuro'
   idioma: Idioma
 }
 
@@ -39,7 +42,7 @@ export default function BotonAnadir({ producto, variante = 'solido', idioma }: P
     // negra y las tarjetas del catálogo son blancas.
     return (
       <span
-        className={variante === 'solido' ? s.agotadoOscuro : s.agotado}
+        className={variante === 'discreto' ? s.agotado : s.agotadoOscuro}
         aria-disabled="true"
       >
         {t.carrito.agotado}
@@ -50,7 +53,13 @@ export default function BotonAnadir({ producto, variante = 'solido', idioma }: P
   return (
     <button
       type="button"
-      className={variante === 'solido' ? s.anadirSolido : s.anadirDiscreto}
+      className={
+        variante === 'solido'
+          ? s.anadirSolido
+          : variante === 'discretoOscuro'
+            ? s.anadirDiscretoOscuro
+            : s.anadirDiscreto
+      }
       disabled={topeAlcanzado}
       onClick={() => {
         anadir(producto)

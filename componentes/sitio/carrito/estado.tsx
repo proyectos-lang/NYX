@@ -50,6 +50,10 @@ interface Carrito {
   vaciar: () => void
   /** false hasta haber leído localStorage: evita parpadeos al cargar. */
   listo: boolean
+  /** El cajón lateral. */
+  abierto: boolean
+  abrir: () => void
+  cerrar: () => void
 }
 
 const CLAVE = 'nyx:carrito:v1'
@@ -70,6 +74,7 @@ function leerGuardado(): LineaCarrito[] {
 export function ProveedorCarrito({ children }: { children: React.ReactNode }) {
   const [lineas, setLineas] = useState<LineaCarrito[]>([])
   const [listo, setListo] = useState(false)
+  const [abierto, setAbierto] = useState(false)
 
   // Se lee DESPUÉS de montar, no durante el render: en el servidor no existe
   // localStorage, y si el primer HTML llevara el carrito lleno, React avisaría
@@ -89,11 +94,19 @@ export function ProveedorCarrito({ children }: { children: React.ReactNode }) {
     }
   }, [lineas, listo])
 
+  // Al añadir se abre el cajón. Es lo que hace cualquier tienda: confirma que
+  // el clic surtió efecto y enseña lo que llevas, sin sacarte de la página en
+  // la que estabas.
   const anadir = useCallback(
-    (linea: Omit<LineaCarrito, 'cantidad'>, cantidad = 1) =>
-      setLineas((previas) => anadirLinea(previas, linea, cantidad)),
+    (linea: Omit<LineaCarrito, 'cantidad'>, cantidad = 1) => {
+      setLineas((previas) => anadirLinea(previas, linea, cantidad))
+      setAbierto(true)
+    },
     []
   )
+
+  const abrir = useCallback(() => setAbierto(true), [])
+  const cerrar = useCallback(() => setAbierto(false), [])
 
   const cambiarCantidad = useCallback(
     (productoId: string, cantidad: number) =>
@@ -119,8 +132,11 @@ export function ProveedorCarrito({ children }: { children: React.ReactNode }) {
       quitar,
       vaciar,
       listo,
+      abierto,
+      abrir,
+      cerrar,
     }),
-    [lineas, anadir, cambiarCantidad, quitar, vaciar, listo]
+    [lineas, anadir, cambiarCantidad, quitar, vaciar, listo, abierto, abrir, cerrar]
   )
 
   return <ContextoCarrito.Provider value={valor}>{children}</ContextoCarrito.Provider>
