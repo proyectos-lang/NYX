@@ -30,7 +30,6 @@ import {
   subirVistaPrevia,
 } from '@/lib/estudio/subir'
 import { COLORES, FUENTES, POSICIONES } from '@/lib/estudio/preajustes'
-import Editor2D from './Editor2D'
 import Visor from './Visor'
 import e from './Estudio.module.css'
 
@@ -103,7 +102,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
     iniciar(disenoInicial ?? disenoVacio(modelos[0]?.id ?? null))
   )
   const [vista, setVista] = useState<Vista>('frontal')
-  const [pestana, setPestana] = useState<'2d' | '3d'>('2d')
   const [seleccionado, setSeleccionado] = useState<string | null>(null)
   const [aviso, setAviso] = useState('')
   const [subiendo, setSubiendo] = useState(false)
@@ -147,26 +145,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
       { ...diseno, logos: diseno.logos.map((l) => (l.id === id ? { ...l, ...patch } : l)) },
       fusionar
     )
-
-  /** Sirve para logos y para textos: el editor arrastra los dos igual. */
-  const moverCapa = useCallback(
-    (id: string, x: number, y: number, fusionar: boolean) => {
-      setHistorial((h) =>
-        aplicar(
-          h,
-          {
-            ...h.presente,
-            logos: h.presente.logos.map((l) => (l.id === id ? { ...l, x, y } : l)),
-            textos: (h.presente.textos ?? []).map((x2) =>
-              x2.id === id ? { ...x2, x, y } : x2
-            ),
-          },
-          fusionar
-        )
-      )
-    },
-    []
-  )
 
   const borrarLogo = (id: string) => {
     editar({ ...diseno, logos: diseno.logos.filter((l) => l.id !== id) })
@@ -424,23 +402,11 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
             para ver el resultado. */}
         <div className={e.columnaLienzo}>
           <div className={e.pestanas}>
-            <button
-              type="button"
-              className={e.pestana}
-              data-activa={pestana === '2d'}
-              onClick={() => setPestana('2d')}
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              className={e.pestana}
-              data-activa={pestana === '3d'}
-              onClick={() => setPestana('3d')}
-            >
-              Ver en 3D
-            </button>
-
+            {/* Ya no hay pestañas: el estudio es siempre la vista 3D. El
+                lienzo 2D que había aquí enseñaba la prenda estirada en plano,
+                y no se entendía de qué parte de la camiseta era cada trozo.
+                Todo se coloca desde el panel de la derecha y se comprueba
+                girando el modelo, que es como se va a ver de verdad. */}
             <span style={{ flex: 1 }} />
 
             {/* Se rotulan porque sin la palabra "cara" estos dos botones se
@@ -469,32 +435,22 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
             ))}
           </div>
 
-          {pestana === '2d' ? (
-            <>
-              {/* La guia esta porque el editor no se explicaba solo: se podia
-                  arrastrar desde el principio, pero nada lo decia. */}
-              <div className={e.guia}>
-                <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>1</span> Elige el color de la prenda a la derecha
-                </span>
-                <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
-                </span>
-                <span className={e.guiaPaso}>
-                  <span className={e.guiaNumero}>3</span> Arrástralo donde quieras
-                </span>
-              </div>
+          {/* La guía sigue haciendo falta: sin ella, un lienzo con una prenda
+              de un solo color no dice qué se espera de ti. Lo que cambió es el
+              paso 3, que antes era "arrástralo" y ahora apunta al panel. */}
+          <div className={e.guia}>
+            <span className={e.guiaPaso}>
+              <span className={e.guiaNumero}>1</span> Elige el color de la prenda a la derecha
+            </span>
+            <span className={e.guiaPaso}>
+              <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
+            </span>
+            <span className={e.guiaPaso}>
+              <span className={e.guiaNumero}>3</span> Colócalo con los controles y gira la prenda
+            </span>
+          </div>
 
-              <Editor2D
-              diseno={diseno}
-              vista={vista}
-              seleccionado={seleccionado}
-              onSeleccionar={setSeleccionado}
-                onMoverCapa={moverCapa}
-              />
-            </>
-          ) : (
-            <div className={`${e.lienzo} ${e.lienzoCompacto}`}>
+          <div className={`${e.lienzo} ${e.lienzoCompacto}`}>
               {modelo ? (
                 <Visor
                   modelo={modelo}
@@ -521,8 +477,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   para poder ver la prenda.
                 </div>
               )}
-            </div>
-          )}
+          </div>
 
           {/* Diagnóstico del visor.
               Va en pantalla y no en la consola del navegador a propósito:
@@ -531,8 +486,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               que las UVs se disparen — y cada causa se arregla en un sitio
               distinto. Pedirle a alguien que abra las herramientas de
               desarrollo para averiguarlo no funciona. */}
-          {pestana === '3d' && (
-            <div className={e.diagnostico}>
+          <div className={e.diagnostico}>
               {diagnostico.error ? (
                 <span className={e.diagnosticoMal}>
                   El modelo no se pudo cargar: {diagnostico.error}
@@ -574,8 +528,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   {diagnostico.atlas && <span>{diagnostico.atlas}</span>}
                 </>
               )}
-            </div>
-          )}
+          </div>
         </div>
 
         <div className={e.panel}>
@@ -798,7 +751,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   color: 'var(--gris-suave)',
                 }}
               >
-                O arrástralo con el ratón sobre la prenda, en la pestaña Editar.
+                Gira la prenda para comprobar cómo queda por cada lado.
               </p>
 
               <div className={e.fila}>
@@ -949,8 +902,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
                   color: 'var(--gris-suave)',
                 }}
               >
-                O arrástralo con el ratón en la pestaña Editar, o ajústalo al milímetro aquí
-                abajo.
+                O ajústalo al milímetro aquí abajo.
               </p>
 
               {/* Posición numérica.
