@@ -20,14 +20,19 @@
    linea gana a cualquier clase, y mientras hubo uno el logo salia a tamano
    completo en el telefono por mucho que se cambiara este numero.
    Se probo a 20 y 28; a 28 el cambio no se notaba, asi que sube a 34. */
+/* El archivo es una composicion VERTICAL: el ave de y=74 a 555 y la palabra
+   NYX de 555 a 890, sobre un lienzo de 1536x1024. Al fijar la altura, mas de
+   la mitad se la lleva el ave y a la palabra le quedan unas tres quintas
+   partes menos. Por eso subir el numero poco a poco no se notaba: para que la
+   palabra crezca un pixel, el conjunto tiene que crecer casi tres. */
 .logo img {
-  height: 34px;
+  height: 48px;
   width: auto;
 }
 
 @media (min-width: 900px) {
   .logo img {
-    height: 44px;
+    height: 60px;
   }
 }
 
