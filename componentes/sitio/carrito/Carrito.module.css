@@ -1,3 +1,11 @@
+/* El carrito usa la paleta del sitio: negro, blanco y oro.
+   El verde sigue existiendo, pero solo donde ya estaba: la insignia "Disponible
+   ahora" de las tarjetas. Ahí es un estado, y el verde para "hay" es una
+   convención que se entiende sin leer.
+   Como color de BOTÓN era otra cosa. Las acciones de este sitio son negras u
+   oro, y un botón verde en medio no se lee como "la acción principal": se lee
+   como una pieza traída de otra web. */
+
 /* --- Botón de añadir ------------------------------------------------------ */
 
 .anadirSolido,
@@ -6,43 +14,48 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 0;
+  border-radius: 2px;
   cursor: pointer;
   font: 600 10.5px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-align: center;
-  transition: 0.2s ease;
+  transition: 0.3s var(--curva);
 }
 
+/* En la ficha del producto, sobre fondo claro: negro sólido. Es la acción
+   principal de la página y tiene que ganarle al botón de cotizar. */
 .anadirSolido {
   width: 100%;
-  padding: 15px 20px;
-  background: #0a5c2b;
-  color: #fff;
+  padding: 16px 20px;
+  border: 1px solid var(--negro);
+  background: var(--negro);
+  color: var(--blanco);
 }
 
 .anadirSolido:hover:not(:disabled) {
-  background: #084a23;
+  background: transparent;
+  color: var(--negro);
 }
 
+/* En las tarjetas, donde compite con el nombre y el precio: solo contorno. */
 .anadirDiscreto {
   width: 100%;
   margin-top: 10px;
   padding: 11px 14px;
   background: transparent;
-  border: 1px solid #0a5c2b;
-  color: #0a5c2b;
+  border: 1px solid var(--negro);
+  color: var(--negro);
 }
 
 .anadirDiscreto:hover:not(:disabled) {
-  background: #0a5c2b;
-  color: #fff;
+  background: var(--negro);
+  color: var(--blanco);
 }
 
 .anadirSolido:disabled,
 .anadirDiscreto:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
   letter-spacing: 0.08em;
 }
@@ -58,29 +71,32 @@
   font: 600 10.5px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9a9a9a;
+  color: var(--gris-suave);
 }
 
 /* --- Insignia de la cabecera ---------------------------------------------- */
 
-/* Vive en la cabecera, que es casi negra: el verde oscuro de los botones no se
-   leería ahí, así que usa el claro y se rellena al pasar por encima. */
+/* La cabecera es casi negra, así que aquí manda el oro: es el color con el que
+   el sitio marca lo accionable sobre fondo oscuro, igual que el botón de
+   cotizar que tiene al lado. */
 .insignia {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 13px;
-  border: 1px solid #5fd08a;
-  color: #5fd08a;
+  border-radius: 2px;
+  border: 1px solid rgba(201, 154, 46, 0.5);
+  color: var(--oro-claro);
   font: 600 10.5px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.1em;
   white-space: nowrap;
-  transition: 0.2s ease;
+  transition: 0.3s var(--curva);
 }
 
 .insignia:hover {
-  background: #5fd08a;
-  color: #08210f;
+  background: rgba(201, 154, 46, 0.12);
+  border-color: var(--oro);
+  color: var(--oro-claro);
 }
 
 .cuenta {
@@ -137,7 +153,7 @@
 .unitario {
   margin-top: 6px;
   font: 300 12px/1.5 var(--fuente-sans), sans-serif;
-  color: #6f6f6f;
+  color: var(--gris-medio);
 }
 
 .controles {
@@ -167,12 +183,12 @@
   border: 0;
   background: transparent;
   font: 400 16px/1 var(--fuente-sans), sans-serif;
-  color: #5c5c5c;
+  color: var(--gris-fuerte);
   cursor: pointer;
 }
 
 .paso:hover:not(:disabled) {
-  background: #f0f0f0;
+  background: var(--hueso-2);
   color: var(--negro);
 }
 
@@ -201,7 +217,7 @@
   background: transparent;
   padding: 4px 0;
   font: 400 11px/1 var(--fuente-sans), sans-serif;
-  color: #9a9a9a;
+  color: var(--gris-suave);
   cursor: pointer;
   text-decoration: underline;
 }
@@ -213,7 +229,7 @@
 .avisoStock {
   margin-top: 6px;
   font: 400 11px/1.5 var(--fuente-sans), sans-serif;
-  color: #8a5a00;
+  color: var(--oro-oscuro);
 }
 
 /* --- Resumen -------------------------------------------------------------- */
@@ -221,8 +237,9 @@
 .resumen {
   margin-top: 26px;
   padding: 22px;
-  background: #fafafa;
+  background: var(--hueso);
   border: 1px solid rgba(0, 0, 0, 0.09);
+  border-top: 2px solid var(--oro);
 }
 
 .totalFila {
@@ -236,7 +253,7 @@
   font: 600 10px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8a8a8a;
+  color: var(--gris-suave);
 }
 
 .totalCifra {
@@ -248,7 +265,7 @@
 .nota {
   margin: 14px 0 0;
   font: 300 11.5px/1.65 var(--fuente-sans), sans-serif;
-  color: #6f6f6f;
+  color: var(--gris-medio);
 }
 
 .vacio {
@@ -266,5 +283,5 @@
   margin: 12px auto 22px;
   max-width: 48ch;
   font: 300 12.5px/1.7 var(--fuente-sans), sans-serif;
-  color: #6f6f6f;
+  color: var(--gris-medio);
 }
