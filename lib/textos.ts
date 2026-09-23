@@ -152,6 +152,59 @@ interface Textos {
     errorSinBase: string
     errorGenerico: string
   }
+  cotizar: {
+    titulo: string
+    intro: string
+    migas: string
+    comoFunciona: string
+    puntos: string[]
+    prefieresEscribir: string
+    grupoDatos: string
+    grupoProducto: string
+    grupoLogo: string
+    grupoEntrega: string
+    nombre: string
+    nombrePlaceholder: string
+    empresa: string
+    empresaPlaceholder: string
+    correo: string
+    correoPlaceholder: string
+    telefono: string
+    telefonoPlaceholder: string
+    producto: string
+    productoOtro: string
+    cantidad: string
+    fecha: string
+    detalles: string
+    detallesPlaceholder: string
+    metodo: string
+    metodoSinDefinir: string
+    metodoEnvio: string
+    metodoRetiro: string
+    metodoLocal: string
+    indicaciones: string
+    indicacionesPlaceholder: string
+    elegirArchivo: string
+    subiendo: string
+    formatosArchivo: string
+    archivoGrande: string
+    archivoFallo: string
+    archivoSinBase: string
+    avisoArte: string
+    avisoSinPagos: string
+    enviar: string
+    enviando: string
+    disenoAdjunto: string
+    seguirEditando: string
+    exitoAntetitulo: string
+    exitoTitulo: string
+    exitoTexto: string
+    exitoVolver: string
+    errorNombre: string
+    errorCorreo: string
+    errorProducto: string
+    errorSinBase: string
+  }
   comun: {
     stockBajoPedido: string
     stockConsultar: string
@@ -311,6 +364,71 @@ const ES: Textos = {
     errorGenerico:
       'No pudimos registrar el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.',
   },
+  cotizar: {
+    titulo: 'Solicitar cotización',
+    intro:
+      'Cuéntanos qué deseas personalizar. Recibirás la confirmación de NYX con el precio final y el tiempo de entrega.',
+    migas: 'Cotización',
+    comoFunciona: 'Cómo funciona',
+    puntos: [
+      'Respondemos en un máximo de 24 horas hábiles.',
+      'El precio de la web es referencial; el final depende de cantidad, material y acabado.',
+      'Revisamos tu arte antes de producir y te avisamos si la resolución no alcanza.',
+      'Sin mínimo para productos individuales. Corporativo desde 10 unidades.',
+    ],
+    prefieresEscribir: '¿Prefieres escribirnos?',
+    grupoDatos: 'Tus datos',
+    grupoProducto: 'Qué quieres personalizar',
+    grupoLogo: 'Tu logotipo o diseño',
+    grupoEntrega: 'Entrega y observaciones',
+    nombre: 'Nombre completo',
+    nombrePlaceholder: 'Ana Martínez',
+    empresa: 'Empresa (opcional)',
+    empresaPlaceholder: 'NYX Studio S.A.',
+    correo: 'Correo electrónico',
+    correoPlaceholder: 'ana@empresa.com',
+    telefono: 'Teléfono / WhatsApp',
+    telefonoPlaceholder: '+593 99 000 0000',
+    producto: 'Producto',
+    productoOtro: 'Otro / no está en la lista',
+    cantidad: 'Cantidad',
+    fecha: 'Fecha requerida',
+    detalles: 'Colores, tallas y detalles',
+    detallesPlaceholder: 'Negro · tallas S a XL · logo frontal centrado',
+    metodo: 'Método de entrega',
+    metodoSinDefinir: 'Aún no lo sé',
+    metodoEnvio: 'Envío nacional',
+    metodoRetiro: 'Retiro en taller',
+    metodoLocal: 'Entrega local coordinada',
+    indicaciones: 'Indicaciones adicionales',
+    indicacionesPlaceholder:
+      'Ubicación del logotipo, colores de referencia, empaque, texto adicional…',
+    elegirArchivo: 'Selecciona tu archivo',
+    subiendo: 'Subiendo…',
+    formatosArchivo: 'PNG, JPG, PDF, AI o SVG · hasta 20 MB',
+    archivoGrande: 'El archivo supera los 20 MB. Envíalo por WhatsApp o correo.',
+    archivoFallo: 'No pudimos subir el archivo. Inténtalo de nuevo.',
+    archivoSinBase:
+      'La carga de archivos se activa cuando el sitio esté conectado a Supabase. Mientras tanto, envíanos el diseño por WhatsApp o correo tras enviar la solicitud.',
+    avisoArte:
+      'Revisamos el arte antes de producir. Si la resolución no alcanza, te avisamos.',
+    avisoSinPagos:
+      'Sin pagos en línea. Tu solicitud es revisada y confirmada por NYX antes de producción.',
+    enviar: 'Enviar solicitud',
+    enviando: 'Enviando…',
+    disenoAdjunto: 'Tu diseño va adjunto.',
+    seguirEditando: 'Seguir editándolo',
+    exitoAntetitulo: 'Solicitud recibida',
+    exitoTitulo: 'Gracias, ya la tenemos',
+    exitoTexto:
+      'Guarda esta referencia. NYX revisa tu solicitud y responde con el precio final y el tiempo de entrega.',
+    exitoVolver: 'Seguir viendo el catálogo',
+    errorNombre: 'Escribe tu nombre para poder responderte.',
+    errorCorreo: 'Revisa el correo electrónico: no parece válido.',
+    errorProducto: 'Indica qué producto quieres personalizar.',
+    errorSinBase:
+      'El formulario todavía no está conectado a la base de datos. Escríbenos por WhatsApp o correo y lo gestionamos igual.',
+  },
   comun: {
     stockBajoPedido: 'Bajo pedido',
     stockConsultar: 'Consultar',
@@ -467,6 +585,70 @@ const EN: Textos = {
     errorSinBase:
       'Orders cannot be registered yet. Write to us on WhatsApp and we will handle it.',
     errorGenerico: 'We could not register the order. Try again or write to us on WhatsApp.',
+  },
+  cotizar: {
+    titulo: 'Request a quote',
+    intro:
+      'Tell us what you want to personalize. You will get NYX confirmation with the final price and lead time.',
+    migas: 'Quote',
+    comoFunciona: 'How it works',
+    puntos: [
+      'We reply within 24 business hours.',
+      'Website prices are for reference; the final one depends on quantity, material and finish.',
+      'We review your artwork before producing and tell you if the resolution falls short.',
+      'No minimum for individual products. Corporate orders from 10 units.',
+    ],
+    prefieresEscribir: 'Prefer to write to us?',
+    grupoDatos: 'Your details',
+    grupoProducto: 'What you want to personalize',
+    grupoLogo: 'Your logo or design',
+    grupoEntrega: 'Delivery and notes',
+    nombre: 'Full name',
+    nombrePlaceholder: 'Ana Martinez',
+    empresa: 'Company (optional)',
+    empresaPlaceholder: 'NYX Studio Inc.',
+    correo: 'Email address',
+    correoPlaceholder: 'ana@company.com',
+    telefono: 'Phone / WhatsApp',
+    telefonoPlaceholder: '+593 99 000 0000',
+    producto: 'Product',
+    productoOtro: 'Other / not on the list',
+    cantidad: 'Quantity',
+    fecha: 'Date needed',
+    detalles: 'Colors, sizes and details',
+    detallesPlaceholder: 'Black · sizes S to XL · centered front logo',
+    metodo: 'Delivery method',
+    metodoSinDefinir: 'Not sure yet',
+    metodoEnvio: 'Nationwide shipping',
+    metodoRetiro: 'Pickup at the workshop',
+    metodoLocal: 'Scheduled local delivery',
+    indicaciones: 'Additional notes',
+    indicacionesPlaceholder: 'Logo placement, reference colors, packaging, extra text…',
+    elegirArchivo: 'Choose your file',
+    subiendo: 'Uploading…',
+    formatosArchivo: 'PNG, JPG, PDF, AI or SVG · up to 20 MB',
+    archivoGrande: 'The file is over 20 MB. Send it on WhatsApp or by email.',
+    archivoFallo: 'We could not upload the file. Try again.',
+    archivoSinBase:
+      'File upload turns on once the site is connected to Supabase. In the meantime, send us the design on WhatsApp or by email after submitting.',
+    avisoArte:
+      'We review the artwork before producing. If the resolution falls short, we let you know.',
+    avisoSinPagos:
+      'No online payments. Your request is reviewed and confirmed by NYX before production.',
+    enviar: 'Send request',
+    enviando: 'Sending…',
+    disenoAdjunto: 'Your design is attached.',
+    seguirEditando: 'Keep editing it',
+    exitoAntetitulo: 'Request received',
+    exitoTitulo: 'Thanks, we have it',
+    exitoTexto:
+      'Keep this reference. NYX reviews your request and replies with the final price and lead time.',
+    exitoVolver: 'Keep browsing the catalog',
+    errorNombre: 'Write your name so we can reply.',
+    errorCorreo: 'Check the email address: it does not look valid.',
+    errorProducto: 'Tell us which product you want to personalize.',
+    errorSinBase:
+      'The form is not connected to the database yet. Write to us on WhatsApp or by email and we will handle it.',
   },
   comun: {
     stockBajoPedido: 'Made to order',

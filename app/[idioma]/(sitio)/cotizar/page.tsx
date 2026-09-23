@@ -7,33 +7,38 @@ import {
   enlaceWhatsapp,
 } from '@/lib/consultas'
 import Formulario from './Formulario'
+import { ruta, esIdioma, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import e from './Cotizar.module.css'
 
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: 'Solicitar cotización',
-  description:
-    'Cuéntanos qué deseas personalizar y recibe una cotización según cantidad, material y acabado.',
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ idioma: string }>
+}): Promise<Metadata> {
+  const { idioma: crudo } = await params
+  const t = textos(esIdioma(crudo) ? crudo : 'es').cotizar
+  return { title: t.titulo, description: t.intro }
 }
 
-const PUNTOS = [
-  'Respondemos en un máximo de 24 horas hábiles.',
-  'El precio de la web es referencial; el final depende de cantidad, material y acabado.',
-  'Revisamos tu arte antes de producir y te avisamos si la resolución no alcanza.',
-  'Sin mínimo para productos individuales. Corporativo desde 10 unidades.',
-]
-
 export default async function Cotizar({
+  params,
   searchParams,
 }: {
+  params: Promise<{ idioma: string }>
   searchParams: Promise<{ producto?: string; diseno?: string }>
 }) {
+  const { idioma: crudo } = await params
+  const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
+  const t = textos(idioma).cotizar
+
   const [{ producto: slugInicial, diseno: disenoToken }, contacto, catalogo] = await Promise.all([
     searchParams,
     obtenerContacto(),
     // Todo el catálogo visible cabe en el desplegable de producto.
-    obtenerCatalogo({ porPagina: 200 }),
+    obtenerCatalogo({ porPagina: 200 }, idioma),
   ])
 
   const opciones = catalogo.productos.map((p) => ({
@@ -47,29 +52,27 @@ export default async function Cotizar({
     <div className={e.pagina}>
       <div className="contenedor">
         <nav className={e.migas}>
-          <Link href="/">Inicio</Link> / Cotización
+          <Link href={ruta('/', idioma)}>{textos(idioma).nav.inicio}</Link> / {t.migas}
         </nav>
 
         <div className={e.cuerpo}>
           <div>
-            <h1 className={e.titulo}>Solicitar cotización</h1>
-            <p className={e.intro}>
-              Cuéntanos qué deseas personalizar. Recibirás la confirmación de NYX con el
-              precio final y el tiempo de entrega.
-            </p>
+            <h1 className={e.titulo}>{t.titulo}</h1>
+            <p className={e.intro}>{t.intro}</p>
 
             <Formulario
               productos={opciones}
               productoInicial={slugInicial}
               subidaDisponible={hayBaseDeDatos()}
               disenoToken={disenoToken}
+              idioma={idioma}
             />
           </div>
 
           <aside className={e.lateral}>
-            <div className={e.tituloLateral}>Cómo funciona</div>
+            <div className={e.tituloLateral}>{t.comoFunciona}</div>
             <ul className={e.puntos}>
-              {PUNTOS.map((p) => (
+              {t.puntos.map((p) => (
                 <li key={p} className={e.punto}>
                   <span className={e.puntoMarca} aria-hidden="true">
                     —
@@ -80,9 +83,9 @@ export default async function Cotizar({
             </ul>
 
             <div className={e.contactoLateral}>
-              <span>¿Prefieres escribirnos?</span>
+              <span>{t.prefieresEscribir}</span>
               <a
-                href={enlaceWhatsapp(contacto.whatsapp, 'Hola NYX, quisiera una cotización.')}
+                href={enlaceWhatsapp(contacto.whatsapp, textos(idioma).portada.mensajeWhatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
               >

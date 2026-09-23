@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { crearClienteNavegador } from '@/lib/supabase/client'
 import { pesoArchivo } from '@/lib/formato'
 import { enviarSolicitud, type EstadoSolicitud } from './acciones'
+import { ruta, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import e from './Cotizar.module.css'
 
 interface OpcionProducto {
@@ -22,6 +24,7 @@ interface Props {
   subidaDisponible: boolean
   /** Token del diseño del estudio, si la solicitud viene de ahí. */
   disenoToken?: string
+  idioma: Idioma
 }
 
 const TIPOS_ACEPTADOS =
@@ -36,11 +39,13 @@ interface ArchivoSubido {
   mime: string
 }
 
-function BotonEnviar() {
+function BotonEnviar({ idioma }: { idioma: Idioma }) {
   const { pending } = useFormStatus()
+  const t = textos(idioma).cotizar
+
   return (
     <button type="submit" className={`boton-oro ${e.enviar}`} disabled={pending}>
-      {pending ? 'Enviando…' : 'Enviar solicitud'}
+      {pending ? t.enviando : t.enviar}
     </button>
   )
 }
@@ -50,7 +55,9 @@ export default function Formulario({
   productoInicial,
   subidaDisponible,
   disenoToken,
+  idioma,
 }: Props) {
+  const t = textos(idioma).cotizar
   const [estado, accion] = useActionState<EstadoSolicitud, FormData>(enviarSolicitud, {
     estado: 'inicial',
   })
@@ -74,7 +81,7 @@ export default function Formulario({
     setErrorArchivo('')
 
     if (archivoLocal.size > LIMITE_BYTES) {
-      setErrorArchivo('El archivo supera los 20 MB. Comprímelo o envíanoslo por WhatsApp.')
+      setErrorArchivo(t.archivoGrande)
       return
     }
 
@@ -98,7 +105,7 @@ export default function Formulario({
       })
     } catch (error) {
       console.error('[nyx] error al subir el archivo', error)
-      setErrorArchivo('No pudimos subir el archivo. Puedes enviarlo después por WhatsApp.')
+      setErrorArchivo(t.archivoFallo)
     } finally {
       setSubiendo(false)
     }
@@ -107,16 +114,15 @@ export default function Formulario({
   if (estado.estado === 'ok') {
     return (
       <div className={e.exito}>
-        <span className={e.textoGrupo}>Solicitud recibida</span>
-        <h2 className={e.exitoTitulo}>Gracias, ya la tenemos</h2>
+        <span className={e.textoGrupo}>{t.exitoAntetitulo}</span>
+        <h2 className={e.exitoTitulo}>{t.exitoTitulo}</h2>
         <div className={e.referencia}>{estado.referencia}</div>
         <p className={e.exitoTexto}>
-          Guarda esta referencia. NYX revisa tu solicitud y responde con el precio final y el
-          tiempo de entrega en un máximo de 24 horas hábiles.
+          {t.exitoTexto}
         </p>
         <div style={{ marginTop: 28 }}>
-          <Link href="/catalogo" className="boton-linea">
-            Seguir viendo el catálogo
+          <Link href={ruta('/catalogo', idioma)} className="boton-linea">
+            {t.exitoVolver}
           </Link>
         </div>
       </div>
@@ -125,6 +131,10 @@ export default function Formulario({
 
   return (
     <form action={accion}>
+      {/* El idioma acompaña a la solicitud para que un error del servidor
+          salga en el mismo idioma en que se rellenó el formulario. */}
+      <input type="hidden" name="idioma" value={idioma} />
+
       {estado.estado === 'error' && (
         <p className={e.error} role="alert">
           {estado.mensaje}
@@ -156,9 +166,9 @@ export default function Formulario({
               }}
             >
               <strong style={{ color: 'var(--oro-claro)', fontWeight: 600 }}>
-                Tu diseño va adjunto.
+                {t.disenoAdjunto}
               </strong>{' '}
-              NYX lo verá tal como lo dejaste en el estudio.
+              {t.disenoAdjunto}
             </span>
             <Link
               href={`/estudio?d=${encodeURIComponent(disenoToken)}`}
@@ -172,7 +182,7 @@ export default function Formulario({
                 paddingBottom: 3,
               }}
             >
-              Seguir editándolo
+              {t.seguirEditando}
             </Link>
           </div>
         </>
@@ -182,13 +192,13 @@ export default function Formulario({
       <fieldset className={e.grupo} style={{ border: 'none', margin: 0, padding: 0 }}>
         <div className={e.tituloGrupo}>
           <span className={e.numeroGrupo}>01</span>
-          <span className={e.textoGrupo}>Tus datos</span>
+          <span className={e.textoGrupo}>{t.grupoDatos}</span>
         </div>
 
         <div className={e.rejillaCampos}>
           <div>
             <label className={e.etiqueta} htmlFor="nombre">
-              Nombre completo
+              {t.nombre}
             </label>
             <input
               className={e.campo}
@@ -196,24 +206,24 @@ export default function Formulario({
               name="nombre"
               required
               maxLength={120}
-              placeholder="Ana Martínez"
+              placeholder={t.nombrePlaceholder}
             />
           </div>
           <div>
             <label className={e.etiqueta} htmlFor="empresa">
-              Empresa (opcional)
+              {t.empresa}
             </label>
             <input
               className={e.campo}
               id="empresa"
               name="empresa"
               maxLength={120}
-              placeholder="NYX Studio S.A."
+              placeholder={t.empresaPlaceholder}
             />
           </div>
           <div>
             <label className={e.etiqueta} htmlFor="email">
-              Correo electrónico
+              {t.correo}
             </label>
             <input
               className={e.campo}
@@ -222,12 +232,12 @@ export default function Formulario({
               type="email"
               required
               maxLength={160}
-              placeholder="ana@empresa.com"
+              placeholder={t.correoPlaceholder}
             />
           </div>
           <div>
             <label className={e.etiqueta} htmlFor="telefono">
-              Teléfono / WhatsApp
+              {t.telefono}
             </label>
             <input
               className={e.campo}
@@ -235,7 +245,7 @@ export default function Formulario({
               name="telefono"
               type="tel"
               maxLength={40}
-              placeholder="+593 99 000 0000"
+              placeholder={t.telefonoPlaceholder}
             />
           </div>
         </div>
@@ -245,13 +255,13 @@ export default function Formulario({
       <fieldset className={e.grupo} style={{ border: 'none', margin: 0, padding: 0 }}>
         <div className={e.tituloGrupo}>
           <span className={e.numeroGrupo}>02</span>
-          <span className={e.textoGrupo}>Qué quieres personalizar</span>
+          <span className={e.textoGrupo}>{t.grupoProducto}</span>
         </div>
 
         <div className={e.rejillaCampos}>
           <div className={e.anchoCompleto}>
             <label className={e.etiqueta} htmlFor="producto_id">
-              Producto
+              {t.producto}
             </label>
             <select
               className={e.select}
@@ -260,7 +270,7 @@ export default function Formulario({
               value={seleccionado}
               onChange={(ev) => setSeleccionado(ev.target.value)}
             >
-              <option value="">Otro / no está en la lista</option>
+              <option value="">{t.productoOtro}</option>
               {productos.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nombre} · {p.sku}
@@ -278,7 +288,7 @@ export default function Formulario({
 
           <div>
             <label className={e.etiqueta} htmlFor="cantidad">
-              Cantidad
+              {t.cantidad}
             </label>
             <input
               className={e.campo}
@@ -294,7 +304,7 @@ export default function Formulario({
 
           <div>
             <label className={e.etiqueta} htmlFor="fecha_requerida">
-              Fecha requerida
+              {t.fecha}
             </label>
             <input
               className={e.campo}
@@ -306,14 +316,14 @@ export default function Formulario({
 
           <div className={e.anchoCompleto}>
             <label className={e.etiqueta} htmlFor="especificaciones">
-              Colores, tallas y detalles
+              {t.detalles}
             </label>
             <input
               className={e.campo}
               id="especificaciones"
               name="especificaciones"
               maxLength={1000}
-              placeholder="Negro · tallas S a XL · logo frontal centrado"
+              placeholder={t.detallesPlaceholder}
             />
           </div>
         </div>
@@ -323,7 +333,7 @@ export default function Formulario({
       <fieldset className={e.grupo} style={{ border: 'none', margin: 0, padding: 0 }}>
         <div className={e.tituloGrupo}>
           <span className={e.numeroGrupo}>03</span>
-          <span className={e.textoGrupo}>Tu logotipo o diseño</span>
+          <span className={e.textoGrupo}>{t.grupoLogo}</span>
         </div>
 
         {subidaDisponible ? (
@@ -340,10 +350,10 @@ export default function Formulario({
                 }}
               />
               <span className={e.zonaArchivoTitulo}>
-                {subiendo ? 'Subiendo…' : 'Selecciona tu archivo'}
+                {subiendo ? t.subiendo : t.elegirArchivo}
               </span>
               <span className={e.zonaArchivoPista}>
-                PNG, JPG, PDF, AI o SVG · hasta 20 MB
+                {t.formatosArchivo}
               </span>
             </label>
 
@@ -373,8 +383,7 @@ export default function Formulario({
           </>
         ) : (
           <p className={e.pista}>
-            La carga de archivos se activa cuando el sitio esté conectado a Supabase.
-            Mientras tanto, envíanos el diseño por WhatsApp o correo tras enviar la solicitud.
+            {t.archivoSinBase}
           </p>
         )}
 
@@ -388,7 +397,7 @@ export default function Formulario({
         )}
 
         <p className={e.pista}>
-          Revisamos el arte antes de producir. Si la resolución no alcanza, te avisamos.
+          {t.avisoArte}
         </p>
       </fieldset>
 
@@ -396,42 +405,42 @@ export default function Formulario({
       <fieldset className={e.grupo} style={{ border: 'none', margin: 0, padding: 0 }}>
         <div className={e.tituloGrupo}>
           <span className={e.numeroGrupo}>04</span>
-          <span className={e.textoGrupo}>Entrega y observaciones</span>
+          <span className={e.textoGrupo}>{t.grupoEntrega}</span>
         </div>
 
         <div className={e.rejillaCampos}>
           <div className={e.anchoCompleto}>
             <label className={e.etiqueta} htmlFor="metodo_entrega">
-              Método de entrega
+              {t.metodo}
             </label>
             <select className={e.select} id="metodo_entrega" name="metodo_entrega">
-              <option value="">Aún no lo sé</option>
-              <option value="envio_nacional">Envío nacional</option>
-              <option value="retiro_taller">Retiro en taller</option>
-              <option value="entrega_local">Entrega local coordinada</option>
+              <option value="">{t.metodoSinDefinir}</option>
+              <option value="envio_nacional">{t.metodoEnvio}</option>
+              <option value="retiro_taller">{t.metodoRetiro}</option>
+              <option value="entrega_local">{t.metodoLocal}</option>
             </select>
           </div>
 
           <div className={e.anchoCompleto}>
             <label className={e.etiqueta} htmlFor="observaciones">
-              Indicaciones adicionales
+              {t.indicaciones}
             </label>
             <textarea
               className={e.area}
               id="observaciones"
               name="observaciones"
               maxLength={2000}
-              placeholder="Ubicación del logotipo, colores de referencia, empaque, texto adicional…"
+              placeholder={t.indicacionesPlaceholder}
             />
           </div>
         </div>
       </fieldset>
 
       <p className={e.pista} style={{ marginBottom: 18 }}>
-        Sin pagos en línea. Tu solicitud es revisada y confirmada por NYX antes de producción.
+        {t.avisoSinPagos}
       </p>
 
-      <BotonEnviar />
+      <BotonEnviar idioma={idioma} />
     </form>
   )
 }

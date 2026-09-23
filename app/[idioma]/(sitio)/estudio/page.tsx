@@ -3,14 +3,32 @@ import { obtenerModelos3D } from '@/lib/estudio/servidor'
 import Estudio from '@/componentes/estudio/Estudio'
 import { cargarDiseno } from './acciones'
 import { CLASES_FUENTES } from './fuentes'
+import { esIdioma, type Idioma } from '@/lib/i18n'
 
 // El estudio es interactivo de principio a fin: no tiene sentido prerenderizarlo.
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Estudio de diseno',
-  description:
-    'Elige color, textura y logotipo, y mira tu prenda personalizada en 3D antes de pedirla.',
+/** La textura desaparecio del estudio, asi que el texto tampoco la menciona. */
+const META: Record<Idioma, { title: string; description: string }> = {
+  es: {
+    title: 'Estudio de diseño',
+    description:
+      'Elige el color, coloca tu logotipo y mira tu prenda personalizada en 3D antes de pedirla.',
+  },
+  en: {
+    title: 'Design studio',
+    description:
+      'Pick the color, place your logo and see your personalized garment in 3D before ordering.',
+  },
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ idioma: string }>
+}): Promise<Metadata> {
+  const { idioma: crudo } = await params
+  return META[esIdioma(crudo) ? crudo : 'es']
 }
 
 export default async function PaginaEstudio({

@@ -3,6 +3,8 @@
 import { crearClienteServidor } from '@/lib/supabase/server'
 import { hayBaseDeDatos } from '@/lib/consultas'
 import type { MetodoEntrega } from '@/lib/database.types'
+import { esIdioma, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 
 export interface EstadoSolicitud {
   estado: 'inicial' | 'ok' | 'error'
@@ -29,21 +31,27 @@ export async function enviarSolicitud(
   _previo: EstadoSolicitud,
   datos: FormData
 ): Promise<EstadoSolicitud> {
+  // El idioma viaja en el formulario: un error tiene que salir en el mismo
+  // idioma en que se rellenó, no en el del servidor.
+  const crudoIdioma = texto(datos, 'idioma')
+  const idioma: Idioma = esIdioma(crudoIdioma) ? crudoIdioma : 'es'
+  const t = textos(idioma).cotizar
+
   const nombre = texto(datos, 'nombre')
   const email = texto(datos, 'email')
 
   // Validación de cortesía: la de verdad está en la función de Postgres, que
   // es la que no se puede saltar desde el navegador.
   if (!nombre) {
-    return { estado: 'error', mensaje: 'Escribe tu nombre para poder responderte.' }
+    return { estado: 'error', mensaje: t.errorNombre }
   }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { estado: 'error', mensaje: 'Revisa el correo electrónico: no parece válido.' }
+    return { estado: 'error', mensaje: t.errorCorreo }
   }
 
   const nombreProducto = texto(datos, 'producto_nombre')
   if (!nombreProducto) {
-    return { estado: 'error', mensaje: 'Indica qué producto quieres personalizar.' }
+    return { estado: 'error', mensaje: t.errorProducto }
   }
 
   const cantidadCruda = Number(texto(datos, 'cantidad'))
@@ -73,8 +81,7 @@ export async function enviarSolicitud(
   if (!hayBaseDeDatos()) {
     return {
       estado: 'error',
-      mensaje:
-        'El formulario todavía no está conectado a la base de datos. Escríbenos por WhatsApp o correo y lo gestionamos igual.',
+      mensaje: t.errorSinBase,
     }
   }
 
@@ -111,7 +118,7 @@ export async function enviarSolicitud(
         estado: 'error',
         mensaje: esDeValidacion
           ? error.message
-          : 'No pudimos registrar la solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.',
+          : t.errorSinBase,
       }
     }
 
@@ -120,7 +127,7 @@ export async function enviarSolicitud(
     console.error('[nyx] error inesperado al crear la solicitud', error)
     return {
       estado: 'error',
-      mensaje: 'Algo falló al enviar la solicitud. Inténtalo de nuevo en un momento.',
+      mensaje: t.errorSinBase,
     }
   }
 }
