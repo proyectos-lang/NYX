@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useCarrito } from './estado'
+import { ruta, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import s from './Carrito.module.css'
 
 /**
@@ -17,13 +19,18 @@ import s from './Carrito.module.css'
  * nada, y este sitio vende sobre todo por cotización: el carrito es el camino
  * secundario.
  */
-export default function InsigniaCarrito() {
+export default function InsigniaCarrito({ idioma }: { idioma: Idioma }) {
   const { unidades, listo } = useCarrito()
+  const t = textos(idioma)
 
   if (!listo || unidades === 0) return null
 
   return (
-    <Link href="/carrito" className={s.insignia} aria-label={`Carrito, ${unidades} artículos`}>
+    <Link
+      href={ruta('/carrito', idioma)}
+      className={s.insignia}
+      aria-label={`${t.carrito.verCarrito}: ${unidades}`}
+    >
       <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
         <path
           d="M3 4h2l1.6 8.4a1 1 0 0 0 1 .8h6.9a1 1 0 0 0 1-.8L17 7H6"

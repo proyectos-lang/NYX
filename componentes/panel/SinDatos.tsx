@@ -1,4 +1,4 @@
-import e from '@/app/panel/Panel.module.css'
+import e from '@/app/(admin)/panel/Panel.module.css'
 
 /**
  * Lo que ve el panel cuando no puede leer la base de datos.

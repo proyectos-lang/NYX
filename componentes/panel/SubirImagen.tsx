@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { crearClienteNavegador } from '@/lib/supabase/client'
-import e from '@/app/panel/Panel.module.css'
+import e from '@/app/(admin)/panel/Panel.module.css'
 import s from './SubirImagen.module.css'
 
 /**

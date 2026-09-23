@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { guardarDisenoEstudio } from '@/app/(sitio)/estudio/acciones'
+import { guardarDisenoEstudio } from '@/app/[idioma]/(sitio)/estudio/acciones'
 import {
   aplicar,
   deshacer,

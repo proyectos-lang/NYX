@@ -10,7 +10,7 @@
  * Se editaban, se guardaban sin error y no cambiaba nada en pantalla. Desde el
  * panel es indistinguible de un fallo al guardar.
  *
- * Esto lee las claves que `app/(sitio)/page.tsx` consume de verdad y las
+ * Esto lee las claves que `app/[idioma]/(sitio)/page.tsx` consume de verdad y las
  * compara con las que `supabase/contenido-inicial.sql` inserta. No necesita
  * base de datos: es texto contra texto.
  */
@@ -28,7 +28,7 @@ function comprobar(descripcion: string, condicion: boolean, detalle = ''): void 
   }
 }
 
-const portada = readFileSync(new URL('../app/(sitio)/page.tsx', import.meta.url), 'utf8')
+const portada = readFileSync(new URL('../app/[idioma]/(sitio)/page.tsx', import.meta.url), 'utf8')
 const sql = readFileSync(new URL('../supabase/contenido-inicial.sql', import.meta.url), 'utf8')
 
 // ---------------------------------------------------------------------------

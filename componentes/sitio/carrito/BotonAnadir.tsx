@@ -3,12 +3,15 @@
 import { useState } from 'react'
 import { useCarrito } from './estado'
 import type { LineaCarrito } from '@/lib/carrito'
+import type { Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import s from './Carrito.module.css'
 
 interface Props {
   producto: Omit<LineaCarrito, 'cantidad'>
   /** 'solido' en la ficha del producto, 'discreto' en las tarjetas. */
   variante?: 'solido' | 'discreto'
+  idioma: Idioma
 }
 
 /**
@@ -22,9 +25,10 @@ interface Props {
  * aviso o el panel del carrito. Añadir varias cosas seguidas es lo normal, y
  * cualquier cosa que interrumpa obliga a cerrarla para seguir comprando.
  */
-export default function BotonAnadir({ producto, variante = 'solido' }: Props) {
+export default function BotonAnadir({ producto, variante = 'solido', idioma }: Props) {
   const { anadir, lineas } = useCarrito()
   const [confirmado, setConfirmado] = useState(false)
+  const t = textos(idioma)
 
   const enCarrito = lineas.find((l) => l.productoId === producto.productoId)?.cantidad ?? 0
   const agotado = producto.stock !== null && producto.stock <= 0
@@ -38,7 +42,7 @@ export default function BotonAnadir({ producto, variante = 'solido' }: Props) {
         className={variante === 'solido' ? s.agotadoOscuro : s.agotado}
         aria-disabled="true"
       >
-        Agotado
+        {t.carrito.agotado}
       </span>
     )
   }
@@ -55,10 +59,10 @@ export default function BotonAnadir({ producto, variante = 'solido' }: Props) {
       }}
     >
       {topeAlcanzado
-        ? `Ya tienes las ${producto.stock} disponibles`
+        ? t.carrito.yaTienesTodo(producto.stock ?? 0)
         : confirmado
-          ? 'Añadido ✓'
-          : 'Añadir al carrito'}
+          ? t.carrito.anadido
+          : t.carrito.anadir}
     </button>
   )
 }

@@ -12,31 +12,39 @@ import { ETIQUETA_TIPO } from '@/lib/database.types'
 import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
 import BotonAnadir from '@/componentes/sitio/carrito/BotonAnadir'
+import { IDIOMAS, ruta, esIdioma, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import Galeria from './Galeria'
 import e from './Producto.module.css'
 
 export const revalidate = 300
 
+/** Cada producto, en cada idioma. */
 export async function generateStaticParams() {
   const slugs = await obtenerSlugsDeProductos()
-  return slugs.map((slug) => ({ slug }))
+  return IDIOMAS.flatMap((idioma) => slugs.map((slug) => ({ idioma, slug })))
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ idioma: string; slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const producto = await obtenerProducto(slug)
+  const { idioma: crudo, slug } = await params
+  const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
+  const producto = await obtenerProducto(slug, idioma)
 
-  if (!producto) return { title: 'Producto no encontrado' }
+  if (!producto) {
+    return { title: idioma === 'en' ? 'Product not found' : 'Producto no encontrado' }
+  }
 
   return {
     title: producto.nombre,
     description:
       producto.descripcion ??
-      `${producto.nombre} personalizable por NYX. Precio referencial, confirmado según cantidad y acabado.`,
+      (idioma === 'en'
+        ? `${producto.nombre}, personalized by NYX. Reference price, confirmed by quantity and finish.`
+        : `${producto.nombre} personalizable por NYX. Precio referencial, confirmado según cantidad y acabado.`),
     openGraph: producto.imagen ? { images: [{ url: producto.imagen }] } : undefined,
   }
 }
@@ -44,29 +52,33 @@ export async function generateMetadata({
 export default async function FichaProducto({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ idioma: string; slug: string }>
 }) {
-  const { slug } = await params
-  const producto = await obtenerProducto(slug)
+  const { idioma: crudo, slug } = await params
+  const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
+  const txt = textos(idioma)
+
+  const producto = await obtenerProducto(slug, idioma)
 
   if (!producto) notFound()
 
   const [contacto, relacionados] = await Promise.all([
     obtenerContacto(),
-    obtenerCatalogo({ categoria: producto.categoriaSlug, porPagina: 5 }),
+    obtenerCatalogo({ categoria: producto.categoriaSlug, porPagina: 5 }, idioma),
   ])
 
   const inmediato = producto.tipo === 'entrega_inmediata'
   const otros = relacionados.productos.filter((p) => p.slug !== producto.slug).slice(0, 4)
 
-  const mensajeWhatsapp = `Hola NYX, me interesa el producto ${producto.nombre} (${producto.sku}).`
+  const mensajeWhatsapp = txt.producto.mensajeWhatsapp(producto.nombre, producto.sku)
 
   return (
     <div className={e.pagina}>
       <div className="contenedor">
         <nav className={e.migas}>
-          <Link href="/">Inicio</Link> / <Link href="/catalogo">Catálogo</Link> /{' '}
-          <Link href={`/catalogo?categoria=${producto.categoriaSlug}`}>
+          <Link href={ruta('/', idioma)}>{txt.nav.inicio}</Link> /{' '}
+          <Link href={ruta('/catalogo', idioma)}>{txt.catalogo.migas}</Link> /{' '}
+          <Link href={ruta(`/catalogo?categoria=${producto.categoriaSlug}`, idioma)}>
             {producto.categoria}
           </Link>{' '}
           / {producto.nombre}
@@ -84,41 +96,40 @@ export default async function FichaProducto({
                   : { background: 'rgba(201,154,46,.92)', color: '#080808' }
               }
             >
-              {ETIQUETA_TIPO[producto.tipo]}
+              {inmediato ? txt.catalogo.entregaInmediata : txt.catalogo.personalizable}
             </span>
 
             <h1 className={e.nombre}>{producto.nombre}</h1>
-            <div className={e.sku}>Referencia {producto.sku}</div>
+            <div className={e.sku}>{txt.producto.referencia} {producto.sku}</div>
 
             {producto.descripcion && <p className={e.descripcion}>{producto.descripcion}</p>}
 
             <div className={e.bloquePrecio}>
-              <div className={e.precio}>{formatearPrecio(producto.precio)}</div>
+              <div className={e.precio}>{formatearPrecio(producto.precio, idioma)}</div>
               <div className={e.precioNota}>
-                Precio referencial. NYX confirma el valor final según cantidad, material y
-                acabado.
+                {txt.producto.precioNota}
               </div>
             </div>
 
             <div className={e.datos}>
               <div className={e.dato}>
-                <div className={e.datoEtiqueta}>Categoría</div>
+                <div className={e.datoEtiqueta}>{txt.producto.categoria}</div>
                 <div className={e.datoValor}>{producto.categoria}</div>
               </div>
               <div className={e.dato}>
-                <div className={e.datoEtiqueta}>Disponibilidad</div>
+                <div className={e.datoEtiqueta}>{txt.producto.disponibilidad}</div>
                 <div className={e.datoValor}>
-                  {textoStock(producto.stock, producto.bajoPedido)}
+                  {textoStock(producto.stock, producto.bajoPedido, idioma)}
                 </div>
               </div>
               <div className={e.dato}>
-                <div className={e.datoEtiqueta}>Tipo</div>
-                <div className={e.datoValor}>{ETIQUETA_TIPO[producto.tipo]}</div>
+                <div className={e.datoEtiqueta}>{txt.producto.tipo}</div>
+                <div className={e.datoValor}>{inmediato ? txt.catalogo.entregaInmediata : txt.catalogo.personalizable}</div>
               </div>
               <div className={e.dato}>
-                <div className={e.datoEtiqueta}>Tiempo estimado</div>
+                <div className={e.datoEtiqueta}>{txt.producto.tiempoEstimado}</div>
                 <div className={e.datoValor}>
-                  {inmediato ? 'Retiro el mismo día' : '3 a 7 días hábiles'}
+                  {inmediato ? txt.producto.mismoDia : txt.producto.diasHabiles}
                 </div>
               </div>
             </div>
@@ -129,6 +140,7 @@ export default async function FichaProducto({
             {inmediato && (
               <div style={{ marginBottom: 14 }}>
                 <BotonAnadir
+                  idioma={idioma}
                   producto={{
                     productoId: producto.id,
                     slug: producto.slug,
@@ -142,8 +154,11 @@ export default async function FichaProducto({
             )}
 
             <div className={e.acciones}>
-              <Link href={`/cotizar?producto=${producto.slug}`} className="boton-oro">
-                Solicitar cotización
+              <Link
+                href={ruta(`/cotizar?producto=${producto.slug}`, idioma)}
+                className="boton-oro"
+              >
+                {txt.producto.cotizar}
               </Link>
               <a
                 href={enlaceWhatsapp(contacto.whatsapp, mensajeWhatsapp)}
@@ -151,23 +166,22 @@ export default async function FichaProducto({
                 rel="noopener noreferrer"
                 className="boton-linea"
               >
-                Preguntar por WhatsApp
+                {txt.producto.preguntarWhatsapp}
               </a>
             </div>
 
             <p className={e.aviso}>
-              Podrás adjuntar tu logotipo o diseño en el formulario. Aceptamos PNG, JPG, PDF,
-              AI o SVG. Revisamos el arte antes de producir.
+              {txt.producto.avisoArchivo}
             </p>
           </div>
         </div>
 
         {otros.length > 0 && (
           <section className={e.relacionados}>
-            <h2 className={e.tituloRelacionados}>Más de {producto.categoria}</h2>
+            <h2 className={e.tituloRelacionados}>{txt.producto.masDe(producto.categoria)}</h2>
             <div className={e.rejilla}>
               {otros.map((p) => (
-                <TarjetaProducto key={p.id} producto={p} variante="oscura" />
+                <TarjetaProducto key={p.id} producto={p} variante="oscura" idioma={idioma} />
               ))}
             </div>
           </section>

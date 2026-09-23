@@ -1,4 +1,4 @@
-import e from '@/app/panel/Panel.module.css'
+import e from '@/app/(admin)/panel/Panel.module.css'
 
 /**
  * Banda de confirmacion o de error. Los Server Actions del panel redirigen con

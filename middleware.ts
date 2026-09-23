@@ -1,5 +1,34 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { IDIOMAS, SIN_PREFIJO } from '@/lib/i18n'
+
+/** Rutas que no son del sitio publico y no llevan idioma. */
+const SIN_IDIOMA = ['/panel', '/login', '/api', '/maquetas']
+
+/**
+ * El espanol vive en / pero por dentro es /es.
+ *
+ * Hace falta que cada idioma tenga su propia ruta interna para que tenga su
+ * propia pagina guardada: si las dos compartieran ruta, compartirian cache y
+ * la version inglesa acabaria sirviendo espanol a quien llegara despues.
+ *
+ * Se reescribe, no se redirige: la direccion que ve quien navega sigue siendo
+ * la corta.
+ */
+function reescribirIdioma(peticion: NextRequest): NextResponse | null {
+  const ruta = peticion.nextUrl.pathname
+
+  if (SIN_IDIOMA.some((p) => ruta === p || ruta.startsWith(p + '/'))) return null
+
+  // Ya lleva prefijo de idioma: se deja tal cual.
+  for (const idioma of IDIOMAS) {
+    if (ruta === '/' + idioma || ruta.startsWith('/' + idioma + '/')) return null
+  }
+
+  const destino = peticion.nextUrl.clone()
+  destino.pathname = '/' + SIN_PREFIJO + (ruta === '/' ? '' : ruta)
+  return NextResponse.rewrite(destino)
+}
 
 /**
  * Hace dos cosas en cada peticion:
@@ -12,6 +41,9 @@ import { createServerClient } from '@supabase/ssr'
  * la cookie y se puede falsificar, asi que no sirve para proteger rutas.
  */
 export async function middleware(peticion: NextRequest) {
+  const conIdioma = reescribirIdioma(peticion)
+  if (conIdioma) return conIdioma
+
   let respuesta = NextResponse.next({ request: peticion })
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL

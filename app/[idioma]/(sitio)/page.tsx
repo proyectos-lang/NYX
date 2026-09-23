@@ -12,6 +12,8 @@ import {
   type Media,
 } from '@/lib/consultas'
 import { MOSAICO_DEMO } from '@/lib/demo'
+import { ruta, esIdioma, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
 import Faq from '@/componentes/sitio/Faq'
 import s from '@/componentes/sitio/Secciones.module.css'
@@ -20,10 +22,17 @@ import s from '@/componentes/sitio/Secciones.module.css'
 // lugar de quedar congelado en el build.
 export const revalidate = 300
 
-const PALABRAS_MARQUESINA = [
-  'Sublimación', 'Camisas', 'Buzos', 'Gorras',
-  'Tazas', 'Termos', 'Llaveros', 'Corporativo',
-]
+/** La marquesina son nombres de producto: se traducen. */
+const PALABRAS_MARQUESINA: Record<Idioma, string[]> = {
+  es: [
+    'Sublimación', 'Camisas', 'Buzos', 'Gorras',
+    'Tazas', 'Termos', 'Llaveros', 'Corporativo',
+  ],
+  en: [
+    'Sublimation', 'Shirts', 'Hoodies', 'Caps',
+    'Mugs', 'Tumblers', 'Keychains', 'Corporate',
+  ],
+}
 
 /**
  * Las imágenes de la portada, con su valor por defecto.
@@ -54,14 +63,22 @@ function media(
   }
 }
 
-export default async function Portada() {
+export default async function Portada({
+  params,
+}: {
+  params: Promise<{ idioma: string }>
+}) {
+  const { idioma: crudo } = await params
+  const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
+  const t = textos(idioma)
+
   const [categorias, destacados, disponibles, preguntas, contenido, contacto, imagenes] =
     await Promise.all([
-      obtenerCategorias(),
-      obtenerDestacados(6),
-      obtenerDisponiblesHoy(6),
-      obtenerFaq(),
-      obtenerContenido(),
+      obtenerCategorias(idioma),
+      obtenerDestacados(6, idioma),
+      obtenerDisponiblesHoy(6, idioma),
+      obtenerFaq(idioma),
+      obtenerContenido(idioma),
       obtenerContacto(),
       obtenerMedia(),
     ])
@@ -108,30 +125,30 @@ export default async function Portada() {
         <div className={s.heroVelo} />
 
         <div className={s.heroContenido}>
-          <span className={s.etiqueta}>{portada.etiqueta ?? 'Sublimación NYX'}</span>
+          <span className={s.etiqueta}>{portada.etiqueta ?? (idioma === 'en' ? 'NYX sublimation' : 'Sublimación NYX')}</span>
           <h1 className={s.heroTitulo}>
-            {portada.titular ?? 'Todo lo que imagines,'}
+            {portada.titular ?? (idioma === 'en' ? 'Anything you imagine,' : 'Todo lo que imagines,')}
             <br />
-            <em>{portada.titularEnfasis ?? 'personalizado'}</em>
+            <em>{portada.titularEnfasis ?? (idioma === 'en' ? 'personalized' : 'personalizado')}</em>
           </h1>
 
           <div className={s.botones}>
-            <Link href="/catalogo" className="boton-oro">
-              Ver catálogo
+            <Link href={ruta('/catalogo', idioma)} className="boton-oro">
+              {t.nav.catalogo}
             </Link>
             <Link
-              href="/cotizar"
+              href={ruta('/cotizar', idioma)}
               className="boton-linea"
               style={{ borderColor: 'rgba(255,255,255,.35)' }}
             >
-              Solicitar cotización
+              {t.nav.cotizar}
             </Link>
           </div>
 
           <div className={s.heroDatos}>
-            <div className={s.heroDato}>+850 pedidos entregados</div>
-            <div className={s.heroDato}>Entrega inmediata en 48 h</div>
-            <div className={s.heroDato}>Arte revisado antes de producir</div>
+            <div className={s.heroDato}>{t.portada.pedidosEntregados}</div>
+            <div className={s.heroDato}>{t.portada.entrega48}</div>
+            <div className={s.heroDato}>{t.portada.arteRevisado}</div>
           </div>
         </div>
       </section>
@@ -141,11 +158,11 @@ export default async function Portada() {
         <div className="contenedor al-entrar">
           <div className={s.encabezado}>
             <div>
-              <span className="antetitulo">Categorías</span>
-              <h2 className="titulo-seccion">Encuentra lo que deseas personalizar</h2>
+              <span className="antetitulo">{t.portada.categoriasAntetitulo}</span>
+              <h2 className="titulo-seccion">{t.portada.categoriasTitulo}</h2>
             </div>
-            <Link href="/catalogo" className={s.enlaceVerTodo}>
-              Ver todo el catálogo
+            <Link href={ruta('/catalogo', idioma)} className={s.enlaceVerTodo}>
+              {t.portada.verTodo}
             </Link>
           </div>
 
@@ -153,7 +170,7 @@ export default async function Portada() {
             {categorias.map((c) => (
               <Link
                 key={c.slug}
-                href={`/catalogo?categoria=${c.slug}`}
+                href={ruta(`/catalogo?categoria=${c.slug}`, idioma)}
                 className={`${s.categoria} al-entrar`}
               >
                 <div className={s.categoriaFoto}>
@@ -169,7 +186,7 @@ export default async function Portada() {
                 <div className={s.categoriaPie}>
                   <div>
                     <div className={s.categoriaNombre}>{c.nombre}</div>
-                    <div className={s.categoriaCuenta}>{c.cuenta} productos</div>
+                    <div className={s.categoriaCuenta}>{c.cuenta} {t.portada.productos}</div>
                   </div>
                   <span className={s.flecha} aria-hidden="true">
                     →
@@ -187,18 +204,19 @@ export default async function Portada() {
           <div className={s.encabezado}>
             <div>
               <span className="antetitulo" style={{ color: '#fff' }}>
-                Selección
+                {t.portada.seleccionAntetitulo}
               </span>
-              <h2 className="titulo-seccion">Productos destacados</h2>
+              <h2 className="titulo-seccion">{t.portada.destacadosTitulo}</h2>
             </div>
             <span className={s.nota} style={{ color: 'var(--gris-suave)' }}>
-              Precios referenciales. El valor final se confirma según cantidad y acabado.
+              {t.portada.precioNota}
             </span>
           </div>
 
           <div className={s.rejillaProductos}>
             {destacados.map((p) => (
-              <TarjetaProducto key={p.id} producto={p} variante="oscura" />
+              <TarjetaProducto key={p.id} producto={p} variante="oscura"
+                idioma={idioma} />
             ))}
           </div>
         </div>
@@ -207,7 +225,7 @@ export default async function Portada() {
       {/* ------------------------------------------------------- Marquesina */}
       <div className={s.marquesina}>
         <div className={s.marquesinaPista}>
-          {[...PALABRAS_MARQUESINA, ...PALABRAS_MARQUESINA].map((palabra, i) => (
+          {[...PALABRAS_MARQUESINA[idioma], ...PALABRAS_MARQUESINA[idioma]].map((palabra, i) => (
             <span
               key={`${palabra}-${i}`}
               className={s.marquesinaItem}
@@ -226,19 +244,19 @@ export default async function Portada() {
           <div className={s.encabezado}>
             <div>
               <span className="antetitulo" style={{ color: 'var(--oro-oscuro)' }}>
-                Trabajos reales
+                {t.portada.trabajosAntetitulo}
               </span>
-              <h2 className="titulo-seccion">Lo que hemos producido</h2>
+              <h2 className="titulo-seccion">{t.portada.trabajosTitulo}</h2>
             </div>
-            <Link href="/catalogo" className={s.enlaceVerTodo}>
-              Ver todo el catálogo
+            <Link href={ruta('/catalogo', idioma)} className={s.enlaceVerTodo}>
+              {t.portada.verTodo}
             </Link>
           </div>
 
           <div className={s.mosaico}>
             {MOSAICO_DEMO.map((src, i) => {
               const clave = `mosaico-${String(i + 1).padStart(2, '0')}`
-              const foto = media(imagenes, 'trabajos-reales', clave, src, `Trabajo NYX ${i + 1}`)
+              const foto = media(imagenes, 'trabajos-reales', clave, src, `${t.portada.trabajoAlt} ${i + 1}`)
               return (
               <div key={clave} className={s.mosaicoFoto}>
                 <Image
@@ -259,10 +277,10 @@ export default async function Portada() {
         <div className={`contenedor ${s.dosColumnas} al-entrar`}>
           <div>
             <span className="antetitulo" style={{ color: '#fff' }}>
-              Cómo funciona
+              {t.portada.procesoAntetitulo}
             </span>
             <h2 className="titulo-seccion" style={{ marginBottom: 34 }}>
-              Personalizar con NYX es simple
+              {t.portada.procesoTitulo}
             </h2>
 
             <div>
@@ -277,14 +295,14 @@ export default async function Portada() {
               ))}
             </div>
 
-            <Link href="/cotizar" className="boton-oro" style={{ marginTop: 34 }}>
-              Comenzar mi pedido
+            <Link href={ruta('/cotizar', idioma)} className="boton-oro" style={{ marginTop: 34 }}>
+              {t.portada.comenzar}
             </Link>
           </div>
 
           <div>
             <div className={s.previsualizacion}>
-              <span className={s.cinta}>VISTA PREVIA</span>
+              <span className={s.cinta}>{t.portada.vistaPrevia}</span>
               <Image
                 {...media(
                   imagenes,
@@ -297,9 +315,9 @@ export default async function Portada() {
                 sizes="(max-width: 900px) 100vw, 45vw"
               />
               <span className={s.marcaLogo}>
-                tu logotipo
+                {t.portada.tuLogotipo}
                 <br />
-                aquí
+                {t.portada.aqui}
               </span>
             </div>
             <p
@@ -309,8 +327,7 @@ export default async function Portada() {
                 color: 'var(--gris-suave)',
               }}
             >
-              La vista previa es únicamente referencial. El diseño final será revisado y
-              aprobado por NYX antes de producirlo.
+              {t.portada.avisoVistaPrevia}
             </p>
           </div>
         </div>
@@ -322,19 +339,20 @@ export default async function Portada() {
           <div className="contenedor al-entrar">
             <div className={s.encabezado}>
               <div>
-                <span className={s.etiqueta}>Entrega inmediata</span>
+                <span className={s.etiqueta}>{t.portada.inmediataEtiqueta}</span>
                 <h2 className="titulo-seccion" style={{ marginTop: 18 }}>
-                  Listos para llevar hoy
+                  {t.portada.inmediataTitulo}
                 </h2>
               </div>
               <span className={s.nota} style={{ color: 'var(--gris-medio)' }}>
-                Stock existente, sin tiempo de producción. Cantidades limitadas.
+                {t.portada.inmediataNota}
               </span>
             </div>
 
             <div className={s.rejillaProductos}>
               {disponibles.map((p) => (
-                <TarjetaProducto key={p.id} producto={p} variante="clara" />
+                <TarjetaProducto key={p.id} producto={p} variante="clara"
+                  idioma={idioma} />
               ))}
             </div>
           </div>
@@ -374,7 +392,7 @@ export default async function Portada() {
               />
             </div>
             <div className={s.empresasVideo}>
-              <span className={s.cinta}>PROCESO NYX</span>
+              <span className={s.cinta}>{t.portada.procesoNyx}</span>
               <video
                 src={
                   media(imagenes, 'empresas', 'empresas-video', '/assets/nyx-proceso.mp4').src
@@ -391,10 +409,10 @@ export default async function Portada() {
 
           <div>
             <span className="antetitulo" style={{ color: '#fff' }}>
-              Empresas
+              {t.portada.empresasAntetitulo}
             </span>
             <h2 className="titulo-seccion">
-              {empresas.titular ?? 'Personalizamos la identidad de tu empresa'}
+              {empresas.titular ?? (idioma === 'en' ? 'We personalize your company identity' : 'Personalizamos la identidad de tu empresa')}
             </h2>
             <p className={s.parrafoIzquierda} style={{ color: 'var(--gris-texto)' }}>
               {empresas.parrafo}
@@ -408,8 +426,8 @@ export default async function Portada() {
               ))}
             </div>
 
-            <Link href="/cotizar" className="boton-linea" style={{ marginTop: 34 }}>
-              Solicitar cotización empresarial
+            <Link href={ruta('/cotizar', idioma)} className="boton-linea" style={{ marginTop: 34 }}>
+              {t.portada.cotizarEmpresarial}
             </Link>
           </div>
         </div>
@@ -425,9 +443,9 @@ export default async function Portada() {
               height={90}
               style={{ margin: '0 0 26px', mixBlendMode: 'multiply', height: 'auto' }}
             />
-            <span className="antetitulo">Sobre nosotros</span>
+            <span className="antetitulo">{t.portada.nosotrosAntetitulo}</span>
             <h2 className="titulo-seccion">
-              {nosotros.titular ?? 'Detalle, oficio y renacimiento'}
+              {nosotros.titular ?? (idioma === 'en' ? 'Detail, craft and rebirth' : 'Detalle, oficio y renacimiento')}
             </h2>
             <p className={s.parrafoIzquierda} style={{ color: 'var(--gris-fuerte)' }}>
               {nosotros.parrafo}
@@ -435,13 +453,13 @@ export default async function Portada() {
 
             <div className={s.cifras}>
               <div>
-                <div className={s.cifra}>{nosotros.cifra1 ?? '6 años'}</div>
-                <div className={s.cifraDetalle}>{nosotros.cifra1Detalle ?? 'de experiencia'}</div>
+                <div className={s.cifra}>{nosotros.cifra1 ?? (idioma === 'en' ? '6 years' : '6 años')}</div>
+                <div className={s.cifraDetalle}>{nosotros.cifra1Detalle ?? (idioma === 'en' ? 'of experience' : 'de experiencia')}</div>
               </div>
               <div>
-                <div className={s.cifra}>{nosotros.cifra2 ?? '1 a 1'}</div>
+                <div className={s.cifra}>{nosotros.cifra2 ?? (idioma === 'en' ? '1 to 1' : '1 a 1')}</div>
                 <div className={s.cifraDetalle}>
-                  {nosotros.cifra2Detalle ?? 'revisión de diseño'}
+                  {nosotros.cifra2Detalle ?? (idioma === 'en' ? 'design review' : 'revisión de diseño')}
                 </div>
               </div>
             </div>
@@ -468,9 +486,9 @@ export default async function Portada() {
         <div className="contenedor al-entrar" style={{ maxWidth: 900 }}>
           <div style={{ textAlign: 'center', marginBottom: 44 }}>
             <span className="antetitulo" style={{ color: '#fff' }}>
-              Preguntas frecuentes
+              {t.portada.preguntasAntetitulo}
             </span>
-            <h2 className="titulo-seccion">Antes de tu pedido</h2>
+            <h2 className="titulo-seccion">{t.portada.preguntasTitulo}</h2>
           </div>
           <Faq preguntas={preguntas} />
         </div>
@@ -482,24 +500,23 @@ export default async function Portada() {
         <div className={s.cierreAro} />
         <div className={`${s.cierreContenido} al-entrar`}>
           <h2 className="titulo-seccion" style={{ margin: 0, textWrap: 'balance' }}>
-            Haz realidad tu próxima idea con <em style={{ fontStyle: 'italic' }}>NYX</em>
+            {t.portada.cierreTitulo}
           </h2>
           <p className={s.parrafo}>
-            Cuéntanos qué deseas personalizar y recibe una cotización según las
-            características de tu pedido.
+            {t.portada.cierreTexto}
           </p>
           <div className={s.botonesCentrados}>
-            <Link href="/cotizar" className="boton-oro">
-              Solicitar cotización
+            <Link href={ruta('/cotizar', idioma)} className="boton-oro">
+              {t.nav.cotizar}
             </Link>
             <a
-              href={enlaceWhatsapp(contacto.whatsapp, 'Hola NYX, quisiera personalizar un producto.')}
+              href={enlaceWhatsapp(contacto.whatsapp, t.portada.mensajeWhatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               className="boton-linea"
               style={{ borderColor: 'rgba(255,255,255,.24)' }}
             >
-              Hablar por WhatsApp
+              {t.portada.hablarWhatsapp}
             </a>
           </div>
         </div>

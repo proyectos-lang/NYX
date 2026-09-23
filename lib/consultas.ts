@@ -12,6 +12,7 @@ import {
   type ProductoVista,
 } from '@/lib/demo'
 import type { TipoProducto } from '@/lib/database.types'
+import { IDIOMA_POR_DEFECTO, type Idioma } from '@/lib/i18n'
 
 /**
  * Capa de lectura del sitio público.
@@ -50,6 +51,19 @@ function avisar(que: string, detalle?: unknown) {
   }
 }
 
+/**
+ * El texto en el idioma pedido, con respaldo al espanol.
+ *
+ * El respaldo NO es opcional: las columnas en ingles se rellenan a mano desde
+ * el panel y van a estar vacias durante un tiempo. Sin esto, la version
+ * inglesa ensenaria huecos en vez de contenido, que es peor que ensenarlo en
+ * espanol.
+ */
+function enIdioma(es: string | null, en: string | null, idioma: Idioma): string {
+  if (idioma === 'en') return (en ?? '').trim() || (es ?? '')
+  return es ?? ''
+}
+
 /** Las rutas del seed vienen sin barra inicial; en Next viven bajo /assets. */
 function rutaImagen(url: string | null | undefined): string | null {
   if (!url) return null
@@ -63,7 +77,9 @@ function rutaImagen(url: string | null | undefined): string | null {
 // Categorías
 // ---------------------------------------------------------------------------
 
-export async function obtenerCategorias(): Promise<CategoriaVista[]> {
+export async function obtenerCategorias(
+  idioma: Idioma = IDIOMA_POR_DEFECTO
+): Promise<CategoriaVista[]> {
   if (!hayBaseDeDatos()) {
     avisar('Supabase sin configurar')
     return CATEGORIAS_DEMO
@@ -73,7 +89,7 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
     const supabase = await crearClienteServidor()
     const { data, error } = await supabase
       .from('categorias')
-      .select('slug, nombre_es, imagen_portada, productos(count)')
+      .select('slug, nombre_es, nombre_en, imagen_portada, productos(count)')
       .eq('visible', true)
       .order('orden')
 
@@ -82,6 +98,7 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
     type FilaCategoria = {
       slug: string
       nombre_es: string
+      nombre_en: string | null
       imagen_portada: string | null
       // El embed de conteo llega como [{ count: n }].
       productos: { count: number }[] | null
@@ -89,7 +106,7 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
 
     return ((data ?? []) as unknown as FilaCategoria[]).map((c) => ({
       slug: c.slug,
-      nombre: c.nombre_es,
+      nombre: enIdioma(c.nombre_es, c.nombre_en, idioma),
       imagen: rutaImagen(c.imagen_portada),
       cuenta: c.productos?.[0]?.count ?? 0,
     }))
@@ -105,9 +122,9 @@ export async function obtenerCategorias(): Promise<CategoriaVista[]> {
 
 /** Columnas y relaciones que necesita ProductoVista. */
 const SELECT_PRODUCTO = `
-  id, sku, slug, nombre_es, descripcion_es, precio_referencia, tipo,
-  stock, bajo_pedido,
-  categorias ( slug, nombre_es ),
+  id, sku, slug, nombre_es, nombre_en, descripcion_es, descripcion_en,
+  precio_referencia, tipo, stock, bajo_pedido,
+  categorias ( slug, nombre_es, nombre_en ),
   producto_fotos ( url, orden, es_portada )
 `
 
@@ -116,16 +133,18 @@ type FilaProducto = {
   sku: string
   slug: string
   nombre_es: string
+  nombre_en: string | null
   descripcion_es: string | null
+  descripcion_en: string | null
   precio_referencia: number | null
   tipo: TipoProducto
   stock: number | null
   bajo_pedido: boolean
-  categorias: { slug: string; nombre_es: string } | null
+  categorias: { slug: string; nombre_es: string; nombre_en: string | null } | null
   producto_fotos: { url: string; orden: number; es_portada: boolean }[]
 }
 
-function aProductoVista(fila: FilaProducto): ProductoVista {
+function aProductoVista(fila: FilaProducto, idioma: Idioma): ProductoVista {
   const fotos = [...(fila.producto_fotos ?? [])]
     .sort((a, b) => Number(b.es_portada) - Number(a.es_portada) || a.orden - b.orden)
     .map((f) => rutaImagen(f.url))
@@ -135,10 +154,14 @@ function aProductoVista(fila: FilaProducto): ProductoVista {
     id: fila.id,
     sku: fila.sku,
     slug: fila.slug,
-    nombre: fila.nombre_es,
-    categoria: fila.categorias?.nombre_es ?? 'Sin categoría',
+    nombre: enIdioma(fila.nombre_es, fila.nombre_en, idioma),
+    categoria: fila.categorias
+      ? enIdioma(fila.categorias.nombre_es, fila.categorias.nombre_en, idioma)
+      : idioma === 'en'
+        ? 'Uncategorized'
+        : 'Sin categoría',
     categoriaSlug: fila.categorias?.slug ?? '',
-    descripcion: fila.descripcion_es,
+    descripcion: enIdioma(fila.descripcion_es, fila.descripcion_en, idioma) || null,
     precio: fila.precio_referencia,
     tipo: fila.tipo,
     stock: fila.stock,
@@ -148,7 +171,10 @@ function aProductoVista(fila: FilaProducto): ProductoVista {
   }
 }
 
-export async function obtenerDestacados(limite = 6): Promise<ProductoVista[]> {
+export async function obtenerDestacados(
+  limite = 6,
+  idioma: Idioma = IDIOMA_POR_DEFECTO
+): Promise<ProductoVista[]> {
   if (!hayBaseDeDatos()) return PRODUCTOS_DEMO.slice(0, limite)
 
   try {
@@ -162,14 +188,17 @@ export async function obtenerDestacados(limite = 6): Promise<ProductoVista[]> {
 
     if (error) throw error
 
-    return ((data ?? []) as unknown as FilaProducto[]).map(aProductoVista)
+    return ((data ?? []) as unknown as FilaProducto[]).map((f) => aProductoVista(f, idioma))
   } catch (error) {
     avisar('Error al leer productos destacados', error)
     return PRODUCTOS_DEMO.slice(0, limite)
   }
 }
 
-export async function obtenerDisponiblesHoy(limite = 6): Promise<ProductoVista[]> {
+export async function obtenerDisponiblesHoy(
+  limite = 6,
+  idioma: Idioma = IDIOMA_POR_DEFECTO
+): Promise<ProductoVista[]> {
   const deDemo = PRODUCTOS_DEMO.filter((p) => p.tipo === 'entrega_inmediata').slice(0, limite)
 
   if (!hayBaseDeDatos()) return deDemo
@@ -187,7 +216,7 @@ export async function obtenerDisponiblesHoy(limite = 6): Promise<ProductoVista[]
 
     if (error) throw error
 
-    return ((data ?? []) as unknown as FilaProducto[]).map(aProductoVista)
+    return ((data ?? []) as unknown as FilaProducto[]).map((f) => aProductoVista(f, idioma))
   } catch (error) {
     avisar('Error al leer productos de entrega inmediata', error)
     return deDemo
@@ -210,7 +239,8 @@ export interface ResultadoCatalogo {
 }
 
 export async function obtenerCatalogo(
-  filtros: FiltrosCatalogo = {}
+  filtros: FiltrosCatalogo = {},
+  idioma: Idioma = IDIOMA_POR_DEFECTO
 ): Promise<ResultadoCatalogo> {
   const porPagina = filtros.porPagina ?? 24
   const pagina = Math.max(1, filtros.pagina ?? 1)
@@ -269,7 +299,7 @@ export async function obtenerCatalogo(
 
     const total = count ?? 0
     return {
-      productos: (data as unknown as FilaProducto[]).map(aProductoVista),
+      productos: (data as unknown as FilaProducto[]).map((f) => aProductoVista(f, idioma)),
       total,
       pagina,
       paginas: Math.max(1, Math.ceil(total / porPagina)),
@@ -280,7 +310,10 @@ export async function obtenerCatalogo(
   }
 }
 
-export async function obtenerProducto(slug: string): Promise<ProductoVista | null> {
+export async function obtenerProducto(
+  slug: string,
+  idioma: Idioma = IDIOMA_POR_DEFECTO
+): Promise<ProductoVista | null> {
   const deDemo = PRODUCTOS_DEMO.find((p) => p.slug === slug) ?? null
 
   if (!hayBaseDeDatos()) return deDemo
@@ -297,7 +330,7 @@ export async function obtenerProducto(slug: string): Promise<ProductoVista | nul
     if (error) throw error
     if (!data) return deDemo
 
-    return aProductoVista(data as unknown as FilaProducto)
+    return aProductoVista(data as unknown as FilaProducto, idioma)
   } catch (error) {
     avisar(`Error al leer el producto "${slug}"`, error)
     return deDemo
@@ -322,14 +355,14 @@ export async function obtenerSlugsDeProductos(): Promise<string[]> {
 // Preguntas frecuentes
 // ---------------------------------------------------------------------------
 
-export async function obtenerFaq(): Promise<FaqVista[]> {
+export async function obtenerFaq(idioma: Idioma = IDIOMA_POR_DEFECTO): Promise<FaqVista[]> {
   if (!hayBaseDeDatos()) return FAQ_DEMO
 
   try {
     const supabase = await crearClienteServidor()
     const { data, error } = await supabase
       .from('faq')
-      .select('pregunta_es, respuesta_es')
+      .select('pregunta_es, respuesta_es, pregunta_en, respuesta_en')
       .eq('visible', true)
       .order('orden')
 
@@ -337,7 +370,10 @@ export async function obtenerFaq(): Promise<FaqVista[]> {
 
     // Sin respaldo si la lista viene vacía: es la tabla que el panel edita, y
     // borrar la última pregunta tiene que borrarla también de la web.
-    return (data ?? []).map((f) => ({ pregunta: f.pregunta_es, respuesta: f.respuesta_es }))
+    return (data ?? []).map((f) => ({
+      pregunta: enIdioma(f.pregunta_es, f.pregunta_en, idioma),
+      respuesta: enIdioma(f.respuesta_es, f.respuesta_en, idioma),
+    }))
   } catch (error) {
     avisar('Error al leer las preguntas frecuentes', error)
     return FAQ_DEMO
@@ -362,14 +398,16 @@ export type Contenido = Record<string, Record<string, string>>
  * sitio. Un texto que falta casi nunca es una decisión, es un campo que nadie
  * llegó a rellenar.
  */
-export async function obtenerContenido(): Promise<Contenido> {
+export async function obtenerContenido(
+  idioma: Idioma = IDIOMA_POR_DEFECTO
+): Promise<Contenido> {
   if (!hayBaseDeDatos()) return CONTENIDO_DEMO
 
   try {
     const supabase = await crearClienteServidor()
     const { data, error } = await supabase
       .from('contenido_bloques')
-      .select('clave, contenido_campos ( clave, valor_es )')
+      .select('clave, contenido_campos ( clave, valor_es, valor_en )')
       .order('orden')
 
     if (error) throw error
@@ -379,10 +417,11 @@ export async function obtenerContenido(): Promise<Contenido> {
     for (const bloque of data) {
       const campos: Record<string, string> = { ...(CONTENIDO_DEMO[bloque.clave] ?? {}) }
       const lista = bloque.contenido_campos as unknown as
-        | { clave: string; valor_es: string | null }[]
+        | { clave: string; valor_es: string | null; valor_en: string | null }[]
         | null
       for (const campo of lista ?? []) {
-        if (campo.valor_es) campos[campo.clave] = campo.valor_es
+        const valor = enIdioma(campo.valor_es, campo.valor_en, idioma)
+        if (valor) campos[campo.clave] = valor
       }
       salida[bloque.clave] = campos
     }

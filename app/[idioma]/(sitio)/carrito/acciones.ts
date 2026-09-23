@@ -2,6 +2,8 @@
 
 import { crearClienteServidor } from '@/lib/supabase/server'
 import { hayBaseDeDatos } from '@/lib/consultas'
+import { esIdioma, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 
 export interface EstadoPedido {
   estado: 'inicial' | 'ok' | 'error'
@@ -34,14 +36,20 @@ export async function enviarPedido(
   _previo: EstadoPedido,
   datos: FormData
 ): Promise<EstadoPedido> {
+  // El idioma viaja en el formulario: los mensajes de error tienen que salir
+  // en el mismo idioma en que se rellenó, no en el del servidor.
+  const crudo = texto(datos, 'idioma')
+  const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
+  const t = textos(idioma).carrito
+
   const nombre = texto(datos, 'nombre')
   const email = texto(datos, 'email')
 
   if (!nombre) {
-    return { estado: 'error', mensaje: 'Escribe tu nombre para poder avisarte.' }
+    return { estado: 'error', mensaje: t.errorNombre }
   }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { estado: 'error', mensaje: 'Revisa el correo electrónico: no parece válido.' }
+    return { estado: 'error', mensaje: t.errorCorreo }
   }
 
   let items: { producto_id: string; nombre: string; cantidad: number }[]
@@ -54,15 +62,11 @@ export async function enviarPedido(
   }
 
   if (items.length === 0) {
-    return { estado: 'error', mensaje: 'El carrito está vacío.' }
+    return { estado: 'error', mensaje: t.errorVacio }
   }
 
   if (!hayBaseDeDatos()) {
-    return {
-      estado: 'error',
-      mensaje:
-        'El pedido todavía no se puede registrar. Escríbenos por WhatsApp y lo gestionamos igual.',
-    }
+    return { estado: 'error', mensaje: t.errorSinBase }
   }
 
   try {
@@ -91,18 +95,13 @@ export async function enviarPedido(
       console.error('[nyx] crear_solicitud falló desde el carrito', error)
       return {
         estado: 'error',
-        mensaje: esDeValidacion
-          ? error.message
-          : 'No pudimos registrar el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.',
+        mensaje: esDeValidacion ? error.message : t.errorGenerico,
       }
     }
 
     return { estado: 'ok', referencia: String(data) }
   } catch (error) {
     console.error('[nyx] error inesperado al enviar el pedido del carrito', error)
-    return {
-      estado: 'error',
-      mensaje: 'No pudimos registrar el pedido. Escríbenos por WhatsApp y lo resolvemos.',
-    }
+    return { estado: 'error', mensaje: t.errorGenerico }
   }
 }

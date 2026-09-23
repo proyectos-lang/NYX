@@ -6,14 +6,23 @@ import { useCarrito } from '@/componentes/sitio/carrito/estado'
 import { aItemsDeSolicitud } from '@/lib/carrito'
 import { precio as formatearPrecio } from '@/lib/formato'
 import { enviarPedido, type EstadoPedido } from './acciones'
+import { ruta, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import s from '@/componentes/sitio/carrito/Carrito.module.css'
-import c from '@/app/(sitio)/cotizar/Cotizar.module.css'
+import c from '@/app/[idioma]/(sitio)/cotizar/Cotizar.module.css'
 
 const INICIAL: EstadoPedido = { estado: 'inicial' }
 
-export default function Carrito({ whatsapp }: { whatsapp: string }) {
+export default function Carrito({
+  whatsapp,
+  idioma,
+}: {
+  whatsapp: string
+  idioma: Idioma
+}) {
   const { lineas, total, unidades, cambiarCantidad, quitar, vaciar, listo } = useCarrito()
   const [estado, accion, enviando] = useActionState(enviarPedido, INICIAL)
+  const t = textos(idioma)
 
   // El carrito se vacía DESPUÉS de que el pedido entre, no antes de enviarlo:
   // si algo falla, lo que la persona había reunido sigue ahí.
@@ -24,13 +33,13 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
   if (estado.estado === 'ok') {
     return (
       <div className={s.vacio}>
-        <div className={s.vacioTitulo}>Pedido recibido</div>
-        <p className={s.vacioTexto}>
-          Guarda esta referencia: <strong>{estado.referencia}</strong>. Te escribimos para
-          confirmarte la disponibilidad y coordinar la entrega.
-        </p>
-        <Link href="/catalogo?tipo=entrega_inmediata" className="boton-oro">
-          Seguir viendo
+        <div className={s.vacioTitulo}>{t.carrito.recibidoTitulo}</div>
+        <p className={s.vacioTexto}>{t.carrito.recibidoTexto(estado.referencia ?? '')}</p>
+        <Link
+          href={ruta('/catalogo?tipo=entrega_inmediata', idioma)}
+          className="boton-oro"
+        >
+          {t.carrito.seguirViendo}
         </Link>
       </div>
     )
@@ -43,13 +52,13 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
   if (lineas.length === 0) {
     return (
       <div className={s.vacio}>
-        <div className={s.vacioTitulo}>Tu carrito está vacío</div>
-        <p className={s.vacioTexto}>
-          Aquí se reúnen los productos de entrega inmediata: los que ya están hechos y se
-          retiran el mismo día. Lo personalizado va por cotización.
-        </p>
-        <Link href="/catalogo?tipo=entrega_inmediata" className="boton-oro">
-          Ver lo disponible hoy
+        <div className={s.vacioTitulo}>{t.carrito.vacioTitulo}</div>
+        <p className={s.vacioTexto}>{t.carrito.vacioTexto}</p>
+        <Link
+          href={ruta('/catalogo?tipo=entrega_inmediata', idioma)}
+          className="boton-oro"
+        >
+          {t.carrito.verDisponible}
         </Link>
       </div>
     )
@@ -63,21 +72,21 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
 
           return (
             <div key={l.productoId} className={s.linea}>
-              <Link href={`/catalogo/${l.slug}`} className={s.foto}>
+              <Link href={ruta(`/catalogo/${l.slug}`, idioma)} className={s.foto}>
                 {/* Foto del bucket, de dimensiones desconocidas. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {l.imagen && <img src={l.imagen} alt="" />}
               </Link>
 
               <div>
-                <Link href={`/catalogo/${l.slug}`} className={s.nombre}>
+                <Link href={ruta(`/catalogo/${l.slug}`, idioma)} className={s.nombre}>
                   {l.nombre}
                 </Link>
-                <div className={s.unitario}>{formatearPrecio(l.precio)} por unidad</div>
+                <div className={s.unitario}>
+                  {formatearPrecio(l.precio, idioma)} {t.carrito.porUnidad}
+                </div>
                 {enElTope && (
-                  <div className={s.avisoStock}>
-                    Es todo lo que queda en stock ({l.stock}).
-                  </div>
+                  <div className={s.avisoStock}>{t.carrito.quedaEnStock(l.stock ?? 0)}</div>
                 )}
               </div>
 
@@ -87,7 +96,7 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
                     type="button"
                     className={s.paso}
                     onClick={() => cambiarCantidad(l.productoId, l.cantidad - 1)}
-                    aria-label={`Quitar una unidad de ${l.nombre}`}
+                    aria-label={t.carrito.quitarUnidad(l.nombre)}
                   >
                     −
                   </button>
@@ -97,14 +106,14 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
                     className={s.paso}
                     disabled={enElTope}
                     onClick={() => cambiarCantidad(l.productoId, l.cantidad + 1)}
-                    aria-label={`Añadir una unidad de ${l.nombre}`}
+                    aria-label={t.carrito.anadirUnidad(l.nombre)}
                   >
                     +
                   </button>
                 </div>
 
                 <span className={s.subtotal}>
-                  {l.precio === null ? '—' : formatearPrecio(l.precio * l.cantidad)}
+                  {l.precio === null ? '—' : formatearPrecio(l.precio * l.cantidad, idioma)}
                 </span>
 
                 <button
@@ -112,7 +121,7 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
                   className={s.quitar}
                   onClick={() => quitar(l.productoId)}
                 >
-                  Quitar
+                  {t.carrito.quitar}
                 </button>
               </div>
             </div>
@@ -123,16 +132,16 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
       <div className={s.resumen}>
         <div className={s.totalFila}>
           <span className={s.totalEtiqueta}>
-            Total · {unidades} {unidades === 1 ? 'artículo' : 'artículos'}
+            {t.carrito.total} · {unidades}{' '}
+            {unidades === 1 ? t.carrito.articulo : t.carrito.articulos}
           </span>
           <span className={s.totalCifra}>
-            {total === null ? 'A confirmar' : formatearPrecio(total)}
+            {total === null ? t.carrito.aConfirmar : formatearPrecio(total, idioma)}
           </span>
         </div>
 
         <p className={s.nota}>
-          Sin pagos en línea: envías el pedido, NYX confirma la disponibilidad y coordináis
-          la entrega o el retiro. Añadir algo al carrito no lo aparta del stock.
+          {t.carrito.notaSinPagos}
         </p>
       </div>
 
@@ -141,23 +150,24 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
             crear_solicitud vuelve a comprobar cada producto contra la tabla, y
             el precio no se envía: lo pone NYX. */}
         <input type="hidden" name="items" value={JSON.stringify(aItemsDeSolicitud(lineas))} />
+        <input type="hidden" name="idioma" value={idioma} />
 
         <div className={c.tituloGrupo}>
           <span className={c.numeroGrupo}>01</span>
-          <span className={c.textoGrupo}>Tus datos</span>
+          <span className={c.textoGrupo}>{t.carrito.tusDatos}</span>
         </div>
 
         <div className={c.rejillaCampos}>
           <div>
             <label className={c.etiqueta} htmlFor="nombre">
-              Nombre completo
+              {t.carrito.nombre}
             </label>
             <input className={c.campo} id="nombre" name="nombre" required maxLength={160} />
           </div>
 
           <div>
             <label className={c.etiqueta} htmlFor="telefono">
-              Teléfono / WhatsApp
+              {t.carrito.telefono}
             </label>
             <input
               className={c.campo}
@@ -171,7 +181,7 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
 
           <div className={c.anchoCompleto}>
             <label className={c.etiqueta} htmlFor="email">
-              Correo electrónico
+              {t.carrito.correo}
             </label>
             <input
               className={c.campo}
@@ -185,14 +195,14 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
 
           <div className={c.anchoCompleto}>
             <label className={c.etiqueta} htmlFor="observaciones">
-              ¿Cuándo pasas a retirarlo? ¿Prefieres envío?
+              {t.carrito.cuandoRetiras}
             </label>
             <textarea
               className={c.area}
               id="observaciones"
               name="observaciones"
               maxLength={1000}
-              placeholder="Paso mañana por la tarde"
+              placeholder={t.carrito.cuandoRetirasPlaceholder}
             />
           </div>
         </div>
@@ -215,7 +225,7 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 22 }}>
           <button type="submit" className="boton-oro" disabled={enviando}>
-            {enviando ? 'Enviando…' : 'Enviar pedido'}
+            {enviando ? t.carrito.enviando : t.carrito.enviar}
           </button>
 
           {whatsapp && (
@@ -225,7 +235,7 @@ export default function Carrito({ whatsapp }: { whatsapp: string }) {
               rel="noopener noreferrer"
               className="boton-linea"
             >
-              Preguntar por WhatsApp
+              {t.carrito.preguntarWhatsapp}
             </a>
           )}
         </div>

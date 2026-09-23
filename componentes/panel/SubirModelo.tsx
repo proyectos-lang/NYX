@@ -2,9 +2,9 @@
 
 import { useRef, useState } from 'react'
 import { crearClienteNavegador } from '@/lib/supabase/client'
-import { guardarModelo3D } from '@/app/panel/acciones'
+import { guardarModelo3D } from '@/app/(admin)/panel/acciones'
 import type { Mapeo } from '@/lib/estudio/tipos'
-import e from '@/app/panel/Panel.module.css'
+import e from '@/app/(admin)/panel/Panel.module.css'
 
 /**
  * Subida y análisis de un modelo .glb.

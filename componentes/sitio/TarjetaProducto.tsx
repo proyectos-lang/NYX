@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { ProductoVista } from '@/lib/demo'
 import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
+import { ruta, type Idioma } from '@/lib/i18n'
+import { textos } from '@/lib/textos'
 import BotonAnadir from './carrito/BotonAnadir'
 import estilos from './TarjetaProducto.module.css'
 
@@ -9,11 +11,17 @@ interface Props {
   producto: ProductoVista
   /** "oscura" para la sección de destacados, "clara" para entrega inmediata. */
   variante?: 'oscura' | 'clara'
+  idioma: Idioma
 }
 
-export default function TarjetaProducto({ producto, variante = 'oscura' }: Props) {
+export default function TarjetaProducto({
+  producto,
+  variante = 'oscura',
+  idioma,
+}: Props) {
   const inmediato = producto.tipo === 'entrega_inmediata'
-  const href = `/catalogo/${producto.slug}`
+  const href = ruta(`/catalogo/${producto.slug}`, idioma)
+  const t = textos(idioma)
 
   return (
     <article className={`${estilos.tarjeta} ${estilos[variante]} al-entrar`}>
@@ -26,7 +34,9 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
             sizes="(max-width: 720px) 50vw, 25vw"
           />
         ) : (
-          <span className={estilos.sinFoto}>foto pendiente · {producto.slug}</span>
+          <span className={estilos.sinFoto}>
+            {t.catalogo.fotoPendiente} · {producto.slug}
+          </span>
         )}
 
         {inmediato ? (
@@ -35,14 +45,14 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
             style={{ background: '#dff3e4', color: '#0a5c2b' }}
           >
             <span className={estilos.puntoVerde} />
-            Disponible ahora
+            {t.catalogo.disponibleAhora}
           </span>
         ) : (
           <span
             className={estilos.insignia}
             style={{ background: 'rgba(201,154,46,.92)', color: '#080808' }}
           >
-            Personalizable
+            {t.catalogo.personalizable}
           </span>
         )}
       </Link>
@@ -57,10 +67,10 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
           <>
             <div className={estilos.detalle}>{producto.descripcion ?? producto.sku}</div>
             <div className={estilos.existencias}>
-              {textoStock(producto.stock, producto.bajoPedido)}
+              {textoStock(producto.stock, producto.bajoPedido, idioma)}
             </div>
             <span className={estilos.precio} style={{ display: 'block', margin: '10px 0' }}>
-              {formatearPrecio(producto.precio)}
+              {formatearPrecio(producto.precio, idioma)}
             </span>
 
             {/* Solo los de entrega inmediata entran al carrito: los
@@ -69,6 +79,7 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
             {inmediato ? (
               <BotonAnadir
                 variante="discreto"
+                idioma={idioma}
                 producto={{
                   productoId: producto.id,
                   slug: producto.slug,
@@ -79,16 +90,21 @@ export default function TarjetaProducto({ producto, variante = 'oscura' }: Props
                 }}
               />
             ) : (
-              <Link href={`/cotizar?producto=${producto.slug}`} className={estilos.accionSolida}>
-                Solicitar
+              <Link
+                href={ruta(`/cotizar?producto=${producto.slug}`, idioma)}
+                className={estilos.accionSolida}
+              >
+                {t.catalogo.solicitar}
               </Link>
             )}
           </>
         ) : (
           <div className={estilos.pie}>
-            <span className={estilos.precio}>{formatearPrecio(producto.precio)}</span>
+            <span className={estilos.precio}>
+              {formatearPrecio(producto.precio, idioma)}
+            </span>
             <Link href={href} className={estilos.accion}>
-              Ver producto
+              {t.catalogo.verProducto}
             </Link>
           </div>
         )}
