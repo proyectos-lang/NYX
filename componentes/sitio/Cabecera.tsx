@@ -18,12 +18,15 @@ export default function Cabecera({ idioma }: { idioma: Idioma }) {
   // Todos los enlaces pasan por ruta(): uno sin prefijo devuelve al español a
   // mitad de navegación, y el fallo es de los que nadie reporta porque parece
   // que la web se estropeó sola.
+  //
+  // "Personalizables" y "Entrega inmediata" ya no están aquí: eran el
+  // catálogo con un filtro puesto, así que repetían un enlace que está al
+  // lado. Con el carrito y el idioma en la misma fila, seis enlaces caben y
+  // ocho se apretaban. Siguen en el pie, que tiene sitio de sobra.
   const ENLACES = [
     { texto: t.nav.inicio, href: '/' },
     { texto: t.nav.catalogo, href: '/catalogo' },
     { texto: t.nav.estudio, href: '/estudio' },
-    { texto: t.nav.personalizables, href: '/catalogo?tipo=personalizable' },
-    { texto: t.nav.entregaInmediata, href: '/catalogo?tipo=entrega_inmediata' },
     { texto: t.nav.nosotros, href: '/#nosotros' },
     { texto: t.nav.preguntas, href: '/#preguntas' },
     { texto: t.nav.contacto, href: '/#contacto' },
