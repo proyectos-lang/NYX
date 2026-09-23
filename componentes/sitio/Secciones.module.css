@@ -605,3 +605,70 @@
   justify-content: center;
   margin-top: 36px;
 }
+
+/* --- Entrada de las imágenes ----------------------------------------------
+
+   Las fotos se asientan al aparecer en lugar de estar ya quietas. Donde el
+   navegador admite animation-timeline: view(), cada una arranca al entrar en
+   pantalla, así que el escalonado sale solo al desplazarse. Donde no, corren
+   al cargar y el retraso por posición evita que salten todas a la vez, que es
+   lo que hace que parezca un parpadeo en vez de una entrada.
+
+   prefers-reduced-motion las apaga desde globals.css, y como la opacidad final
+   es 1, quedan visibles igual.                                              */
+
+.categoriaFoto img,
+.mosaicoFoto img {
+  animation: nyxImagenEntra 0.85s var(--curva) both;
+}
+
+/* Escalonado de la fila de categorías. */
+.categoria:nth-child(2) .categoriaFoto img { animation-delay: 0.06s; }
+.categoria:nth-child(3) .categoriaFoto img { animation-delay: 0.12s; }
+.categoria:nth-child(4) .categoriaFoto img { animation-delay: 0.18s; }
+.categoria:nth-child(5) .categoriaFoto img { animation-delay: 0.24s; }
+.categoria:nth-child(6) .categoriaFoto img { animation-delay: 0.30s; }
+.categoria:nth-child(7) .categoriaFoto img { animation-delay: 0.36s; }
+.categoria:nth-child(8) .categoriaFoto img { animation-delay: 0.42s; }
+
+/* Y del mosaico, que son doce. */
+.mosaicoFoto:nth-child(2) img  { animation-delay: 0.05s; }
+.mosaicoFoto:nth-child(3) img  { animation-delay: 0.10s; }
+.mosaicoFoto:nth-child(4) img  { animation-delay: 0.15s; }
+.mosaicoFoto:nth-child(5) img  { animation-delay: 0.20s; }
+.mosaicoFoto:nth-child(6) img  { animation-delay: 0.25s; }
+.mosaicoFoto:nth-child(7) img  { animation-delay: 0.30s; }
+.mosaicoFoto:nth-child(8) img  { animation-delay: 0.35s; }
+.mosaicoFoto:nth-child(9) img  { animation-delay: 0.40s; }
+.mosaicoFoto:nth-child(10) img { animation-delay: 0.45s; }
+.mosaicoFoto:nth-child(11) img { animation-delay: 0.50s; }
+.mosaicoFoto:nth-child(12) img { animation-delay: 0.55s; }
+
+/* Las fotos grandes de empresas y nosotros entran algo más despacio: son
+   mucho más grandes y el mismo tiempo se ve brusco. */
+.empresasFoto img,
+.retrato img {
+  animation: nyxImagenEntra 1.1s var(--curva) both;
+}
+
+/* Las tres del hero ya hacen su propio zoom; lo único que les faltaba era no
+   moverse las tres a la vez. */
+.heroImagen:nth-child(2) img {
+  animation-delay: 0.12s;
+}
+
+.heroImagen:nth-child(3) img {
+  animation-delay: 0.24s;
+}
+
+@supports (animation-timeline: view()) {
+  .categoriaFoto img,
+  .mosaicoFoto img,
+  .empresasFoto img,
+  .retrato img {
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+    /* El escalonado sobra aquí: cada foto ya arranca cuando entra. */
+    animation-delay: 0s;
+  }
+}

@@ -191,3 +191,30 @@
 .accionSolida:hover {
   background: var(--negro-4);
 }
+
+/* --- Entrada de la foto ---------------------------------------------------
+
+   La tarjeta entera ya sube con .al-entrar; esto es solo la foto, que se
+   asienta desde un poco más cerca. Se nota sobre todo en el catálogo, donde
+   hay muchas seguidas.
+
+   El retraso escalonado solo hace falta donde no existe animation-timeline:
+   view(). Con timeline, cada tarjeta arranca al entrar en pantalla.         */
+
+.foto img {
+  animation: nyxImagenEntra 0.8s var(--curva) both;
+}
+
+.tarjeta:nth-child(2) .foto img { animation-delay: 0.06s; }
+.tarjeta:nth-child(3) .foto img { animation-delay: 0.12s; }
+.tarjeta:nth-child(4) .foto img { animation-delay: 0.18s; }
+.tarjeta:nth-child(5) .foto img { animation-delay: 0.24s; }
+.tarjeta:nth-child(6) .foto img { animation-delay: 0.30s; }
+
+@supports (animation-timeline: view()) {
+  .foto img {
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+    animation-delay: 0s;
+  }
+}

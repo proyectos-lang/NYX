@@ -144,6 +144,20 @@ select {
   }
 }
 
+/* Entrada de las fotos: aparecen asentándose desde un poco más cerca.
+   Un fundido a secas se nota poco sobre fondo oscuro; el movimiento es lo que
+   hace que la página se sienta viva al abrirla. */
+@keyframes nyxImagenEntra {
+  from {
+    opacity: 0;
+    transform: scale(1.07);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes nyxLine {
   from {
     transform: scaleX(0);
