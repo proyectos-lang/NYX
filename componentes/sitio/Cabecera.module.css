@@ -20,7 +20,7 @@
    boton del menu. Con el logo a 30px la fila iba justa y las tres cosas de la
    derecha quedaban pegadas al borde. */
 .logo img {
-  height: 22px;
+  height: 20px;
   width: auto;
 }
 

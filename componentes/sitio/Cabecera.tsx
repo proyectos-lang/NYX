@@ -35,13 +35,16 @@ export default function Cabecera({ idioma }: { idioma: Idioma }) {
   return (
     <header className={estilos.cabecera} style={{ position: 'sticky' }}>
       <Link href={ruta('/', idioma)} className={estilos.logo} aria-label={t.nav.irAlInicio}>
+        {/* El tamaño lo manda la hoja de estilos, que lo baja en móvil.
+            Antes venía un style={{ height: 'auto' }} aquí mismo, y un estilo en
+            línea gana a cualquier clase: la altura del CSS no se aplicaba nunca
+            y el logo salía igual de grande en el teléfono. */}
         <Image
           src="/assets/nyx-logo-dark.png"
           alt="NYX"
           width={140}
           height={36}
           priority
-          style={{ height: 'auto', width: 'auto' }}
         />
       </Link>
 
