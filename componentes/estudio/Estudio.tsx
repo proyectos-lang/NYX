@@ -396,10 +396,27 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
         </p>
       )}
 
+      {/* La guía va aquí arriba y no dentro de la columna del lienzo. Estaba
+          dentro, y la columna es la que se queda fija al desplazar: con la
+          guía y el diagnóstico dentro, ese bloque medía más que la pantalla
+          del móvil, y un elemento fijo más alto que la ventana se desplaza
+          igual. La prenda se iba de la vista justo al bajar a los controles,
+          que es cuando hace falta verla. */}
+      <div className={e.guia}>
+        <span className={e.guiaPaso}>
+          <span className={e.guiaNumero}>1</span> Elige el color de la prenda
+        </span>
+        <span className={e.guiaPaso}>
+          <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
+        </span>
+        <span className={e.guiaPaso}>
+          <span className={e.guiaNumero}>3</span> Colócalo con los controles y gira la prenda
+        </span>
+      </div>
+
       <div className={e.cuerpo}>
-        {/* Esta columna queda fija al desplazar: si el lienzo se va de
-            pantalla, se edita a ciegas y hay que subir después de cada cambio
-            para ver el resultado. */}
+        {/* Solo las pestañas y el lienzo. Todo lo que se añada aquí dentro
+            resta altura a lo que queda fijo en el móvil. */}
         <div className={e.columnaLienzo}>
           <div className={e.pestanas}>
             {/* Ya no hay pestañas: el estudio es siempre la vista 3D. El
@@ -435,21 +452,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
             ))}
           </div>
 
-          {/* La guía sigue haciendo falta: sin ella, un lienzo con una prenda
-              de un solo color no dice qué se espera de ti. Lo que cambió es el
-              paso 3, que antes era "arrástralo" y ahora apunta al panel. */}
-          <div className={e.guia}>
-            <span className={e.guiaPaso}>
-              <span className={e.guiaNumero}>1</span> Elige el color de la prenda a la derecha
-            </span>
-            <span className={e.guiaPaso}>
-              <span className={e.guiaNumero}>2</span> Sube un logotipo o añade texto
-            </span>
-            <span className={e.guiaPaso}>
-              <span className={e.guiaNumero}>3</span> Colócalo con los controles y gira la prenda
-            </span>
-          </div>
-
           <div className={`${e.lienzo} ${e.lienzoCompacto}`}>
               {modelo ? (
                 <Visor
@@ -479,56 +481,6 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               )}
           </div>
 
-          {/* Diagnóstico del visor.
-              Va en pantalla y no en la consola del navegador a propósito:
-              "no se ve nada en el 3D" puede ser que el .glb no cargue, que no
-              se reconozcan las mallas, que no se sustituyan los materiales o
-              que las UVs se disparen — y cada causa se arregla en un sitio
-              distinto. Pedirle a alguien que abra las herramientas de
-              desarrollo para averiguarlo no funciona. */}
-          <div className={e.diagnostico}>
-              {diagnostico.error ? (
-                <span className={e.diagnosticoMal}>
-                  El modelo no se pudo cargar: {diagnostico.error}
-                </span>
-              ) : diagnostico.mallas === undefined ? (
-                <span>Cargando el modelo…</span>
-              ) : (
-                <>
-                  <span className={diagnostico.mallas > 0 ? e.diagnosticoBien : e.diagnosticoMal}>
-                    {diagnostico.mallas} malla(s)
-                  </span>
-                  <span
-                    className={
-                      diagnostico.pintadas && diagnostico.pintadas > 0
-                        ? e.diagnosticoBien
-                        : e.diagnosticoMal
-                    }
-                  >
-                    {diagnostico.pintadas ?? 0} con el diseño aplicado
-                  </span>
-                  {diagnostico.rangoUV && (
-                    <span
-                      className={
-                        diagnostico.rangoUV.min >= -0.01 && diagnostico.rangoUV.max <= 1.01
-                          ? e.diagnosticoBien
-                          : e.diagnosticoMal
-                      }
-                    >
-                      UV {diagnostico.rangoUV.min.toFixed(2)}–
-                      {diagnostico.rangoUV.max.toFixed(2)}
-                    </span>
-                  )}
-                  {diagnostico.mapeo && (
-                    <span className={diagnostico.mapeo === 'original' ? e.diagnosticoMal : undefined}>
-                      mapeo {diagnostico.mapeo}
-                      {diagnostico.mapeo === 'original' && ' (suele dar problemas)'}
-                    </span>
-                  )}
-                  {diagnostico.atlas && <span>{diagnostico.atlas}</span>}
-                </>
-              )}
-          </div>
         </div>
 
         <div className={e.panel}>
@@ -1024,6 +976,56 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
               </p>
             </div>
           )}
+          {/* Diagnóstico del visor.
+              Va en pantalla y no en la consola del navegador a propósito:
+              "no se ve nada en el 3D" puede ser que el .glb no cargue, que no
+              se reconozcan las mallas, que no se sustituyan los materiales o
+              que las UVs se disparen — y cada causa se arregla en un sitio
+              distinto. Pedirle a alguien que abra las herramientas de
+              desarrollo para averiguarlo no funciona. */}
+          <div className={e.diagnostico}>
+              {diagnostico.error ? (
+                <span className={e.diagnosticoMal}>
+                  El modelo no se pudo cargar: {diagnostico.error}
+                </span>
+              ) : diagnostico.mallas === undefined ? (
+                <span>Cargando el modelo…</span>
+              ) : (
+                <>
+                  <span className={diagnostico.mallas > 0 ? e.diagnosticoBien : e.diagnosticoMal}>
+                    {diagnostico.mallas} malla(s)
+                  </span>
+                  <span
+                    className={
+                      diagnostico.pintadas && diagnostico.pintadas > 0
+                        ? e.diagnosticoBien
+                        : e.diagnosticoMal
+                    }
+                  >
+                    {diagnostico.pintadas ?? 0} con el diseño aplicado
+                  </span>
+                  {diagnostico.rangoUV && (
+                    <span
+                      className={
+                        diagnostico.rangoUV.min >= -0.01 && diagnostico.rangoUV.max <= 1.01
+                          ? e.diagnosticoBien
+                          : e.diagnosticoMal
+                      }
+                    >
+                      UV {diagnostico.rangoUV.min.toFixed(2)}–
+                      {diagnostico.rangoUV.max.toFixed(2)}
+                    </span>
+                  )}
+                  {diagnostico.mapeo && (
+                    <span className={diagnostico.mapeo === 'original' ? e.diagnosticoMal : undefined}>
+                      mapeo {diagnostico.mapeo}
+                      {diagnostico.mapeo === 'original' && ' (suele dar problemas)'}
+                    </span>
+                  )}
+                  {diagnostico.atlas && <span>{diagnostico.atlas}</span>}
+                </>
+              )}
+          </div>
         </div>
       </div>
     </div>

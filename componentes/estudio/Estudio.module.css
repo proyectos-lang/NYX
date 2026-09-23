@@ -43,9 +43,15 @@
   align-items: start;
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 860px) {
   .cuerpo {
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .cuerpo {
+    grid-template-columns: minmax(0, 1fr) 360px;
   }
 }
 
@@ -71,12 +77,14 @@
 
 /* Guía de uso sobre el lienzo. Sin ella, una prenda de un solo color no dice
    qué se espera de ti. */
+/* Va por encima del cuerpo y a todo lo ancho: dentro de la columna del lienzo
+   le robaba altura a lo unico que conviene tener siempre delante. */
 .guia {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
-  max-width: 660px;
-  margin: 0 auto 12px;
+  gap: 14px 22px;
+  max-width: 1500px;
+  margin: 0 auto 14px;
   padding: 11px 14px;
   background: var(--negro-3);
   border: 1px solid var(--linea-tenue);
@@ -528,6 +536,11 @@
    comprobar a posteriori, que es justo lo contrario de un editor visual.
    --------------------------------------------------------------------------- */
 
+/* La prenda se queda a la vista mientras se editan los controles.
+   REGLA QUE NO SE PUEDE ROMPER: esto tiene que medir MENOS que la ventana. Un
+   elemento sticky mas alto que la pantalla se desplaza como cualquier otro, y
+   entonces no sirve de nada. Aqui dentro van solo las pestanas y el lienzo;
+   la guia y el diagnostico se sacaron por eso. */
 .columnaLienzo {
   position: sticky;
   /* Pegado arriba del todo en movil, donde cada pixel cuenta. */
@@ -535,23 +548,40 @@
   z-index: 5;
   /* Fondo propio: al desplazarse, los controles pasan por debajo. */
   background: var(--negro-2);
-  padding-bottom: 12px;
+  padding-bottom: 10px;
+  /* El borde inferior separa la prenda de los controles que pasan por debajo;
+     sin el, al desplazarse parece que el panel se mete dentro del lienzo. */
+  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.9);
 }
 
 /* En pantalla estrecha el lienzo se encoge para que quepan tambien los
    controles: un cuadrado a ancho completo ocuparia la pantalla entera y el
-   problema seguiria igual. */
-@media (max-width: 1099px) {
+   problema seguiria igual.
+
+   38vh y no mas: sumando las pestanas de cara y el respiro de abajo, la
+   columna fija queda en torno al 45% de la pantalla. Asi arriba se ve siempre
+   la prenda y abajo queda mas de la mitad para los controles, que es la
+   proporcion que hace util el conjunto. */
+@media (max-width: 859px) {
   .lienzo {
-    max-width: min(100%, 46vh);
+    max-width: min(100%, 38vh);
   }
 }
 
-@media (min-width: 1100px) {
+/* De 860 a 1200 hay dos columnas pero estrechas: el lienzo se ajusta al ancho
+   disponible en vez de imponer su cuadrado. */
+@media (min-width: 860px) and (max-width: 1199px) {
+  .lienzo {
+    max-width: min(100%, 60vh);
+  }
+}
+
+@media (min-width: 860px) {
   .columnaLienzo {
     /* Un respiro por arriba: en escritorio no hay barra que esquivar. */
     top: 18px;
     padding-bottom: 0;
+    box-shadow: none;
   }
 }
 
@@ -582,7 +612,7 @@
    de una pagina que tambien se desplaza es un lio: ahi manda el flujo normal.
    --------------------------------------------------------------------------- */
 
-@media (min-width: 1100px) {
+@media (min-width: 860px) {
   .panel {
     position: sticky;
     top: 18px;
