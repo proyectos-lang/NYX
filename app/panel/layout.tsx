@@ -50,6 +50,13 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
             <div className={e.rol}>{rol}</div>
           </div>
 
+          {/* La cuenta se busca donde está el nombre, no en el menú de
+              secciones: ese menú sigue el recorrido de la web, y la contraseña
+              no forma parte de la web. */}
+          <Link href="/panel/cuenta" className={e.enlaceSecundario}>
+            Tu cuenta
+          </Link>
+
           <Link href="/" className={e.enlaceSecundario}>
             Ver el sitio
           </Link>

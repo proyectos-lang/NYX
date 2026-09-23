@@ -1,11 +1,13 @@
 -- ===========================================================================
 -- Crear el primer administrador del panel
 --
--- ESTE ARCHIVO NO ES UNA MIGRACIÓN. Vive fuera de migrations/ a propósito: no
--- debe ejecutarse solo con `npm run db:push`, porque contiene una contraseña.
+-- ESTE ARCHIVO NO ES UNA MIGRACIÓN. Vive fuera de migrations/ a propósito:
+-- crea una cuenta con contraseña, y eso no debe pasar solo al aplicar el
+-- esquema con `npm run db:push`.
 --
 -- Cómo se usa:
---   1. Cambia CORREO y CLAVE en las dos líneas marcadas más abajo.
+--   1. Cambia CORREO y CLAVE en las dos líneas marcadas más abajo. La clave
+--      viene como hueco a propósito: este archivo está en el repositorio.
 --   2. Pégalo entero en el SQL Editor de Supabase y ejecútalo.
 --   3. Mira la tabla que devuelve: la columna `diagnostico` dice si quedó bien.
 --   4. Entra en /login con ese correo y esa clave.
@@ -29,10 +31,18 @@
 
 do $$
 declare
-  -- >>> CAMBIA ESTAS DOS LÍNEAS <<<
+  -- >>> CAMBIA ESTAS DOS LÍNEAS ANTES DE EJECUTAR <<<
   v_email text := 'admin@nyx.ec';
-  v_clave text := 'aHDoKzNjxV8cWg6w';
-  -- >>> ------------------------ <<<
+  v_clave text := 'PON-AQUI-UNA-CLAVE';
+  -- >>> --------------------------------------- <<<
+  --
+  -- La clave va como hueco y no escrita de verdad porque este archivo está en
+  -- el repositorio: una contraseña real aquí queda publicada, y además en el
+  -- historial de Git para siempre, aunque después se borre.
+  --
+  -- Escribe una al ejecutarlo y cámbiala luego desde /panel/cuenta, que pide
+  -- la actual para confirmarlo. Tres o cuatro palabras que recuerdes valen
+  -- más que una palabra con símbolos: son más largas y no hay que apuntarlas.
 
   v_id uuid := gen_random_uuid();
 begin
@@ -41,8 +51,15 @@ begin
   -- hace ambiguo nada.
   perform set_config('search_path', 'extensions, public', true);
 
-  if length(v_clave) < 8 then
-    raise exception 'La contraseña debe tener al menos 8 caracteres';
+  -- El hueco sin rellenar. Sin esta comprobación se crearía un administrador
+  -- cuya contraseña está escrita en el repositorio, que es justo lo que este
+  -- archivo intenta evitar.
+  if v_clave = 'PON-AQUI-UNA-CLAVE' then
+    raise exception 'Cambia v_clave por una contraseña de verdad antes de ejecutar esto';
+  end if;
+
+  if length(v_clave) < 10 then
+    raise exception 'La contraseña debe tener al menos 10 caracteres';
   end if;
 
   -- Comprobación explícita y temprana: si falta el esquema, el mensaje lo dice
