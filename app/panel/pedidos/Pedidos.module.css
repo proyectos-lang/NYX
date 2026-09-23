@@ -280,10 +280,16 @@
   gap: 8px;
 }
 
+/* El `color` NO es opcional, aunque el botón esté sobre fondo blanco.
+   Sin declararlo, el texto se queda con el color de botón del sistema
+   operativo, que en Windows o macOS con tema oscuro es BLANCO: los nombres de
+   los estados desaparecían sobre el fondo blanco del propio botón. Y no se ve
+   al desarrollar, porque depende del tema de quien mire la pantalla. */
 .botonEstado {
   font: 500 11px/1 var(--fuente-sans), sans-serif;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: var(--blanco);
+  color: var(--negro);
   padding: 11px 13px;
   cursor: pointer;
   transition: 0.2s ease;
@@ -291,6 +297,7 @@
 
 .botonEstado:hover {
   border-color: var(--negro);
+  background: var(--hueso);
 }
 
 .botonEstado[data-activo='true'] {
