@@ -23,19 +23,22 @@
   transition: 0.3s var(--curva);
 }
 
-/* En la ficha del producto, sobre fondo claro: negro sólido. Es la acción
-   principal de la página y tiene que ganarle al botón de cotizar. */
+/* En la ficha del producto: BLANCO con letras negras.
+   La ficha tiene el fondo casi negro (--negro-2), así que un botón negro era
+   un rectángulo invisible: solo se veían las letras flotando en la página.
+   El blanco sólido es lo que más contrasta contra ese fondo, y además lo
+   distingue del botón oro de cotizar que tiene justo al lado. */
 .anadirSolido {
   width: 100%;
   padding: 16px 20px;
-  border: 1px solid var(--negro);
-  background: var(--negro);
-  color: var(--blanco);
+  border: 1px solid var(--blanco);
+  background: var(--blanco);
+  color: var(--negro);
 }
 
 .anadirSolido:hover:not(:disabled) {
   background: transparent;
-  color: var(--negro);
+  color: var(--blanco);
 }
 
 /* En las tarjetas, donde compite con el nombre y el precio: solo contorno. */
@@ -60,18 +63,29 @@
   letter-spacing: 0.08em;
 }
 
-.agotado {
+/* "Agotado" sale en los dos fondos, y un borde solo sirve para uno de ellos:
+   en la ficha oscura un borde negro no se ve, y en las tarjetas claras uno
+   blanco tampoco. Por eso hay dos. */
+.agotado,
+.agotadoOscuro {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   margin-top: 10px;
   padding: 11px 14px;
-  border: 1px dashed rgba(0, 0, 0, 0.2);
   font: 600 10.5px/1 var(--fuente-sans), sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gris-suave);
+}
+
+.agotado {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+}
+
+.agotadoOscuro {
+  border: 1px dashed var(--linea);
 }
 
 /* --- Insignia de la cabecera ---------------------------------------------- */

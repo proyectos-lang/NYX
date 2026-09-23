@@ -31,8 +31,13 @@ export default function BotonAnadir({ producto, variante = 'solido' }: Props) {
   const topeAlcanzado = producto.stock !== null && enCarrito >= producto.stock
 
   if (agotado) {
+    // El borde punteado cambia con el fondo: la ficha del producto es casi
+    // negra y las tarjetas del catálogo son blancas.
     return (
-      <span className={s.agotado} aria-disabled="true">
+      <span
+        className={variante === 'solido' ? s.agotadoOscuro : s.agotado}
+        aria-disabled="true"
+      >
         Agotado
       </span>
     )
