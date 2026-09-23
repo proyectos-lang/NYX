@@ -16,18 +16,18 @@
   flex: none;
 }
 
-/* 28px en movil. Se probo a 20 y quedaba demasiado pequeno para la marca.
-   La altura la manda esta hoja y no un style en la etiqueta: un estilo en
-   linea gana a cualquier clase, y mientras estuvo ahi el logo salia a tamano
-   completo en el telefono por mucho que se cambiara este numero. */
+/* La altura la manda esta hoja y no un style en la etiqueta: un estilo en
+   linea gana a cualquier clase, y mientras hubo uno el logo salia a tamano
+   completo en el telefono por mucho que se cambiara este numero.
+   Se probo a 20 y 28; a 28 el cambio no se notaba, asi que sube a 34. */
 .logo img {
-  height: 28px;
+  height: 34px;
   width: auto;
 }
 
 @media (min-width: 900px) {
   .logo img {
-    height: 36px;
+    height: 44px;
   }
 }
 
