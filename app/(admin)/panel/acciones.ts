@@ -62,11 +62,26 @@ function conError(ruta: string, error: unknown, contexto: string): string {
   return `${ruta}${separador}error=${encodeURIComponent(mensaje)}`
 }
 
+/**
+ * Tira la copia guardada del sitio publico para que el cambio se vea.
+ *
+ * Va contra el LAYOUT de [idioma], no contra cada pagina. Dos razones:
+ *
+ * 1. Un cambio casi nunca afecta a una sola pagina. Cambiar el nombre de una
+ *    categoria toca la portada, el catalogo, el filtro lateral, el pie y la
+ *    ficha de cada producto de esa categoria. Enumerarlas es como se olvida
+ *    una.
+ * 2. Hay dos idiomas, y cada uno tiene su propia copia. Pasando el patron de
+ *    la ruta dinamica se refrescan los dos de una vez.
+ *
+ * Antes aqui decia revalidatePath('/'), '/catalogo', '/cotizar'. Dejo de
+ * funcionar el dia que el sitio se movio a /[idioma]/...: esas rutas ya no
+ * existen, asi que no coincidian con nada y el panel guardaba sin que la web
+ * cambiara. Y no da ningun error -- revalidatePath no se queja de una ruta
+ * que no existe.
+ */
 function refrescarPublico() {
-  revalidatePath('/')
-  revalidatePath('/catalogo')
-  revalidatePath('/catalogo/[slug]', 'page')
-  revalidatePath('/cotizar')
+  revalidatePath('/[idioma]', 'layout')
 }
 
 /** Solo rutas internas del panel: un destino externo sería un redirect abierto. */
@@ -599,6 +614,80 @@ export async function eliminarFotoProducto(datos: FormData): Promise<void> {
 }
 
 /**
+ * Quita una imagen del sitio y la deja vacía.
+ *
+ * El hueco NO se borra: la fila se queda con la url en blanco. Si se borrara,
+ * el panel dejaría de enseñar ese hueco y no habría forma de volver a poner
+ * una imagen ahí sin tocar la base de datos.
+ *
+ * La web enseña su imagen por defecto mientras esté vacío, que es lo mismo que
+ * hace cuando el hueco no existe.
+ */
+export async function eliminarMedia(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/inicio')
+
+  const bloqueId = texto(datos, 'bloque_id')
+  const clave = texto(datos, 'clave')
+
+  if (!bloqueId || !clave) redirect(base)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { error } = await supabase
+      .from('contenido_media')
+      .update({ url: '' })
+      .eq('bloque_id', bloqueId)
+      .eq('clave', clave)
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Imagen quitada. La web vuelve a la de por defecto.')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo quitar la imagen del sitio')
+  }
+
+  redirect(destino)
+}
+
+/**
+ * Quita la foto de una categoría.
+ *
+ * La categoría se queda sin foto y en la web aparece su hueco vacío. Se
+ * distingue de eliminar la categoría entera, que es lo que hace el botón rojo
+ * de abajo y además deja sus productos sin categoría.
+ */
+export async function quitarFotoCategoria(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/categorias')
+
+  const id = texto(datos, 'id')
+  if (!id) redirect(base)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    const { error } = await supabase
+      .from('categorias')
+      .update({ imagen_portada: null })
+      .eq('id', id)
+
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto quitada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo quitar la foto de la categoría')
+  }
+
+  redirect(destino)
+}
+
+/**
  * Cambia la foto de portada de una categoría.
  *
  * Va aparte de `guardarCategoria` porque la subida ocurre en el navegador y
@@ -759,7 +848,7 @@ export async function guardarModelo3D(datos: FormData): Promise<void> {
     if (error) throw error
 
     revalidatePath(base)
-    revalidatePath('/estudio')
+    revalidatePath('/[idioma]/estudio', 'page')
     destino = conAviso(base, `Modelo "${nombre}" anadido`)
   } catch (error) {
     destino = conError(base, error, 'no se pudo guardar el modelo 3D')
@@ -780,7 +869,7 @@ export async function alternarVisibilidadModelo(datos: FormData): Promise<void> 
     if (error) throw error
 
     revalidatePath(base)
-    revalidatePath('/estudio')
+    revalidatePath('/[idioma]/estudio', 'page')
     destino = conAviso(base, visible ? 'Modelo visible' : 'Modelo oculto')
   } catch (error) {
     destino = conError(base, error, 'no se pudo cambiar la visibilidad del modelo')
@@ -806,7 +895,7 @@ export async function eliminarModelo3D(datos: FormData): Promise<void> {
     if (error) throw error
 
     revalidatePath(base)
-    revalidatePath('/estudio')
+    revalidatePath('/[idioma]/estudio', 'page')
     destino = conAviso(base, 'Modelo eliminado')
   } catch (error) {
     destino = conError(base, error, 'no se pudo eliminar el modelo')
@@ -831,7 +920,7 @@ export async function cambiarMapeoModelo(datos: FormData): Promise<void> {
     if (error) throw error
 
     revalidatePath(base)
-    revalidatePath('/estudio')
+    revalidatePath('/[idioma]/estudio', 'page')
     destino = conAviso(
       base,
       mapeo === 'proyeccion' ? 'Ahora se regeneran las UVs' : 'Ahora se respetan las UVs del archivo'
@@ -872,7 +961,7 @@ export async function guardarMaterialesExcluidos(datos: FormData): Promise<void>
     if (error) throw error
 
     revalidatePath(base)
-    revalidatePath('/estudio')
+    revalidatePath('/[idioma]/estudio', 'page')
     destino = conAviso(
       base,
       excluidos.length === 0

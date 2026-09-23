@@ -416,7 +416,14 @@ export async function obtenerBloquesPanel(): Promise<BloquePanel[]> {
       .map((m: any) => ({
         id: m.id,
         clave: m.clave ?? null,
-        url: m.url.startsWith('/') || m.url.startsWith('http') ? m.url : `/${m.url}`,
+        // Un hueco vaciado desde el panel guarda la url en blanco. Sin este
+        // caso, la barra inicial la convertiría en '/' y la miniatura saldría
+        // rota en lugar de salir vacía.
+        url: !m.url
+          ? ''
+          : m.url.startsWith('/') || m.url.startsWith('http')
+            ? m.url
+            : `/${m.url}`,
         tipo: m.tipo,
         alt: m.alt ?? null,
       })),

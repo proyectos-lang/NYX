@@ -77,3 +77,34 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Reemplazar y Quitar, uno al lado del otro. */
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Quitar va en texto y no como botón: es la acción menos frecuente de las dos
+   y no debe competir con Reemplazar. */
+.quitar {
+  border: 0;
+  background: none;
+  padding: 4px 2px;
+  font: 500 10.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.quitar:hover:not(:disabled) {
+  color: #7a2020;
+}
+
+.quitar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

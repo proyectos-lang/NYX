@@ -47,7 +47,10 @@ export async function iniciarSesion(
     return { error: 'Tu cuenta no tiene acceso al panel. Pide a un administrador que te dé de alta.' }
   }
 
-  revalidatePath('/', 'layout')
+  // El panel es lo unico que cambia al entrar o salir; el sitio publico no
+  // depende de la sesion. Antes decia '/', que era el layout raiz cuando habia
+  // uno solo: al separar el sitio y el panel en dos raices dejo de existir.
+  revalidatePath('/panel', 'layout')
   // Solo rutas internas: un "volver" con dominio ajeno sería un redirect abierto.
   redirect(volver.startsWith('/panel') ? volver : '/panel/pedidos')
 }
@@ -55,6 +58,9 @@ export async function iniciarSesion(
 export async function cerrarSesion() {
   const supabase = await crearClienteServidor()
   await supabase.auth.signOut()
-  revalidatePath('/', 'layout')
+  // El panel es lo unico que cambia al entrar o salir; el sitio publico no
+  // depende de la sesion. Antes decia '/', que era el layout raiz cuando habia
+  // uno solo: al separar el sitio y el panel en dos raices dejo de existir.
+  revalidatePath('/panel', 'layout')
   redirect('/')
 }

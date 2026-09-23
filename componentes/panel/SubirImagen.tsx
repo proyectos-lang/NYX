@@ -41,6 +41,12 @@ interface Props {
   admiteVideo?: boolean
   /** Texto del botón cuando no hay nada todavía. */
   textoVacio?: string
+  /**
+   * Acción para dejar el hueco vacío. Si no se pasa, no sale el botón de
+   * quitar: hay sitios donde no tiene sentido, como la foto de un producto
+   * que se borra desde su propia fila.
+   */
+  alQuitar?: (datos: FormData) => void | Promise<void>
 }
 
 function megas(bytes: number): string {
@@ -55,8 +61,10 @@ export default function SubirImagen({
   etiqueta,
   admiteVideo = false,
   textoVacio = 'Subir imagen',
+  alQuitar,
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null)
+  const quitarRef = useRef<HTMLFormElement>(null)
   const entradaRef = useRef<HTMLInputElement>(null)
   const [subiendo, setSubiendo] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -162,14 +170,29 @@ export default function SubirImagen({
           }}
         />
 
-        <button
-          type="button"
-          className={e.botonTenue}
-          disabled={subiendo}
-          onClick={() => entradaRef.current?.click()}
-        >
-          {subiendo ? 'Subiendo…' : urlActual ? 'Reemplazar' : textoVacio}
-        </button>
+        <div className={s.botones}>
+          <button
+            type="button"
+            className={e.botonTenue}
+            disabled={subiendo}
+            onClick={() => entradaRef.current?.click()}
+          >
+            {subiendo ? 'Subiendo…' : urlActual ? 'Reemplazar' : textoVacio}
+          </button>
+
+          {/* Solo cuando hay algo que quitar. Un botón de quitar sobre un
+              hueco vacío no hace nada y hace dudar de si se pulsó bien. */}
+          {alQuitar && urlActual && (
+            <form action={alQuitar} ref={quitarRef}>
+              {Object.entries(campos).map(([nombre, valor]) => (
+                <input key={nombre} type="hidden" name={nombre} value={valor} />
+              ))}
+              <button type="submit" className={s.quitar} disabled={subiendo}>
+                Quitar
+              </button>
+            </form>
+          )}
+        </div>
 
         {error && <p className={s.error}>{error}</p>}
       </div>

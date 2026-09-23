@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { obtenerBloquesPanel, type BloquePanel } from '@/lib/panel'
-import { guardarBloque, guardarMedia } from '../acciones'
+import { eliminarMedia, guardarBloque, guardarMedia } from '../acciones'
 import SubirImagen from '@/componentes/panel/SubirImagen'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
@@ -309,9 +309,10 @@ export default async function InicioPanel({
                             clave: hueco.clave,
                             alt: media.get(hueco.clave)?.alt ?? hueco.etiqueta,
                           }}
-                          urlActual={media.get(hueco.clave)?.url ?? null}
+                          urlActual={media.get(hueco.clave)?.url || null}
                           etiqueta={hueco.etiqueta}
                           admiteVideo={hueco.video}
+                          alQuitar={eliminarMedia}
                         />
                       ))}
                     </div>

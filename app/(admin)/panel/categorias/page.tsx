@@ -1,6 +1,11 @@
 import Image from 'next/image'
 import { obtenerCategoriasPanel } from '@/lib/panel'
-import { eliminarCategoria, guardarCategoria, guardarFotoCategoria } from '../acciones'
+import {
+  eliminarCategoria,
+  guardarCategoria,
+  guardarFotoCategoria,
+  quitarFotoCategoria,
+} from '../acciones'
 import SubirImagen from '@/componentes/panel/SubirImagen'
 import SinDatos from '@/componentes/panel/SinDatos'
 import Aviso from '@/componentes/panel/Aviso'
@@ -34,7 +39,8 @@ function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             accion={guardarFotoCategoria}
             campos={{ volver: '/panel/categorias', id: categoria.id }}
             urlActual={categoria.imagen}
-            etiqueta={`Se ve en la portada y en el catálogo`}
+            etiqueta="Se ve en la portada y en el catálogo"
+            alQuitar={quitarFotoCategoria}
           />
         </div>
       ) : (
