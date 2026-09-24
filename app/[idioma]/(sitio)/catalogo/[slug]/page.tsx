@@ -162,8 +162,6 @@ export default async function FichaProducto({
               </Link>
               <a
                 href={enlaceWhatsapp(contacto.whatsapp, mensajeWhatsapp)}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="boton-linea"
               >
                 {txt.producto.preguntarWhatsapp}

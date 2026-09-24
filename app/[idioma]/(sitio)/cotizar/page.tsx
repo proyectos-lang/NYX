@@ -86,8 +86,6 @@ export default async function Cotizar({
               <span>{t.prefieresEscribir}</span>
               <a
                 href={enlaceWhatsapp(contacto.whatsapp, textos(idioma).portada.mensajeWhatsapp)}
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 WhatsApp {contacto.whatsapp}
               </a>

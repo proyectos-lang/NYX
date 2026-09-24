@@ -554,6 +554,17 @@ export async function obtenerContacto(): Promise<Contacto> {
 }
 
 /** Número de WhatsApp en el formato que espera wa.me (solo dígitos). */
+/**
+ * El enlace para escribir por WhatsApp.
+ *
+ * LOS ENLACES A wa.me NO DEBEN LLEVAR target="_blank". Dentro del navegador de
+ * Instagram o Facebook, una pestaña nueva no sabe resolver el esquema de
+ * WhatsApp: se abre en blanco y no pasa nada, que es exactamente el sintoma de
+ * "no me abre el enlace en el movil". Sin target, la navegacion ocurre en la
+ * misma pestaña y el sistema operativo intercepta wa.me y abre la aplicacion.
+ *
+ * Solo deja los digitos, asi que funciona con el numero de cualquier pais.
+ */
 export function enlaceWhatsapp(numero: string, mensaje?: string): string {
   const digitos = numero.replace(/\D/g, '')
   const texto = mensaje ? `?text=${encodeURIComponent(mensaje)}` : ''

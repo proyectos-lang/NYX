@@ -231,8 +231,6 @@ export default function Carrito({
           {whatsapp && (
             <a
               href={whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
               className="boton-linea"
             >
               {t.carrito.preguntarWhatsapp}

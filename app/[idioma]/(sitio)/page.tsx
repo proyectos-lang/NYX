@@ -511,8 +511,6 @@ export default async function Portada({
             </Link>
             <a
               href={enlaceWhatsapp(contacto.whatsapp, t.portada.mensajeWhatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
               className="boton-linea"
               style={{ borderColor: 'rgba(255,255,255,.24)' }}
             >

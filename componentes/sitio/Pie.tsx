@@ -31,8 +31,6 @@ export default async function Pie({ idioma }: { idioma: Idioma }) {
             <a
               className={estilos.red}
               href={enlaceWhatsapp(contacto.whatsapp, t.portada.mensajeWhatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               {t.pie.whatsapp}
             </a>
@@ -69,8 +67,6 @@ export default async function Pie({ idioma }: { idioma: Idioma }) {
           <div className={estilos.columna}>
             <a
               href={enlaceWhatsapp(contacto.whatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               WhatsApp {contacto.whatsapp}
             </a>
