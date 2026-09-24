@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RaizAdmin({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-EC" className={CLASES_FUENTES}>
+    <html lang="es" className={CLASES_FUENTES}>
       <body>{children}</body>
     </html>
   )

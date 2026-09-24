@@ -186,7 +186,7 @@ export const AJUSTES_DEMO = {
     email: 'hola@nyx.ec',
     telefono: '+1 845 972 1825',
     whatsapp: '+1 845 972 1825',
-    ciudad: 'Quito, Ecuador',
+    ciudad: 'Estados Unidos',
     horario: 'Lun a Vie 9:00–18:00 · Sáb 9:00–13:00',
   },
   redes: {

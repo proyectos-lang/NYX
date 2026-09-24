@@ -8,7 +8,8 @@
 
 import type { EstadoPedido } from './database.types'
 
-/** Codigo de pais de Ecuador, sin el +. */
+/** Codigos de pais, sin el +. */
+const ESTADOS_UNIDOS = '1'
 const ECUADOR = '593'
 
 /**
@@ -16,11 +17,16 @@ const ECUADOR = '593'
  * digitos, con codigo de pais y sin el +.
  *
  * Hace falta porque el numero llega tal cual lo tecleo el cliente en el
- * formulario. En Ecuador la gente lo escribe de todas estas formas, y todas
- * son el mismo numero:
+ * formulario, y cada uno lo escribe a su manera. Todas estas son el mismo
+ * numero de Estados Unidos:
  *
- *     0991234567      099 123 4567      09-9123-4567
- *     +593 99 123 4567                  593991234567
+ *     8459721825      845 972 1825      (845) 972-1825
+ *     +1 845 972 1825                   18459721825
+ *
+ * Y todas estas el mismo de Ecuador, que se sigue admitiendo porque parte de
+ * la clientela esta alli:
+ *
+ *     0991234567      099 123 4567      +593 99 123 4567
  *
  * wa.me con un numero mal formado no da error: abre WhatsApp diciendo que el
  * numero no existe, y quien lo use pensara que la clienta se equivoco al
@@ -37,22 +43,38 @@ export function normalizarTelefono(crudo: string | null | undefined): string | n
   const digitos = crudo.replace(/[^0-9]/g, '')
   if (!digitos) return null
 
-  // Ya viene internacional: se respeta, sea de Ecuador o de donde sea. Un
-  // cliente extranjero es raro pero no imposible, y no hay motivo para
-  // rechazarlo.
+  // Ya viene internacional: se respeta, del pais que sea. No hay motivo para
+  // rechazar a alguien por escribirlo bien.
   if (tieneMas) return digitos.length >= 8 ? digitos : null
 
   // 593 + 9 digitos = 12. Escrito sin el +, que es lo habitual al copiarlo.
   if (digitos.startsWith(ECUADOR) && digitos.length === 12) return digitos
 
-  // Nacional con el 0 de salida: 0991234567 (movil) o 042345678 (fijo). El 0
-  // no viaja en el formato internacional.
+  // 1 + 10 digitos = 11. Igual, copiado sin el +.
+  if (digitos.startsWith(ESTADOS_UNIDOS) && digitos.length === 11) return digitos
+
+  // El 0 de salida es ecuatoriano: 0991234567 (movil) o 042345678 (fijo). En
+  // Estados Unidos no se escribe ningun 0 delante, asi que no hay confusion.
   if (digitos.startsWith('0') && (digitos.length === 10 || digitos.length === 9)) {
     return ECUADOR + digitos.slice(1)
   }
 
-  // Sin el 0 inicial: 991234567. Solo movil, porque un fijo de 8 digitos se
-  // confunde con medio numero mal copiado.
+  // Diez digitos sin 0 delante: es de Estados Unidos, que es donde esta NYX.
+  // Un movil ecuatoriano sin el 0 tiene nueve, asi que los dos casos no se
+  // pisan.
+  //
+  // La excepcion es empezar por 593: ahi no se puede saber si es un numero de
+  // Ecuador al que le falta un digito o uno de Estados Unidos con prefijo 593.
+  // Se descarta, que es lo que hace el resto de la funcion ante una duda:
+  // mejor no ofrecer el boton que abrir un chat con quien no es. Y 593 no es
+  // un prefijo asignado en Estados Unidos, asi que descartar no quita nada
+  // real.
+  if (digitos.length === 10 && !digitos.startsWith(ECUADOR)) {
+    return ESTADOS_UNIDOS + digitos
+  }
+
+  // Nueve empezando por 9: movil ecuatoriano sin el 0. Solo movil, porque un
+  // fijo de ocho digitos se confunde con medio numero mal copiado.
   if (digitos.startsWith('9') && digitos.length === 9) return ECUADOR + digitos
 
   return null

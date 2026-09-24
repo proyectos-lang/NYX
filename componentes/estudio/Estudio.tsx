@@ -391,7 +391,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
           }}
         >
           Diseño guardado a las{' '}
-          {guardadoEn.toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}. Este
+          {guardadoEn.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}. Este
           enlace lo recupera tal cual, y tu navegador lo recordará en la próxima visita.
         </p>
       )}

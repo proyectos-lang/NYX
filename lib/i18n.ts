@@ -29,7 +29,7 @@ export function esIdioma(valor: unknown): valor is Idioma {
 
 /** Lo que espera el atributo lang del <html>. */
 export const ETIQUETA_HTML: Record<Idioma, string> = {
-  es: 'es-EC',
+  es: 'es',
   en: 'en',
 }
 

@@ -201,7 +201,7 @@ join nyx.contenido_bloques b on b.clave = d.bloque;
 
 insert into nyx.ajustes (clave, valor, descripcion, publico) values
   ('contacto',
-   '{"email": "hola@nyx.ec", "telefono": "+1 845 972 1825", "whatsapp": "+1 845 972 1825", "ciudad": "Quito, Ecuador", "horario": "Lunes a viernes, 9:00 a 18:00"}'::jsonb,
+   '{"email": "hola@nyx.ec", "telefono": "+1 845 972 1825", "whatsapp": "+1 845 972 1825", "ciudad": "Estados Unidos", "horario": "Lunes a viernes, 9:00 a 18:00"}'::jsonb,
    'Datos que aparecen en el pie de página de la web.', true),
   ('redes',
    '{"instagram": "", "facebook": "", "tiktok": ""}'::jsonb,

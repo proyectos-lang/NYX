@@ -155,7 +155,7 @@ export default async function AjustesPanel({
                     id="ciudad"
                     name="ciudad"
                     defaultValue={contacto.ciudad ?? ''}
-                    placeholder="Quito, Ecuador"
+                    placeholder="Estados Unidos"
                   />
                 </div>
 

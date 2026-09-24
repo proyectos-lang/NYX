@@ -22,6 +22,28 @@ function comprobar(descripcion: string, condicion: boolean, detalle = ''): void 
 }
 
 console.log('')
+console.log('Telefonos de Estados Unidos')
+
+// El pais de casa: la clientela escribe su numero de todas estas formas.
+const mismoEstadounidense = [
+  '8459721825',
+  '845 972 1825',
+  '(845) 972-1825',
+  '845-972-1825',
+  '+1 845 972 1825',
+  '+18459721825',
+  '18459721825',
+]
+
+for (const escrito of mismoEstadounidense) {
+  comprobar(
+    `"${escrito}" es 18459721825`,
+    normalizarTelefono(escrito) === '18459721825',
+    String(normalizarTelefono(escrito))
+  )
+}
+
+console.log('')
 console.log('Telefonos de Ecuador')
 
 // Todas estas son la MISMA clienta, escribiendo su numero como le salio.
@@ -59,7 +81,7 @@ const malos: [string | null | undefined, string][] = [
   ['sin telefono', 'texto sin digitos'],
   ['12345', 'demasiado corto'],
   ['0991234', 'movil incompleto'],
-  ['09912345678', 'movil con un digito de mas'],
+  ['09912345678', 'ecuatoriano con un digito de mas'],
   ['5939912345', 'codigo de pais con el resto incompleto'],
 ]
 

@@ -3,17 +3,21 @@
 import { IDIOMA_POR_DEFECTO, type Idioma } from './i18n'
 
 /**
- * La moneda se formatea siempre a la ecuatoriana, en los dos idiomas.
+ * El precio se escribe a la estadounidense: $11.20, no $11,20.
  *
- * No es un olvido: el precio es en dólares de Ecuador y quien lo lee va a
- * pagar aquí. Cambiar el formato a "$1,234.56" por estar en inglés sugiere
- * otro país y otra moneda.
+ * NYX opera desde Estados Unidos. Antes aqui se usaba el formato ecuatoriano,
+ * que pone coma decimal, y sobre un precio en dolares leido por alguien de
+ * Estados Unidos eso se lee mal: $11,20 parece once mil doscientos, o
+ * directamente un error.
  *
- * Lo que sí cambia con el idioma son las palabras —"A cotizar", "Agotado"—,
+ * Va igual en los dos idiomas. La moneda no depende de en que idioma se este
+ * leyendo, sino de donde se cobra.
+ *
+ * Lo que si cambia con el idioma son las palabras -- "A cotizar", "Agotado" --,
  * que es lo que de verdad no se entiende en otro idioma.
  */
 
-const PRECIO = new Intl.NumberFormat('es-EC', {
+const PRECIO = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   minimumFractionDigits: 2,

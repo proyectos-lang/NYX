@@ -238,7 +238,7 @@ const ES: Textos = {
     irAlInicio: 'NYX, ir al inicio',
   },
   pie: {
-    lema: 'Sublimación y productos personalizados en Ecuador. Camisas, tazas, termos, gorras y kits corporativos.',
+    lema: 'Sublimación y productos personalizados. Camisas, tazas, termos, gorras y kits corporativos.',
     navegacion: 'Navegación',
     categorias: 'Categorías',
     contacto: 'Contacto',
@@ -468,7 +468,7 @@ const EN: Textos = {
     irAlInicio: 'NYX, go to home',
   },
   pie: {
-    lema: 'Sublimation and personalized products in Ecuador. Shirts, mugs, tumblers, caps and corporate kits.',
+    lema: 'Sublimation and personalized products. Shirts, mugs, tumblers, caps and corporate kits.',
     navegacion: 'Navigation',
     categorias: 'Categories',
     contacto: 'Contact',
