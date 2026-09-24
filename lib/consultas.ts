@@ -509,6 +509,29 @@ export interface Contacto {
   horario: string
 }
 
+/**
+ * Los datos de contacto, con los de por defecto rellenando lo que falte.
+ *
+ * CAMPO A CAMPO, no con { ...defecto, ...base }. La propagacion no distingue
+ * "no hay valor" de "valor vacio": un campo en blanco guardado desde el panel
+ * pisaba el de por defecto y dejaba el hueco vacio en la web. El sintoma era
+ * un boton de WhatsApp que apuntaba a wa.me/ sin numero -- un enlace que abre
+ * WhatsApp y no lleva a ninguna conversacion.
+ *
+ * Con esto, vaciar un campo en el panel devuelve el valor de por defecto en
+ * lugar de dejar la web sin telefono.
+ */
+function fusionarContacto(base: Partial<Contacto>): Contacto {
+  const salida = { ...AJUSTES_DEMO.contacto }
+
+  for (const clave of Object.keys(salida) as (keyof Contacto)[]) {
+    const valor = base[clave]
+    if (typeof valor === 'string' && valor.trim()) salida[clave] = valor.trim()
+  }
+
+  return salida
+}
+
 export async function obtenerContacto(): Promise<Contacto> {
   if (!hayBaseDeDatos()) return AJUSTES_DEMO.contacto
 
@@ -523,7 +546,7 @@ export async function obtenerContacto(): Promise<Contacto> {
     if (error) throw error
     if (!data?.valor) return AJUSTES_DEMO.contacto
 
-    return { ...AJUSTES_DEMO.contacto, ...(data.valor as Partial<Contacto>) }
+    return fusionarContacto(data.valor as Partial<Contacto>)
   } catch (error) {
     avisar('Error al leer los datos de contacto', error)
     return AJUSTES_DEMO.contacto

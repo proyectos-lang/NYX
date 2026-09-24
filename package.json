@@ -26,7 +26,8 @@
     "verificar:contenido": "node scripts/verificar-contenido.mts",
     "verificar:carrito": "node scripts/verificar-carrito.mts",
     "verificar:rutas": "node scripts/verificar-rutas.mts",
-    "verificar": "npm run verificar:mapeo && npm run verificar:estudio && npm run verificar:whatsapp && npm run verificar:contenido && npm run verificar:carrito && npm run verificar:rutas",
+    "verificar:contacto": "node scripts/verificar-contacto.mts",
+    "verificar": "npm run verificar:mapeo && npm run verificar:estudio && npm run verificar:whatsapp && npm run verificar:contenido && npm run verificar:carrito && npm run verificar:rutas && npm run verificar:contacto",
     "modelo:demo": "node scripts/generar-modelo-demo.mts",
     "sql:instalacion": "node scripts/generar-instalacion.mts"
   },
