@@ -74,6 +74,15 @@ comprobar(
   normalizarTelefono('+57 301 234 5678') === '573012345678'
 )
 
+// El numero de contacto de NYX es de Estados Unidos, no de Ecuador. Se
+// comprueba porque la normalizacion tiene reglas propias para el 593 y seria
+// facil que alguna se comiera un numero que empieza por +1.
+comprobar(
+  'el whatsapp de NYX se entiende',
+  normalizarTelefono('+1 845 972 1825') === '18459721825',
+  String(normalizarTelefono('+1 845 972 1825'))
+)
+
 console.log('')
 console.log('Mensajes')
 

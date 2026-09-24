@@ -129,7 +129,7 @@ export default async function AjustesPanel({
                     id="telefono"
                     name="telefono"
                     defaultValue={contacto.telefono ?? ''}
-                    placeholder="+593 99 000 0000"
+                    placeholder="+1 845 972 1825"
                   />
                 </div>
 
@@ -142,7 +142,7 @@ export default async function AjustesPanel({
                     id="whatsapp"
                     name="whatsapp"
                     defaultValue={contacto.whatsapp ?? ''}
-                    placeholder="+593 99 000 0000"
+                    placeholder="+1 845 972 1825"
                   />
                 </div>
 

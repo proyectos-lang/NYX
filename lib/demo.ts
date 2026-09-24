@@ -184,8 +184,8 @@ export const CONTENIDO_DEMO: Record<string, Record<string, string>> = {
 export const AJUSTES_DEMO = {
   contacto: {
     email: 'hola@nyx.ec',
-    telefono: '+593 99 000 0000',
-    whatsapp: '+593 99 000 0000',
+    telefono: '+1 845 972 1825',
+    whatsapp: '+1 845 972 1825',
     ciudad: 'Quito, Ecuador',
     horario: 'Lun a Vie 9:00–18:00 · Sáb 9:00–13:00',
   },
