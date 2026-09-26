@@ -1,74 +1,138 @@
 -- ===========================================================================
--- NYX — categorías reales del portafolio
+-- NYX — categorías del portafolio, con sus técnicas
 --
 -- Cómo se usa:
 --   1. Pégalo entero en el SQL Editor de Supabase y ejecútalo.
 --   2. Entra en /panel/categorias y súbeles foto a las que no la tengan.
---   3. La tabla del final dice cuáles están sin foto.
+--   3. Las dos tablas del final dicen qué falta.
 --
--- SE PUEDE REPETIR. Todo va con `on conflict`, así que no duplica nada.
+-- SE PUEDE REPETIR. Todo va con `on conflict`, así que no duplica nada, y la
+-- foto solo se pone si la fila no tenía ninguna: repetirlo no borra lo que se
+-- haya subido desde el panel.
 --
--- DE DÓNDE SALEN
+-- QUÉ SON LAS TÉCNICAS
 --
--- Del portafolio de NYX: camisetas, buzos, termos, tazas, llaveros, llaveros
--- QR, gorras, bolsos, invitaciones, letreros acrílicos, productos NFC e
--- impresión 3D.
+-- Con qué se fabrica lo de cada categoría: DTF, sublimación, vinil, grabado
+-- láser, bordado, impresión 3D. Salen en la web al abrir la categoría.
 --
--- Lo que NO entra aquí son las técnicas —DTF, sublimación, vinil, grabado
--- láser, bordado—. No son categorías: son la forma de fabricar, y la misma
--- camiseta puede salir por dos técnicas distintas. Si fueran categorías, cada
--- producto tendría que estar en varias a la vez y el filtro del catálogo
--- dejaría de servir para elegir. Van en la cinta de la portada, que es donde
--- se cuenta lo que sabe hacer NYX.
+-- Van en la CATEGORÍA y no en el producto porque es lo que hay que saber
+-- antes de que haya productos. Una camiseta de NYX se hace en DTF y no
+-- sublimada, y eso conviene decirlo aunque el catálogo de camisetas esté
+-- todavía vacío.
 --
--- "Pulseras" y "Libretas y kits" se quedan aunque no estén en la lista: el
--- portafolio acaba en "Etc." y ya tienen productos. Si no se ofrecen, se
--- apagan desde /panel/categorias con el interruptor.
+-- Se editan desde /panel/categorias, en un campo con comas. Esto es solo el
+-- punto de partida.
 -- ===========================================================================
 
 set search_path to nyx, public;
 
-insert into nyx.categorias (slug, nombre_es, nombre_en, imagen_portada, orden, visible) values
-  -- Las que ya existían: cambia el orden y, en camisas, el nombre.
-  ('camisas',            'Camisetas',          'T-shirts',        '/assets/tee-oasis.jpeg',    1, true),
-  ('buzos',              'Buzos',              'Hoodies',         '/assets/hoodie-gray.jpeg',  2, true),
-  ('termos-y-botellas',  'Termos y botellas',  'Tumblers & bottles','/assets/bottle-create.jpeg',3, true),
-  ('tazas',              'Tazas',              'Mugs',            '/assets/mug-photos.jpeg',   4, true),
-  ('gorras',             'Gorras',             'Caps',            '/assets/cap-pastel.jpeg',   5, true),
-  ('llaveros',           'Llaveros',           'Keychains',       '/assets/key-charms.jpeg',   6, true),
+-- ---------------------------------------------------------------------------
+-- 1. La columna
+--
+-- Texto con comas y no una lista de verdad: el panel lo edita con un solo
+-- campo, y escribir "DTF, Vinil" es más rápido que añadir filas de una en una.
+-- ---------------------------------------------------------------------------
 
-  -- Nuevas. Sin foto a propósito: poner una que no sea del producto es peor
-  -- que dejar el hueco, porque el hueco avisa de que falta y una foto ajena
-  -- no. La web enseña el nombre mientras tanto.
-  ('llaveros-qr',        'Llaveros QR',        'QR keychains',    null,                        7, true),
-  ('bolsos',             'Bolsos',             'Bags',            null,                        8, true),
-  ('invitaciones',       'Invitaciones',       'Invitations',     null,                        9, true),
-  ('letreros-acrilicos', 'Letreros acrílicos', 'Acrylic signs',   null,                       10, true),
-  ('productos-nfc',      'Productos NFC',      'NFC products',    null,                       11, true),
-  ('impresion-3d',       'Impresión 3D',       '3D printing',     null,                       12, true),
+alter table nyx.categorias add column if not exists tecnicas_es text;
+alter table nyx.categorias add column if not exists tecnicas_en text;
 
-  -- No están en el portafolio, pero ya tienen productos. Al final de la lista.
-  ('pulseras',           'Pulseras',           'Wristbands',      '/assets/band-kura.jpeg',   13, true),
-  ('libretas-y-kits',    'Libretas y kits',    'Notebooks & kits','/assets/kit-indcom.jpeg',  14, true)
+-- ---------------------------------------------------------------------------
+-- 2. Las categorías
+--
+-- Las que están sin técnicas es porque no me las has dicho todavía, no porque
+-- no las tengan. Se rellenan desde el panel.
+-- ---------------------------------------------------------------------------
+
+insert into nyx.categorias
+  (slug, nombre_es, nombre_en, tecnicas_es, tecnicas_en, imagen_portada, orden, visible)
+values
+  ('camisas',            'Camisetas',            'T-shirts',
+   'DTF',                             'DTF',
+   '/assets/tee-oasis.jpeg',     1, true),
+
+  ('buzos',              'Buzos',                'Hoodies',
+   'DTF, Vinil',                      'DTF, Vinyl',
+   '/assets/hoodie-gray.jpeg',   2, true),
+
+  ('termos-y-botellas',  'Termos y botellas',    'Tumblers & bottles',
+   'Sublimación, Grabado láser',      'Sublimation, Laser engraving',
+   '/assets/bottle-create.jpeg', 3, true),
+
+  ('tazas',              'Tazas',                'Mugs',
+   'Sublimación',                     'Sublimation',
+   '/assets/mug-photos.jpeg',    4, true),
+
+  ('gorras',             'Gorras',               'Caps',
+   'Sublimación, DTF, Bordado',       'Sublimation, DTF, Embroidery',
+   '/assets/cap-pastel.jpeg',    5, true),
+
+  -- Nueva.
+  ('cobijas',            'Cobijas',              'Blankets',
+   'Sublimación',                     'Sublimation',
+   null,                         6, true),
+
+  ('llaveros',           'Llaveros',             'Keychains',
+   'Impresión 3D',                    '3D printing',
+   '/assets/key-charms.jpeg',    7, true),
+
+  ('llaveros-qr',        'Llaveros QR',          'QR keychains',
+   null,                              null,
+   null,                         8, true),
+
+  ('pulseras',           'Pulseras',             'Bracelets',
+   'Impresión 3D',                    '3D printing',
+   '/assets/band-kura.jpeg',     9, true),
+
+  ('bolsos',             'Bolsos',               'Bags',
+   null,                              null,
+   null,                        10, true),
+
+  ('invitaciones',       'Invitaciones',         'Invitations',
+   null,                              null,
+   null,                        11, true),
+
+  -- Nueva: el grabado láser como categoría propia, para enseñar en lo que se
+  -- usa. Los productos concretos se crean desde /panel/catalogo.
+  ('grabado-laser',      'Grabado láser',        'Laser engraving',
+   null,                              null,
+   null,                        12, true),
+
+  ('letreros-acrilicos', 'Letreros acrílicos',   'Acrylic signs',
+   'Grabado láser',                   'Laser engraving',
+   null,                        13, true),
+
+  ('productos-nfc',      'Productos NFC',        'NFC products',
+   null,                              null,
+   null,                        14, true),
+
+  ('impresion-3d',       'Impresión 3D',         '3D printing',
+   null,                              null,
+   null,                        15, true),
+
+  -- Antes era "Libretas y kits". Mismo slug para no romper los enlaces que ya
+  -- puedan estar compartidos, y mismos productos.
+  ('libretas-y-kits',    'Regalos corporativos', 'Corporate gifts',
+   null,                              null,
+   '/assets/kit-indcom.jpeg',   16, true)
 
 on conflict (slug) do update
-  set nombre_es = excluded.nombre_es,
-      nombre_en = excluded.nombre_en,
-      orden     = excluded.orden,
-      -- La foto SOLO se toca si la fila no tenía ninguna. Así, volver a
-      -- ejecutar esto no borra lo que se haya subido desde el panel.
+  set nombre_es   = excluded.nombre_es,
+      nombre_en   = excluded.nombre_en,
+      orden       = excluded.orden,
+      -- Igual que la foto: solo se pone si no había nada, para no pisar lo
+      -- que se haya escrito desde el panel.
+      tecnicas_es = coalesce(nyx.categorias.tecnicas_es, excluded.tecnicas_es),
+      tecnicas_en = coalesce(nyx.categorias.tecnicas_en, excluded.tecnicas_en),
       imagen_portada = coalesce(nyx.categorias.imagen_portada, excluded.imagen_portada);
 
 -- ---------------------------------------------------------------------------
--- Qué falta
---
--- Las que salgan aquí se ven en la web con un recuadro y su nombre, sin foto.
--- Se suben desde /panel/categorias.
+-- 3. Qué falta
 -- ---------------------------------------------------------------------------
 
-select nombre_es as "categoría sin foto",
-       nombre_en as "en inglés",
+select nombre_es as "categoría",
+       case when coalesce(btrim(imagen_portada), '') = '' then 'FALTA' else 'ok' end as foto,
+       case when coalesce(btrim(tecnicas_es), '') = '' then 'FALTA' else tecnicas_es end
+         as "técnicas",
        orden
 from nyx.categorias
-where coalesce(btrim(imagen_portada), '') = ''
 order by orden;

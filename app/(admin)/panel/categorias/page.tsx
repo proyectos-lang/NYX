@@ -19,6 +19,9 @@ interface Categoria {
   slug: string
   nombreEs: string
   nombreEn: string | null
+  /** Separadas por comas, tal como se escriben en el formulario. */
+  tecnicasEs: string | null
+  tecnicasEn: string | null
   imagen: string | null
   orden: number
   visible: boolean
@@ -85,6 +88,40 @@ function FormularioCategoria({ categoria }: { categoria?: Categoria }) {
             maxLength={120}
             defaultValue={categoria?.nombreEn ?? ''}
             placeholder="Tumblers & bottles"
+          />
+        </div>
+
+        {/* Con que se fabrica lo de esta categoria. Sale en la web al abrirla,
+            y sirve sobre todo cuando la categoria todavia no tiene productos:
+            dice lo que NYX puede hacer aunque no haya nada que ensenar.
+
+            Un solo campo con comas y no una lista de filas: escribir
+            "DTF, Vinil" es mas rapido que anadirlas de una en una. */}
+        <div>
+          <label className={e.etiqueta} htmlFor={`tec-${prefijo}`}>
+            Técnicas, separadas por comas
+          </label>
+          <input
+            className={e.campo}
+            id={`tec-${prefijo}`}
+            name="tecnicas_es"
+            maxLength={300}
+            defaultValue={categoria?.tecnicasEs ?? ''}
+            placeholder="Sublimación, DTF, Bordado"
+          />
+        </div>
+
+        <div>
+          <label className={e.etiqueta} htmlFor={`tecen-${prefijo}`}>
+            Técnicas en inglés
+          </label>
+          <input
+            className={e.campo}
+            id={`tecen-${prefijo}`}
+            name="tecnicas_en"
+            maxLength={300}
+            defaultValue={categoria?.tecnicasEn ?? ''}
+            placeholder="Sublimation, DTF, Embroidery"
           />
         </div>
 

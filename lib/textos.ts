@@ -95,6 +95,7 @@ interface Textos {
     solicitar: string
     disponibleAhora: string
     personalizable: string
+    tecnicas: string
   }
   producto: {
     referencia: string
@@ -306,6 +307,7 @@ const ES: Textos = {
     solicitar: 'Solicitar',
     disponibleAhora: 'Disponible ahora',
     personalizable: 'Personalizable',
+    tecnicas: 'Lo hacemos en',
   },
   producto: {
     referencia: 'Referencia',
@@ -536,6 +538,7 @@ const EN: Textos = {
     solicitar: 'Request',
     disponibleAhora: 'Available now',
     personalizable: 'Custom made',
+    tecnicas: 'We make it with',
   },
   producto: {
     referencia: 'Reference',

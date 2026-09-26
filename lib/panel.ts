@@ -277,6 +277,9 @@ export interface CategoriaPanel {
   slug: string
   nombreEs: string
   nombreEn: string | null
+  /** Separadas por comas, tal como se escriben en el formulario. */
+  tecnicasEs: string | null
+  tecnicasEn: string | null
   imagen: string | null
   orden: number
   visible: boolean
@@ -289,7 +292,9 @@ export async function obtenerCategoriasPanel(): Promise<CategoriaPanel[]> {
 
   const { data, error } = await supabase
     .from('categorias')
-    .select('id, slug, nombre_es, nombre_en, imagen_portada, orden, visible, productos(count)')
+    .select(
+      'id, slug, nombre_es, nombre_en, tecnicas_es, tecnicas_en, imagen_portada, orden, visible, productos(count)'
+    )
     .order('orden')
 
   if (error) throw new SinConexion(error)
@@ -300,6 +305,8 @@ export async function obtenerCategoriasPanel(): Promise<CategoriaPanel[]> {
     slug: c.slug,
     nombreEs: c.nombre_es,
     nombreEn: c.nombre_en,
+    tecnicasEs: c.tecnicas_es,
+    tecnicasEn: c.tecnicas_en,
     imagen: c.imagen_portada
       ? c.imagen_portada.startsWith('/') || c.imagen_portada.startsWith('http')
         ? c.imagen_portada

@@ -260,6 +260,8 @@ export async function guardarCategoria(datos: FormData): Promise<void> {
   const campos = {
     nombre_es: nombreEs,
     nombre_en: texto(datos, 'nombre_en') || null,
+    tecnicas_es: texto(datos, 'tecnicas_es') || null,
+    tecnicas_en: texto(datos, 'tecnicas_en') || null,
     imagen_portada: texto(datos, 'imagen') || null,
     orden: entero(datos, 'orden') ?? 0,
     visible: texto(datos, 'visible') !== 'false',

@@ -215,3 +215,30 @@
   background: var(--oro-claro);
   border-color: var(--oro-claro);
 }
+
+/* Las técnicas de la categoría abierta. Van justo bajo el título porque son
+   parte de la respuesta a "¿qué hacéis en camisetas?", no un filtro más. */
+.tecnicas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tecnicasEtiqueta {
+  font: 600 9.5px/1 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+  margin-right: 2px;
+}
+
+.tecnica {
+  padding: 7px 12px;
+  border: 1px solid var(--linea-oro);
+  border-radius: 999px;
+  background: rgba(201, 154, 46, 0.08);
+  font: 500 11.5px/1 var(--fuente-sans), sans-serif;
+  color: var(--oro-claro);
+}

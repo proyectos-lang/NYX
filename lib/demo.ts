@@ -16,6 +16,15 @@ export interface CategoriaVista {
   nombre: string
   imagen: string | null
   cuenta: number
+  /**
+   * Con qué se fabrica lo de esta categoría: DTF, sublimación, bordado…
+   *
+   * Va en la categoría y no en el producto porque es lo que hay que saber
+   * ANTES de que haya productos. Una camiseta de NYX se hace en DTF y no
+   * sublimada, y eso conviene decirlo aunque el catálogo de camisetas esté
+   * todavía vacío.
+   */
+  tecnicas: string[]
 }
 
 export interface ProductoVista {
@@ -47,20 +56,22 @@ export interface FaqVista {
  * del producto no avisa de nada.
  */
 export const CATEGORIAS_DEMO: CategoriaVista[] = [
-  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0 },
-  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0 },
-  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0 },
-  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0 },
-  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0 },
-  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0 },
-  { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0 },
-  { slug: 'bolsos', nombre: 'Bolsos', imagen: null, cuenta: 0 },
-  { slug: 'invitaciones', nombre: 'Invitaciones', imagen: null, cuenta: 0 },
-  { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0 },
-  { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0 },
-  { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0 },
-  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 0 },
-  { slug: 'libretas-y-kits', nombre: 'Libretas y kits', imagen: '/assets/kit-indcom.jpeg', cuenta: 0 },
+  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0, tecnicas: ['DTF'] },
+  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0, tecnicas: ['DTF', 'Vinil'] },
+  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'Grabado láser'] },
+  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0, tecnicas: ['Sublimación'] },
+  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'DTF', 'Bordado'] },
+  { slug: 'cobijas', nombre: 'Cobijas', imagen: null, cuenta: 0, tecnicas: ['Sublimación'] },
+  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0, tecnicas: ['Impresión 3D'] },
+  { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 0, tecnicas: ['Impresión 3D'] },
+  { slug: 'bolsos', nombre: 'Bolsos', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'invitaciones', nombre: 'Invitaciones', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'grabado-laser', nombre: 'Grabado láser', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0, tecnicas: ['Grabado láser'] },
+  { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0, tecnicas: [] },
+  { slug: 'libretas-y-kits', nombre: 'Regalos corporativos', imagen: '/assets/kit-indcom.jpeg', cuenta: 0, tecnicas: [] },
 ]
 
 export const PRODUCTOS_DEMO: ProductoVista[] = [

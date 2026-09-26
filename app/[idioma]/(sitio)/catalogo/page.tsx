@@ -96,6 +96,21 @@ export default async function Catalogo({
         </nav>
 
         <h1 className={e.titulo}>{categoriaActiva?.nombre ?? txt.catalogo.titulo}</h1>
+
+        {/* Con que se fabrica lo de esta categoria. Es lo que hay que saber
+            ANTES de que haya productos: una camiseta de NYX se hace en DTF y
+            no sublimada, y conviene decirlo aunque el catalogo de camisetas
+            este todavia vacio. */}
+        {categoriaActiva && categoriaActiva.tecnicas.length > 0 && (
+          <div className={e.tecnicas}>
+            <span className={e.tecnicasEtiqueta}>{txt.catalogo.tecnicas}</span>
+            {categoriaActiva.tecnicas.map((tecnica) => (
+              <span key={tecnica} className={e.tecnica}>
+                {tecnica}
+              </span>
+            ))}
+          </div>
+        )}
         <p className={e.resumen}>
           {resultado.total > 0
             ? txt.catalogo.mostrando(desde, hasta, resultado.total)
