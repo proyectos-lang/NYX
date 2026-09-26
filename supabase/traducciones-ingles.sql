@@ -123,14 +123,20 @@ where f.pregunta_es = d.es;
 update nyx.categorias c
 set nombre_en = d.en
 from (values
-  ('camisas',           'Shirts'),
-  ('buzos',             'Hoodies'),
-  ('termos-y-botellas', 'Tumblers & bottles'),
-  ('gorras',            'Caps'),
-  ('tazas',             'Mugs'),
-  ('pulseras',          'Wristbands'),
-  ('llaveros',          'Keychains'),
-  ('libretas-y-kits',   'Notebooks & kits')
+  ('camisas',            'T-shirts'),
+  ('buzos',              'Hoodies'),
+  ('termos-y-botellas',  'Tumblers & bottles'),
+  ('tazas',              'Mugs'),
+  ('gorras',             'Caps'),
+  ('llaveros',           'Keychains'),
+  ('llaveros-qr',        'QR keychains'),
+  ('bolsos',             'Bags'),
+  ('invitaciones',       'Invitations'),
+  ('letreros-acrilicos', 'Acrylic signs'),
+  ('productos-nfc',      'NFC products'),
+  ('impresion-3d',       '3D printing'),
+  ('pulseras',           'Wristbands'),
+  ('libretas-y-kits',    'Notebooks & kits')
 ) as d(slug, en)
 where c.slug = d.slug;
 

@@ -39,15 +39,28 @@ export interface FaqVista {
   respuesta: string
 }
 
+/**
+ * Las mismas que carga supabase/categorias-nyx.sql, en el mismo orden.
+ *
+ * Las que no tienen foto la llevan en null a proposito: la web pinta un
+ * recuadro con el nombre, y eso avisa de que falta. Poner una foto que no es
+ * del producto no avisa de nada.
+ */
 export const CATEGORIAS_DEMO: CategoriaVista[] = [
-  { slug: 'camisas', nombre: 'Camisas', imagen: '/assets/tee-oasis.jpeg', cuenta: 24 },
-  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 11 },
-  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 12 },
-  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 9 },
-  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 18 },
-  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 21 },
-  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 16 },
-  { slug: 'libretas-y-kits', nombre: 'Libretas y kits', imagen: '/assets/kit-indcom.jpeg', cuenta: 14 },
+  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0 },
+  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0 },
+  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0 },
+  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0 },
+  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0 },
+  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0 },
+  { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0 },
+  { slug: 'bolsos', nombre: 'Bolsos', imagen: null, cuenta: 0 },
+  { slug: 'invitaciones', nombre: 'Invitaciones', imagen: null, cuenta: 0 },
+  { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0 },
+  { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0 },
+  { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0 },
+  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 0 },
+  { slug: 'libretas-y-kits', nombre: 'Libretas y kits', imagen: '/assets/kit-indcom.jpeg', cuenta: 0 },
 ]
 
 export const PRODUCTOS_DEMO: ProductoVista[] = [

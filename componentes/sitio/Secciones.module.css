@@ -672,3 +672,18 @@
     animation-delay: 0s;
   }
 }
+
+/* Categoría sin foto. Pasa con las recién creadas desde el panel: antes
+   quedaba un recuadro gris vacío, que parece un error de carga. Con el nombre
+   dentro se entiende que la categoría existe y lo que falta es la imagen. */
+.categoriaSinFoto {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  text-align: center;
+  background: linear-gradient(160deg, var(--negro-4), var(--negro-2));
+  font: 400 13px/1.35 var(--fuente-serif), Georgia, serif;
+  color: rgba(255, 255, 255, 0.55);
+}

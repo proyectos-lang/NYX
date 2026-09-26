@@ -221,22 +221,38 @@ where not exists (select 1 from nyx.faq f where f.pregunta_es = d.pes);
 
 -- ---------------------------------------------------------------------------
 -- 6. Categorías
+--
+-- Las del portafolio de NYX. Las que no traen foto la llevan en null a
+-- propósito: la web pinta un recuadro con el nombre, y eso avisa de que falta.
+-- Una foto que no es del producto no avisa de nada.
+--
+-- Las técnicas —DTF, sublimación, vinil, grabado láser, bordado— NO son
+-- categorías: son la forma de fabricar, y la misma camiseta puede salir por
+-- dos. Van en la cinta de la portada.
 -- ---------------------------------------------------------------------------
 
 insert into nyx.categorias (slug, nombre_es, nombre_en, imagen_portada, orden, visible) values
-  ('camisas',           'Camisas',           'Shirts',            '/assets/tee-oasis.jpeg',   1, true),
-  ('buzos',             'Buzos',             'Hoodies',           '/assets/hoodie-gray.jpeg', 2, true),
-  ('termos-y-botellas', 'Termos y botellas', 'Tumblers & bottles','/assets/bottle-create.jpeg',3, true),
-  ('gorras',            'Gorras',            'Caps',              '/assets/cap-pastel.jpeg',  4, true),
-  ('tazas',             'Tazas',             'Mugs',              '/assets/mug-photos.jpeg',  5, true),
-  ('pulseras',          'Pulseras',          'Wristbands',        '/assets/band-kura.jpeg',   6, true),
-  ('llaveros',          'Llaveros',          'Keychains',         '/assets/key-charms.jpeg',  7, true),
-  ('libretas-y-kits',   'Libretas y kits',   'Notebooks & kits',  '/assets/kit-indcom.jpeg',  8, true)
+  ('camisas',            'Camisetas',          'T-shirts',          '/assets/tee-oasis.jpeg',     1, true),
+  ('buzos',              'Buzos',              'Hoodies',           '/assets/hoodie-gray.jpeg',   2, true),
+  ('termos-y-botellas',  'Termos y botellas',  'Tumblers & bottles','/assets/bottle-create.jpeg', 3, true),
+  ('tazas',              'Tazas',              'Mugs',              '/assets/mug-photos.jpeg',    4, true),
+  ('gorras',             'Gorras',             'Caps',              '/assets/cap-pastel.jpeg',    5, true),
+  ('llaveros',           'Llaveros',           'Keychains',         '/assets/key-charms.jpeg',    6, true),
+  ('llaveros-qr',        'Llaveros QR',        'QR keychains',      null,                         7, true),
+  ('bolsos',             'Bolsos',             'Bags',              null,                         8, true),
+  ('invitaciones',       'Invitaciones',       'Invitations',       null,                         9, true),
+  ('letreros-acrilicos', 'Letreros acrílicos', 'Acrylic signs',     null,                        10, true),
+  ('productos-nfc',      'Productos NFC',      'NFC products',      null,                        11, true),
+  ('impresion-3d',       'Impresión 3D',       '3D printing',       null,                        12, true),
+  ('pulseras',           'Pulseras',           'Wristbands',        '/assets/band-kura.jpeg',    13, true),
+  ('libretas-y-kits',    'Libretas y kits',    'Notebooks & kits',  '/assets/kit-indcom.jpeg',   14, true)
 on conflict (slug) do update
-  set nombre_es      = excluded.nombre_es,
-      nombre_en      = excluded.nombre_en,
-      imagen_portada = excluded.imagen_portada,
-      orden          = excluded.orden;
+  set nombre_es = excluded.nombre_es,
+      nombre_en = excluded.nombre_en,
+      orden     = excluded.orden,
+      -- La foto solo se pone si no habia ninguna: repetir el script no borra
+      -- lo que se haya subido desde el panel.
+      imagen_portada = coalesce(nyx.categorias.imagen_portada, excluded.imagen_portada);
 
 -- ---------------------------------------------------------------------------
 -- 7. Productos

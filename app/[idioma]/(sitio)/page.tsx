@@ -22,15 +22,26 @@ import s from '@/componentes/sitio/Secciones.module.css'
 // lugar de quedar congelado en el build.
 export const revalidate = 300
 
-/** La marquesina son nombres de producto: se traducen. */
+/**
+ * La cinta que se desplaza sola, debajo de los destacados.
+ *
+ * Son las TECNICAS, no los productos. Los productos ya salen en la fila de
+ * categorias unas lineas mas arriba, asi que repetirlos no anadia nada. Las
+ * tecnicas, en cambio, son lo que distingue a NYX -- hacer DTF, sublimacion,
+ * vinil, grabado laser, bordado, NFC e impresion 3D bajo un mismo techo -- y
+ * no se cuentan en ningun otro sitio de la portada.
+ *
+ * Varias no se traducen porque son el nombre tecnico en los dos idiomas: DTF,
+ * NFC, vinil.
+ */
 const PALABRAS_MARQUESINA: Record<Idioma, string[]> = {
   es: [
-    'Sublimación', 'Camisas', 'Buzos', 'Gorras',
-    'Tazas', 'Termos', 'Llaveros', 'Corporativo',
+    'DTF', 'Sublimación', 'Vinil', 'Grabado láser',
+    'Bordado', 'Letreros acrílicos', 'NFC', 'Impresión 3D',
   ],
   en: [
-    'Sublimation', 'Shirts', 'Hoodies', 'Caps',
-    'Mugs', 'Tumblers', 'Keychains', 'Corporate',
+    'DTF', 'Sublimation', 'Vinyl', 'Laser engraving',
+    'Embroidery', 'Acrylic signs', 'NFC', '3D printing',
   ],
 }
 
@@ -174,13 +185,19 @@ export default async function Portada({
                 className={`${s.categoria} al-entrar`}
               >
                 <div className={s.categoriaFoto}>
-                  {c.imagen && (
+                  {c.imagen ? (
                     <Image
                       src={c.imagen}
                       alt={c.nombre}
                       fill
                       sizes="(max-width: 720px) 50vw, 25vw"
                     />
+                  ) : (
+                    // Una categoria recien creada no tiene foto todavia. Sin
+                    // esto quedaba un recuadro gris sin nada, que parece un
+                    // error de carga; con el nombre dentro se entiende que la
+                    // categoria existe y lo que falta es la imagen.
+                    <span className={s.categoriaSinFoto}>{c.nombre}</span>
                   )}
                 </div>
                 <div className={s.categoriaPie}>
