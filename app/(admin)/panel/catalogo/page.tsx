@@ -24,6 +24,25 @@ interface CategoriaOpcion {
   nombreEs: string
 }
 
+/**
+ * Las técnicas que usa NYX, para sugerirlas al escribir.
+ *
+ * Es una lista de sugerencias y no un desplegable cerrado: si mañana aparece
+ * una técnica nueva se escribe y ya está, sin tocar el código. Lo que evita
+ * es que convivan "DTF" y "dtf" como si fueran dos cosas distintas, porque el
+ * filtro de la web las agrupa por nombre.
+ */
+const TECNICAS = [
+  'DTF',
+  'Sublimación',
+  'Vinil',
+  'Grabado láser',
+  'Bordado',
+  'Impresión 3D',
+  'NFC',
+  'Acrílico',
+]
+
 /** Mismo formulario para crear y para editar: cambia solo si lleva id. */
 function FormularioProducto({
   categorias,
@@ -40,6 +59,7 @@ function FormularioProducto({
     stock: number | null
     bajoPedido: boolean
     descripcion: string | null
+    tecnica: string | null
   }
 }) {
   const prefijo = producto?.id ?? 'nuevo'
@@ -163,6 +183,33 @@ function FormularioProducto({
             />
             Se fabrica bajo pedido (sin stock fijo)
           </label>
+        </div>
+
+        {/* La subcategoría. La categoría dice qué técnicas ofrece; aquí se
+            elige con cuál se hizo ESTE producto, y eso es lo que permite
+            filtrar al pulsar la técnica en la web.
+
+            La lista son sugerencias, no un desplegable cerrado: se puede
+            escribir cualquier otra. Pero sugerirlas evita que convivan "DTF"
+            y "dtf" como si fueran dos cosas distintas. */}
+        <div className={e.completo}>
+          <label className={e.etiqueta} htmlFor={`tecnica-${prefijo}`}>
+            Técnica con la que se hace
+          </label>
+          <input
+            className={e.campo}
+            id={`tecnica-${prefijo}`}
+            name="tecnica"
+            list="tecnicas-nyx"
+            maxLength={80}
+            defaultValue={producto?.tecnica ?? ''}
+            placeholder="DTF"
+          />
+          <datalist id="tecnicas-nyx">
+            {TECNICAS.map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
         </div>
 
         <div className={e.completo}>

@@ -23,6 +23,8 @@ const IDS_TIPO = ['todos', 'personalizable', 'entrega_inmediata'] as const
 
 type Parametros = {
   categoria?: string
+  /** La subcategoría: DTF, Sublimación, Bordado… */
+  tecnica?: string
   tipo?: string
   q?: string
   pagina?: string
@@ -75,6 +77,7 @@ export default async function Catalogo({
     obtenerCatalogo(
       {
         categoria: parametros.categoria,
+        tecnica: parametros.tecnica,
         tipo,
         busqueda: parametros.q,
         pagina,
@@ -95,7 +98,12 @@ export default async function Catalogo({
           {categoriaActiva ? ` / ${categoriaActiva.nombre}` : ''}
         </nav>
 
-        <h1 className={e.titulo}>{categoriaActiva?.nombre ?? txt.catalogo.titulo}</h1>
+        <h1 className={e.titulo}>
+          {categoriaActiva?.nombre ?? txt.catalogo.titulo}
+          {parametros.tecnica && (
+            <span className={e.tituloTecnica}> · {parametros.tecnica}</span>
+          )}
+        </h1>
 
         {/* Con que se fabrica lo de esta categoria. Es lo que hay que saber
             ANTES de que haya productos: una camiseta de NYX se hace en DTF y
@@ -104,10 +112,29 @@ export default async function Catalogo({
         {categoriaActiva && categoriaActiva.tecnicas.length > 0 && (
           <div className={e.tecnicas}>
             <span className={e.tecnicasEtiqueta}>{txt.catalogo.tecnicas}</span>
+
+            {/* Son ENLACES, no etiquetas: al pulsarlas se filtra el catálogo
+                por esa técnica. Es lo que las convierte en subcategoría — sin
+                esto serían un cartel que se puede pulsar y no hace nada. */}
+            <Link
+              href={construirEnlace(parametros, { tecnica: undefined, pagina: '1' }, idioma)}
+              className={e.tecnica}
+              data-activa={!parametros.tecnica}
+            >
+              {txt.catalogo.todas}
+            </Link>
+
             {categoriaActiva.tecnicas.map((tecnica) => (
-              <span key={tecnica} className={e.tecnica}>
+              <Link
+                key={tecnica}
+                href={construirEnlace(parametros, { tecnica, pagina: '1' }, idioma)}
+                className={e.tecnica}
+                data-activa={
+                  (parametros.tecnica ?? '').toLowerCase() === tecnica.toLowerCase()
+                }
+              >
                 {tecnica}
-              </span>
+              </Link>
             ))}
           </div>
         )}

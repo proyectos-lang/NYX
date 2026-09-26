@@ -211,6 +211,8 @@ export interface ProductoPanel {
   visible: boolean
   orden: number
   descripcion: string | null
+  /** La subcategoría: DTF, Sublimación, Bordado… */
+  tecnica: string | null
   /** La portada, para la miniatura de la tabla. */
   foto: string | null
   /** Todas, ordenadas y con la portada primero: el panel las gestiona una a una. */
@@ -225,7 +227,7 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
     .from('productos')
     .select(
       `id, sku, slug, nombre_es, categoria_id, precio_referencia, tipo, stock,
-       bajo_pedido, visible, orden, descripcion_es,
+       bajo_pedido, visible, orden, descripcion_es, tecnica,
        categorias ( nombre_es ),
        producto_fotos ( id, url, es_portada, orden )`
     )
@@ -261,6 +263,7 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
       visible: p.visible,
       orden: p.orden,
       descripcion: p.descripcion_es,
+      tecnica: p.tecnica,
       foto: url ? conBarra(url) : null,
       fotos: fotos.map((f: any) => ({
         id: f.id,

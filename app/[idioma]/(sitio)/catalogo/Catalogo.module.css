@@ -242,3 +242,26 @@
   font: 500 11.5px/1 var(--fuente-sans), sans-serif;
   color: var(--oro-claro);
 }
+
+/* La técnica activa dentro del título, para que se vea por qué está filtrado
+   el catálogo sin tener que mirar la dirección. */
+.tituloTecnica {
+  color: var(--oro-claro);
+  font-style: italic;
+}
+
+/* Las técnicas son enlaces: la activa se rellena, como las pestañas de tipo. */
+.tecnica[data-activa='true'] {
+  background: var(--oro-claro);
+  border-color: var(--oro-claro);
+  color: var(--negro);
+}
+
+.tecnica:hover {
+  border-color: var(--oro);
+  color: var(--blanco);
+}
+
+.tecnica[data-activa='true']:hover {
+  color: var(--negro);
+}

@@ -136,3 +136,43 @@ select nombre_es as "categoría",
        orden
 from nyx.categorias
 order by orden;
+
+-- ---------------------------------------------------------------------------
+-- 4. La técnica de cada producto
+--
+-- La categoría dice QUÉ técnicas ofrece; el producto dice CUÁL lleva. Sin
+-- esto, las técnicas serían solo un cartel: se podrían enseñar pero no filtrar
+-- por ellas, que es lo que se espera al pulsarlas en la web.
+--
+-- Se elige desde /panel/catalogo, en la ficha de cada producto, con
+-- sugerencias para que no convivan "DTF" y "dtf" como si fueran dos cosas.
+-- ---------------------------------------------------------------------------
+
+alter table nyx.productos add column if not exists tecnica text;
+
+-- A los productos de muestra se les pone la que les corresponde. Solo si no
+-- tenían ninguna, para no pisar lo que se haya elegido en el panel.
+update nyx.productos p
+set tecnica = d.tecnica
+from (values
+  ('NYX-001', 'DTF'),
+  ('NYX-002', 'DTF'),
+  ('NYX-003', 'Sublimación'),
+  ('NYX-004', 'Grabado láser'),
+  ('NYX-005', 'Sublimación'),
+  ('NYX-006', 'Bordado'),
+  ('NYX-008', 'Impresión 3D')
+) as d(sku, tecnica)
+where p.sku = d.sku
+  and coalesce(btrim(p.tecnica), '') = '';
+
+-- ---------------------------------------------------------------------------
+-- 5. Productos sin técnica
+--
+-- Los que salgan aquí no aparecen al filtrar por ninguna subcategoría.
+-- ---------------------------------------------------------------------------
+
+select sku, nombre_es as "producto"
+from nyx.productos
+where coalesce(btrim(tecnica), '') = ''
+order by orden;

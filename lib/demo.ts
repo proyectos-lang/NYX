@@ -41,6 +41,14 @@ export interface ProductoVista {
   bajoPedido: boolean
   imagen: string | null
   fotos: string[]
+  /**
+   * Con qué se fabricó ESTE producto: DTF, Sublimación, Bordado…
+   *
+   * La categoría dice qué técnicas ofrece; el producto dice cuál lleva. Sin
+   * esto, las técnicas serían solo un cartel: se podrían enseñar pero no
+   * filtrar por ellas, que es lo que se espera al pulsarlas.
+   */
+  tecnica: string | null
 }
 
 export interface FaqVista {
@@ -82,6 +90,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 13.40, tipo: 'personalizable', stock: 24, bajoPedido: false,
     imagen: '/assets/prod/p001.jpg',
     fotos: ['/assets/prod/p001.jpg', '/assets/tee-oasis.jpeg', '/assets/tee-max.jpeg'],
+    tecnica: 'DTF',
   },
   {
     id: 'demo-2', sku: 'NYX-002', slug: 'buzo-con-capucha', nombre: 'Buzo con capucha',
@@ -90,6 +99,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 28.00, tipo: 'personalizable', stock: null, bajoPedido: true,
     imagen: '/assets/prod/p002.jpg',
     fotos: ['/assets/prod/p002.jpg', '/assets/hoodie.jpeg', '/assets/hoodie-gray.jpeg'],
+    tecnica: 'DTF',
   },
   {
     id: 'demo-3', sku: 'NYX-003', slug: 'termo-signature-750', nombre: 'Termo Signature 750 ml',
@@ -98,6 +108,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 18.50, tipo: 'personalizable', stock: 18, bajoPedido: false,
     imagen: '/assets/prod/p003.jpg',
     fotos: ['/assets/prod/p003.jpg', '/assets/bottle-create.jpeg', '/assets/bottle-pixel.jpeg'],
+    tecnica: 'Sublimación',
   },
   {
     id: 'demo-4', sku: 'NYX-004', slug: 'botella-pixel-500', nombre: 'Botella pixel 500 ml',
@@ -106,6 +117,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 11.20, tipo: 'entrega_inmediata', stock: 32, bajoPedido: false,
     imagen: '/assets/prod/p005.jpg',
     fotos: ['/assets/prod/p005.jpg', '/assets/bottle-pixel.jpeg'],
+    tecnica: 'Grabado láser',
   },
   {
     id: 'demo-5', sku: 'NYX-005', slug: 'taza-ceramica-con-nombre', nombre: 'Taza cerámica con nombre',
@@ -114,6 +126,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 7.20, tipo: 'personalizable', stock: 40, bajoPedido: false,
     imagen: '/assets/prod/p007.jpg',
     fotos: ['/assets/prod/p007.jpg', '/assets/mug-gift.jpeg', '/assets/mug-photos.jpeg'],
+    tecnica: 'Sublimación',
   },
   {
     id: 'demo-6', sku: 'NYX-006', slug: 'gorra-bordada', nombre: 'Gorra bordada',
@@ -122,6 +135,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 8.40, tipo: 'entrega_inmediata', stock: 14, bajoPedido: false,
     imagen: '/assets/prod/p008.jpg',
     fotos: ['/assets/prod/p008.jpg', '/assets/cap-blue.jpeg', '/assets/cap-pastel.jpeg'],
+    tecnica: 'Bordado',
   },
   {
     id: 'demo-7', sku: 'NYX-007', slug: 'libreta-ejecutiva-a5', nombre: 'Libreta ejecutiva A5',
@@ -130,6 +144,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 9.20, tipo: 'personalizable', stock: 26, bajoPedido: false,
     imagen: '/assets/prod/p010.jpg',
     fotos: ['/assets/prod/p010.jpg', '/assets/kit-blue.jpeg', '/assets/kit-indcom.jpeg'],
+    tecnica: null,
   },
   {
     id: 'demo-8', sku: 'NYX-008', slug: 'pulsera-de-silicona', nombre: 'Pulsera de silicona',
@@ -138,6 +153,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 1.40, tipo: 'entrega_inmediata', stock: 180, bajoPedido: false,
     imagen: '/assets/prod/p012.jpg',
     fotos: ['/assets/prod/p012.jpg', '/assets/band-kura.jpeg', '/assets/band-chetko.jpeg'],
+    tecnica: 'Impresión 3D',
   },
 ]
 

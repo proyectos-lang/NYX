@@ -141,7 +141,7 @@ export async function obtenerCategorias(
 /** Columnas y relaciones que necesita ProductoVista. */
 const SELECT_PRODUCTO = `
   id, sku, slug, nombre_es, nombre_en, descripcion_es, descripcion_en,
-  precio_referencia, tipo, stock, bajo_pedido,
+  precio_referencia, tipo, stock, bajo_pedido, tecnica,
   categorias ( slug, nombre_es, nombre_en ),
   producto_fotos ( url, orden, es_portada )
 `
@@ -158,6 +158,7 @@ type FilaProducto = {
   tipo: TipoProducto
   stock: number | null
   bajo_pedido: boolean
+  tecnica: string | null
   categorias: { slug: string; nombre_es: string; nombre_en: string | null } | null
   producto_fotos: { url: string; orden: number; es_portada: boolean }[]
 }
@@ -184,6 +185,7 @@ function aProductoVista(fila: FilaProducto, idioma: Idioma): ProductoVista {
     tipo: fila.tipo,
     stock: fila.stock,
     bajoPedido: fila.bajo_pedido,
+    tecnica: fila.tecnica,
     imagen: fotos[0] ?? null,
     fotos,
   }
@@ -243,6 +245,8 @@ export async function obtenerDisponiblesHoy(
 
 export interface FiltrosCatalogo {
   categoria?: string
+  /** La subcategoría: DTF, Sublimación, Bordado… */
+  tecnica?: string
   tipo?: TipoProducto | 'todos'
   busqueda?: string
   pagina?: number
@@ -266,6 +270,10 @@ export async function obtenerCatalogo(
   const filtrarEnMemoria = (lista: ProductoVista[]) => {
     let salida = lista
     if (filtros.categoria) salida = salida.filter((p) => p.categoriaSlug === filtros.categoria)
+    if (filtros.tecnica) {
+      const t = filtros.tecnica.toLowerCase()
+      salida = salida.filter((p) => (p.tecnica ?? '').toLowerCase() === t)
+    }
     if (filtros.tipo && filtros.tipo !== 'todos') {
       salida = salida.filter((p) => p.tipo === filtros.tipo)
     }
@@ -294,6 +302,9 @@ export async function obtenerCatalogo(
       .eq('visible', true)
 
     if (filtros.tipo && filtros.tipo !== 'todos') consulta = consulta.eq('tipo', filtros.tipo)
+    // ilike y no eq: la tecnica se escribe a mano en el panel y "DTF" tiene
+    // que encontrar tambien "dtf".
+    if (filtros.tecnica) consulta = consulta.ilike('tecnica', filtros.tecnica)
     if (filtros.busqueda) {
       const q = filtros.busqueda.replace(/[%,()]/g, ' ').trim()
       if (q) consulta = consulta.or(`nombre_es.ilike.%${q}%,sku.ilike.%${q}%`)

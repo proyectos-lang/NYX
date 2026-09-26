@@ -192,6 +192,7 @@ export async function guardarProducto(datos: FormData): Promise<void> {
     stock: entero(datos, 'stock'),
     bajo_pedido: texto(datos, 'bajo_pedido') === 'on',
     descripcion_es: texto(datos, 'descripcion') || null,
+    tecnica: texto(datos, 'tecnica') || null,
   }
 
   let destino: string
