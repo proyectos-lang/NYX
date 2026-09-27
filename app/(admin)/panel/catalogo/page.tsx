@@ -33,7 +33,7 @@ interface CategoriaOpcion {
  * filtro de la web las agrupa por nombre.
  */
 const TECNICAS = [
-  'DTF',
+  'Impresión DTF',
   'Sublimación',
   'Vinil',
   'Grabado láser',
@@ -203,7 +203,7 @@ function FormularioProducto({
             list="tecnicas-nyx"
             maxLength={80}
             defaultValue={producto?.tecnica ?? ''}
-            placeholder="DTF"
+            placeholder="Impresión DTF"
           />
           <datalist id="tecnicas-nyx">
             {TECNICAS.map((t) => (

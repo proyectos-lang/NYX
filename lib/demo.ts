@@ -64,11 +64,11 @@ export interface FaqVista {
  * del producto no avisa de nada.
  */
 export const CATEGORIAS_DEMO: CategoriaVista[] = [
-  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0, tecnicas: ['DTF'] },
-  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0, tecnicas: ['DTF', 'Vinil'] },
+  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0, tecnicas: ['Impresión DTF'] },
+  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0, tecnicas: ['Impresión DTF', 'Vinil'] },
   { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'Grabado láser'] },
   { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0, tecnicas: ['Sublimación'] },
-  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'DTF', 'Bordado'] },
+  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'Impresión DTF', 'Bordado'] },
   { slug: 'cobijas', nombre: 'Cobijas', imagen: null, cuenta: 0, tecnicas: ['Sublimación'] },
   { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0, tecnicas: ['Impresión 3D'] },
   { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0, tecnicas: [] },
@@ -90,7 +90,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 13.40, tipo: 'personalizable', stock: 24, bajoPedido: false,
     imagen: '/assets/prod/p001.jpg',
     fotos: ['/assets/prod/p001.jpg', '/assets/tee-oasis.jpeg', '/assets/tee-max.jpeg'],
-    tecnica: 'DTF',
+    tecnica: 'Impresión DTF',
   },
   {
     id: 'demo-2', sku: 'NYX-002', slug: 'buzo-con-capucha', nombre: 'Buzo con capucha',
@@ -99,7 +99,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 28.00, tipo: 'personalizable', stock: null, bajoPedido: true,
     imagen: '/assets/prod/p002.jpg',
     fotos: ['/assets/prod/p002.jpg', '/assets/hoodie.jpeg', '/assets/hoodie-gray.jpeg'],
-    tecnica: 'DTF',
+    tecnica: 'Impresión DTF',
   },
   {
     id: 'demo-3', sku: 'NYX-003', slug: 'termo-signature-750', nombre: 'Termo Signature 750 ml',

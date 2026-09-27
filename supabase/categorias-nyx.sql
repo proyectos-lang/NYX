@@ -47,11 +47,11 @@ insert into nyx.categorias
   (slug, nombre_es, nombre_en, tecnicas_es, tecnicas_en, imagen_portada, orden, visible)
 values
   ('camisas',            'Camisetas',            'T-shirts',
-   'DTF',                             'DTF',
+   'Impresión DTF',                   'DTF printing',
    '/assets/tee-oasis.jpeg',     1, true),
 
   ('buzos',              'Buzos',                'Hoodies',
-   'DTF, Vinil',                      'DTF, Vinyl',
+   'Impresión DTF, Vinil',            'DTF printing, Vinyl',
    '/assets/hoodie-gray.jpeg',   2, true),
 
   ('termos-y-botellas',  'Termos y botellas',    'Tumblers & bottles',
@@ -63,7 +63,7 @@ values
    '/assets/mug-photos.jpeg',    4, true),
 
   ('gorras',             'Gorras',               'Caps',
-   'Sublimación, DTF, Bordado',       'Sublimation, DTF, Embroidery',
+   'Sublimación, Impresión DTF, Bordado', 'Sublimation, DTF printing, Embroidery',
    '/assets/cap-pastel.jpeg',    5, true),
 
   -- Nueva.
@@ -126,6 +126,41 @@ on conflict (slug) do update
       imagen_portada = coalesce(nyx.categorias.imagen_portada, excluded.imagen_portada);
 
 -- ---------------------------------------------------------------------------
+-- 2b. Renombrar "DTF" a "Impresión DTF"
+--
+-- Esto SÍ pisa lo que hay, al revés que el bloque de arriba. Es a propósito:
+-- arriba se protege lo que se escribió desde el panel, pero un cambio de
+-- nombre tiene que llegar, o las categorías que ya decían "DTF" se quedarían
+-- así para siempre.
+--
+-- Importa que el nombre sea el mismo en todas partes: el filtro de la web
+-- agrupa por nombre, así que "DTF" en camisetas e "Impresión DTF" en gorras
+-- serían dos subcategorías distintas para la misma técnica.
+--
+-- El patrón exige que DTF esté al principio de la lista o tras una coma, y que
+-- termine ahí o en otra coma. Así no toca lo que ya dice "Impresión DTF" —en
+-- ese caso el DTF va precedido de un espacio— y el script se puede repetir.
+-- ---------------------------------------------------------------------------
+
+update nyx.categorias
+set tecnicas_es = regexp_replace(tecnicas_es, '(^|, )DTF($|,)', '\1Impresión DTF\2', 'g')
+where tecnicas_es ~ '(^|, )DTF($|,)';
+
+update nyx.categorias
+set tecnicas_en = regexp_replace(tecnicas_en, '(^|, )DTF($|,)', '\1DTF printing\2', 'g')
+where tecnicas_en ~ '(^|, )DTF($|,)';
+
+update nyx.productos
+set tecnica = 'Impresión DTF'
+where btrim(tecnica) = 'DTF';
+
+-- Las gorras, tal como se pidieron: sublimación, impresión DTF y bordado.
+update nyx.categorias
+set tecnicas_es = 'Sublimación, Impresión DTF, Bordado',
+    tecnicas_en = 'Sublimation, DTF printing, Embroidery'
+where slug = 'gorras';
+
+-- ---------------------------------------------------------------------------
 -- 3. Qué falta
 -- ---------------------------------------------------------------------------
 
@@ -155,8 +190,8 @@ alter table nyx.productos add column if not exists tecnica text;
 update nyx.productos p
 set tecnica = d.tecnica
 from (values
-  ('NYX-001', 'DTF'),
-  ('NYX-002', 'DTF'),
+  ('NYX-001', 'Impresión DTF'),
+  ('NYX-002', 'Impresión DTF'),
   ('NYX-003', 'Sublimación'),
   ('NYX-004', 'Grabado láser'),
   ('NYX-005', 'Sublimación'),
