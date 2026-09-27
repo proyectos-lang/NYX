@@ -216,7 +216,7 @@ export const CONTENIDO_DEMO: Record<string, Record<string, string>> = {
   },
   nosotros: {
     titular: 'Detalle, oficio y renacimiento',
-    parrafo: 'NYX nace del oficio de la sublimación: convertir una idea en un objeto que se usa, se regala y se recuerda. Trabajamos con materiales seleccionados, control de color y revisión pieza por pieza antes de entregar.',
+    parrafo: 'NYX nació del oficio de la sublimación. Ahora también hacemos DTF, grabado láser, bordado y nuestra nueva impresión 3D.',
     cifra1: '6 años',
     cifra1Detalle: 'de experiencia',
     cifra2: '1 a 1',

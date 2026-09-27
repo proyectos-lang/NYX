@@ -48,7 +48,7 @@ from (values
   ('empresas', 'etiquetas', 'Uniforms, Welcome kits, Events, Awards, Merchandising'),
 
   ('nosotros', 'titular',       'Detail, craft and rebirth'),
-  ('nosotros', 'parrafo',       'NYX was born from the craft of sublimation: turning an idea into an object that is used, gifted and remembered. We work with selected materials, color control and piece-by-piece review before delivery.'),
+  ('nosotros', 'parrafo',       'NYX was born from the craft of sublimation. Now we also do DTF, laser engraving, embroidery and our new 3D printing.'),
   ('nosotros', 'cifra1',        '6 years'),
   ('nosotros', 'cifra1Detalle', 'of experience'),
   ('nosotros', 'cifra2',        '1 to 1'),

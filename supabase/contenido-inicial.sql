@@ -102,7 +102,7 @@ from (values
   ('empresas', 'etiquetas', 'Etiquetas (separadas por coma)', 'Uniformes, Kits de bienvenida, Eventos, Reconocimientos, Merchandising', 'Uniforms, Welcome kits, Events, Awards, Merchandising', false, 3),
 
   ('nosotros', 'titular',       'Titular',            'Detalle, oficio y renacimiento', 'Detail, craft and rebirth', false, 1),
-  ('nosotros', 'parrafo',       'Párrafo',            'NYX nace del oficio de la sublimación: convertir una idea en un objeto que se usa, se regala y se recuerda. Trabajamos con materiales seleccionados, control de color y revisión pieza por pieza antes de entregar.', 'NYX was born from the craft of sublimation: turning an idea into an object that is used, gifted and remembered. We work with selected materials, color control and piece-by-piece review before delivery.', true, 2),
+  ('nosotros', 'parrafo',       'Párrafo',            'NYX nació del oficio de la sublimación. Ahora también hacemos DTF, grabado láser, bordado y nuestra nueva impresión 3D.', 'NYX was born from the craft of sublimation. Now we also do DTF, laser engraving, embroidery and our new 3D printing.', true, 2),
   ('nosotros', 'cifra1',        'Cifra 1',            '6 años',               '6 years',           false, 3),
   ('nosotros', 'cifra1Detalle', 'Cifra 1 · detalle',  'de experiencia',       'of experience',     false, 4),
   ('nosotros', 'cifra2',        'Cifra 2',            '1 a 1',                '1 to 1',            false, 5),
