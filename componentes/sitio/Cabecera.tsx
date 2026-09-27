@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { ruta, type Idioma } from '@/lib/i18n'
 import { textos } from '@/lib/textos'
-import InsigniaCarrito from './carrito/Insignia'
 import BotonIdioma from './BotonIdioma'
 import estilos from './Cabecera.module.css'
 
@@ -67,11 +66,9 @@ export default function Cabecera({ idioma }: { idioma: Idioma }) {
         </Link>
       </nav>
 
-      {/* Fuera de <nav> a propósito: la navegación se oculta por debajo de
-          1040px y el carrito y el idioma quedarían inalcanzables justo en el
-          móvil, que es donde más se compra algo que ya está hecho. */}
+      {/* Fuera de <nav> a propósito: la navegación se oculta en pantalla
+          estrecha y el selector de idioma quedaría inalcanzable en el móvil. */}
       <div className={estilos.acciones}>
-        <InsigniaCarrito idioma={idioma} />
         <BotonIdioma idioma={idioma} />
       </div>
 

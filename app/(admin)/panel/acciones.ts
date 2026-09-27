@@ -31,7 +31,6 @@ const ESTADOS: EstadoPedido[] = [
   'cancelado',
 ]
 
-const TIPOS: TipoProducto[] = ['personalizable', 'entrega_inmediata']
 
 function texto(datos: FormData, campo: string): string {
   const valor = datos.get(campo)
@@ -175,20 +174,18 @@ export async function guardarProducto(datos: FormData): Promise<void> {
   const base = '/panel/catalogo'
   const id = texto(datos, 'id')
   const nombre = texto(datos, 'nombre')
-  const tipo = texto(datos, 'tipo') as TipoProducto
-
   if (!nombre) {
     redirect(conError(base, new Error('El nombre es obligatorio.'), 'producto sin nombre'))
-  }
-  if (!TIPOS.includes(tipo)) {
-    redirect(conError(base, new Error('Tipo de producto no válido.'), 'tipo inválido'))
   }
 
   const campos = {
     nombre_es: nombre,
     categoria_id: texto(datos, 'categoria_id') || null,
     precio_referencia: numero(datos, 'precio'),
-    tipo,
+    // Ya no se pregunta: NYX trabaja por encargo y todo es personalizable.
+    // La columna se queda en la base con este valor fijo porque quitarla
+    // obligaria a una migracion y no estorba.
+    tipo: 'personalizable' as const,
     stock: entero(datos, 'stock'),
     bajo_pedido: texto(datos, 'bajo_pedido') === 'on',
     descripcion_es: texto(datos, 'descripcion') || null,

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { obtenerCatalogo, obtenerCategorias } from '@/lib/consultas'
-import type { TipoProducto } from '@/lib/database.types'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
 import { ruta, esIdioma, type Idioma } from '@/lib/i18n'
 import { textos } from '@/lib/textos'
@@ -19,13 +18,10 @@ export async function generateMetadata({
   return { title: t.catalogo.titulo, description: t.catalogo.descripcion }
 }
 
-const IDS_TIPO = ['todos', 'personalizable', 'entrega_inmediata'] as const
-
 type Parametros = {
   categoria?: string
   /** La subcategoría: DTF, Sublimación, Bordado… */
   tecnica?: string
-  tipo?: string
   q?: string
   pagina?: string
 }
@@ -60,16 +56,7 @@ export default async function Catalogo({
   const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
   const txt = textos(idioma)
 
-  const TIPOS = [
-    { id: 'todos', etiqueta: txt.catalogo.todos },
-    { id: 'personalizable', etiqueta: txt.catalogo.personalizables },
-    { id: 'entrega_inmediata', etiqueta: txt.catalogo.entregaInmediata },
-  ] as const
-
   const parametros = await searchParams
-  const tipo = (IDS_TIPO.find((id) => id === parametros.tipo) ?? 'todos') as
-    | TipoProducto
-    | 'todos'
   const pagina = Number(parametros.pagina) || 1
 
   const [categorias, resultado] = await Promise.all([
@@ -78,7 +65,6 @@ export default async function Catalogo({
       {
         categoria: parametros.categoria,
         tecnica: parametros.tecnica,
-        tipo,
         busqueda: parametros.q,
         pagina,
       },
@@ -150,7 +136,6 @@ export default async function Catalogo({
             {parametros.categoria && (
               <input type="hidden" name="categoria" value={parametros.categoria} />
             )}
-            {tipo !== 'todos' && <input type="hidden" name="tipo" value={tipo} />}
             <input
               className={e.campoBusqueda}
               type="search"
@@ -164,18 +149,6 @@ export default async function Catalogo({
             </button>
           </form>
 
-          <div className={e.pestanas}>
-            {TIPOS.map((opcion) => (
-              <Link
-                key={opcion.id}
-                href={construirEnlace(parametros, { tipo: opcion.id, pagina: '1' }, idioma)}
-                className={e.pestana}
-                data-activa={tipo === opcion.id}
-              >
-                {opcion.etiqueta}
-              </Link>
-            ))}
-          </div>
         </div>
 
         <div className={e.cuerpo}>

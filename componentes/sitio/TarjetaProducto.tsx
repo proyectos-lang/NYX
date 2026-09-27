@@ -1,25 +1,31 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { ProductoVista } from '@/lib/demo'
-import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
+import { precio as formatearPrecio } from '@/lib/formato'
 import { ruta, type Idioma } from '@/lib/i18n'
 import { textos } from '@/lib/textos'
-import BotonAnadir from './carrito/BotonAnadir'
 import estilos from './TarjetaProducto.module.css'
 
 interface Props {
   producto: ProductoVista
-  /** "oscura" para la sección de destacados, "clara" para entrega inmediata. */
+  /** "oscura" sobre las secciones negras, "clara" sobre las de fondo claro. */
   variante?: 'oscura' | 'clara'
   idioma: Idioma
 }
 
+/**
+ * Una ficha de producto en una rejilla.
+ *
+ * Ya no distingue entre personalizable y entrega inmediata: NYX trabaja por
+ * encargo y todo pasa por una cotización, así que esa diferencia dejó de
+ * existir. Lo que sí se enseña es la TÉCNICA, que es lo que de verdad cambia
+ * de un producto a otro.
+ */
 export default function TarjetaProducto({
   producto,
   variante = 'oscura',
   idioma,
 }: Props) {
-  const inmediato = producto.tipo === 'entrega_inmediata'
   const href = ruta(`/catalogo/${producto.slug}`, idioma)
   const t = textos(idioma)
 
@@ -38,103 +44,32 @@ export default function TarjetaProducto({
             {t.catalogo.fotoPendiente} · {producto.slug}
           </span>
         )}
-
-        {inmediato ? (
-          <span
-            className={estilos.insignia}
-            style={{ background: '#dff3e4', color: '#0a5c2b' }}
-          >
-            <span className={estilos.puntoVerde} />
-            {t.catalogo.disponibleAhora}
-          </span>
-        ) : (
-          <span
-            className={estilos.insignia}
-            style={{ background: 'rgba(201,154,46,.92)', color: '#080808' }}
-          >
-            {t.catalogo.personalizable}
-          </span>
-        )}
       </Link>
 
       <div className={estilos.cuerpo}>
         <div className={estilos.categoria}>
           {producto.categoria}
-          {/* La tecnica, al lado de la categoria. Es lo que convierte la fila
+          {/* La técnica, al lado de la categoría. Es lo que convierte la fila
               de destacados en una muestra de lo que sabe hacer NYX: sin esto
-              se ven seis productos y no se sabe que cada uno esta hecho de
-              una forma distinta. */}
+              se ven seis productos y no se nota que cada uno está hecho de una
+              forma distinta. */}
           {producto.tecnica && <span className={estilos.tecnica}>{producto.tecnica}</span>}
         </div>
+
         <Link href={href} className={estilos.nombre}>
           {producto.nombre}
         </Link>
 
-        {variante === 'clara' ? (
-          <>
-            <div className={estilos.detalle}>{producto.descripcion ?? producto.sku}</div>
-            <div className={estilos.existencias}>
-              {textoStock(producto.stock, producto.bajoPedido, idioma)}
-            </div>
-            <span className={estilos.precio} style={{ display: 'block', margin: '10px 0' }}>
-              {formatearPrecio(producto.precio, idioma)}
-            </span>
-
-            {/* Solo los de entrega inmediata entran al carrito: los
-                personalizables no tienen precio hasta que NYX sabe cantidad,
-                material y acabado, así que siguen por la cotización. */}
-            {inmediato ? (
-              <BotonAnadir
-                variante="discreto"
-                idioma={idioma}
-                producto={{
-                  productoId: producto.id,
-                  slug: producto.slug,
-                  nombre: producto.nombre,
-                  precio: producto.precio,
-                  imagen: producto.imagen,
-                  stock: producto.stock,
-                }}
-              />
-            ) : (
-              <Link
-                href={ruta(`/cotizar?producto=${producto.slug}`, idioma)}
-                className={estilos.accionSolida}
-              >
-                {t.catalogo.solicitar}
-              </Link>
-            )}
-          </>
-        ) : (
-          <>
-            <div className={estilos.pie}>
-              <span className={estilos.precio}>
-                {formatearPrecio(producto.precio, idioma)}
-              </span>
-              <Link href={href} className={estilos.accion}>
-                {t.catalogo.verProducto}
-              </Link>
-            </div>
-
-            {/* Tambien en el catalogo, no solo en la portada. Lo de entrega
-                inmediata ya tiene precio cerrado: obligar a entrar a la ficha
-                para poder anadirlo es un paso que no aporta nada. */}
-            {inmediato && (
-              <BotonAnadir
-                variante="discretoOscuro"
-                idioma={idioma}
-                producto={{
-                  productoId: producto.id,
-                  slug: producto.slug,
-                  nombre: producto.nombre,
-                  precio: producto.precio,
-                  imagen: producto.imagen,
-                  stock: producto.stock,
-                }}
-              />
-            )}
-          </>
+        {variante === 'clara' && producto.descripcion && (
+          <div className={estilos.detalle}>{producto.descripcion}</div>
         )}
+
+        <div className={estilos.pie}>
+          <span className={estilos.precio}>{formatearPrecio(producto.precio, idioma)}</span>
+          <Link href={href} className={estilos.accion}>
+            {t.catalogo.verProducto}
+          </Link>
+        </div>
       </div>
     </article>
   )

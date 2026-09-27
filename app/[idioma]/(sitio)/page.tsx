@@ -5,7 +5,6 @@ import {
   obtenerContacto,
   obtenerContenido,
   obtenerDestacados,
-  obtenerDisponiblesHoy,
   obtenerFaq,
   obtenerMedia,
   enlaceWhatsapp,
@@ -83,11 +82,10 @@ export default async function Portada({
   const idioma: Idioma = esIdioma(crudo) ? crudo : 'es'
   const t = textos(idioma)
 
-  const [categorias, destacados, disponibles, preguntas, contenido, contacto, imagenes] =
+  const [categorias, destacados, preguntas, contenido, contacto, imagenes] =
     await Promise.all([
       obtenerCategorias(idioma),
       obtenerDestacados(6, idioma),
-      obtenerDisponiblesHoy(6, idioma),
       obtenerFaq(idioma),
       obtenerContenido(idioma),
       obtenerContacto(),
@@ -158,7 +156,7 @@ export default async function Portada({
 
           <div className={s.heroDatos}>
             <div className={s.heroDato}>{t.portada.pedidosEntregados}</div>
-            <div className={s.heroDato}>{t.portada.entrega48}</div>
+            <div className={s.heroDato}>{t.portada.respuesta24}</div>
             <div className={s.heroDato}>{t.portada.arteRevisado}</div>
           </div>
         </div>
@@ -350,32 +348,6 @@ export default async function Portada({
           </div>
         </div>
       </section>
-
-      {/* ------------------------------------------------ Entrega inmediata */}
-      {disponibles.length > 0 && (
-        <section className={`${s.seccionClara} seccion`}>
-          <div className="contenedor al-entrar">
-            <div className={s.encabezado}>
-              <div>
-                <span className={s.etiqueta}>{t.portada.inmediataEtiqueta}</span>
-                <h2 className="titulo-seccion" style={{ marginTop: 18 }}>
-                  {t.portada.inmediataTitulo}
-                </h2>
-              </div>
-              <span className={s.nota} style={{ color: 'var(--gris-medio)' }}>
-                {t.portada.inmediataNota}
-              </span>
-            </div>
-
-            <div className={s.rejillaProductos}>
-              {disponibles.map((p) => (
-                <TarjetaProducto key={p.id} producto={p} variante="clara"
-                  idioma={idioma} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ---------------------------------------------------------- Empresas */}
       <section

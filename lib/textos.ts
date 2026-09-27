@@ -20,8 +20,6 @@ interface Textos {
     inicio: string
     catalogo: string
     estudio: string
-    personalizables: string
-    entregaInmediata: string
     nosotros: string
     preguntas: string
     contacto: string
@@ -59,9 +57,6 @@ interface Textos {
     tuLogotipo: string
     aqui: string
     avisoVistaPrevia: string
-    inmediataEtiqueta: string
-    inmediataTitulo: string
-    inmediataNota: string
     empresasAntetitulo: string
     procesoNyx: string
     cotizarEmpresarial: string
@@ -73,7 +68,7 @@ interface Textos {
     hablarWhatsapp: string
     mensajeWhatsapp: string
     pedidosEntregados: string
-    entrega48: string
+    respuesta24: string
     arteRevisado: string
   }
   catalogo: {
@@ -85,8 +80,6 @@ interface Textos {
     buscar: string
     buscarPlaceholder: string
     todos: string
-    personalizables: string
-    entregaInmediata: string
     categorias: string
     todas: string
     vacioTitulo: string
@@ -94,8 +87,6 @@ interface Textos {
     fotoPendiente: string
     verProducto: string
     solicitar: string
-    disponibleAhora: string
-    personalizable: string
     tecnicas: string
   }
   producto: {
@@ -103,63 +94,13 @@ interface Textos {
     precioNota: string
     categoria: string
     disponibilidad: string
-    tipo: string
     tiempoEstimado: string
-    mismoDia: string
     diasHabiles: string
     cotizar: string
     preguntarWhatsapp: string
     mensajeWhatsapp: (nombre: string, sku: string) => string
     avisoArchivo: string
     masDe: (categoria: string) => string
-  }
-  carrito: {
-    titulo: string
-    intro: string
-    migas: string
-    verCarrito: string
-    anadir: string
-    anadido: string
-    agotado: string
-    yaTienesTodo: (n: number) => string
-    vacioTitulo: string
-    vacioTexto: string
-    verDisponible: string
-    porUnidad: string
-    quedaEnStock: (n: number) => string
-    quitar: string
-    quitarUnidad: (nombre: string) => string
-    anadirUnidad: (nombre: string) => string
-    total: string
-    articulo: string
-    articulos: string
-    aConfirmar: string
-    notaSinPagos: string
-    tusDatos: string
-    nombre: string
-    telefono: string
-    correo: string
-    cuandoRetiras: string
-    cuandoRetirasPlaceholder: string
-    enviar: string
-    enviando: string
-    preguntarWhatsapp: string
-    mensajeWhatsapp: string
-    recibidoTitulo: string
-    recibidoTexto: (referencia: string) => string
-    seguirViendo: string
-    /** Cajón lateral */
-    cajonTitulo: string
-    cerrar: string
-    subtotal: string
-    verPedido: string
-    seguirComprando: string
-    sinPagoAviso: string
-    errorVacio: string
-    errorNombre: string
-    errorCorreo: string
-    errorSinBase: string
-    errorGenerico: string
   }
   cotizar: {
     titulo: string
@@ -229,8 +170,6 @@ const ES: Textos = {
     inicio: 'Inicio',
     catalogo: 'Catálogo',
     estudio: 'Design Studio',
-    personalizables: 'Personalizables',
-    entregaInmediata: 'Entrega inmediata',
     nosotros: 'Nosotros',
     preguntas: 'Preguntas frecuentes',
     contacto: 'Contacto',
@@ -270,9 +209,6 @@ const ES: Textos = {
     aqui: 'aquí',
     avisoVistaPrevia:
       'La vista previa es únicamente referencial. NYX revisa el arte antes de producir.',
-    inmediataEtiqueta: 'Entrega inmediata',
-    inmediataTitulo: 'Listos para llevar hoy',
-    inmediataNota: 'Stock existente, sin tiempo de producción. Cantidades limitadas.',
     empresasAntetitulo: 'Empresas',
     procesoNyx: 'PROCESO NYX',
     cotizarEmpresarial: 'Solicitar cotización empresarial',
@@ -285,7 +221,7 @@ const ES: Textos = {
     hablarWhatsapp: 'Hablar por WhatsApp',
     mensajeWhatsapp: 'Hola NYX, quisiera personalizar un producto.',
     pedidosEntregados: '+850 pedidos entregados',
-    entrega48: 'Entrega inmediata en 48 h',
+    respuesta24: 'Respuesta en 24 horas hábiles',
     arteRevisado: 'Arte revisado antes de producir',
   },
   catalogo: {
@@ -299,8 +235,6 @@ const ES: Textos = {
     buscar: 'Buscar',
     buscarPlaceholder: 'Buscar producto, categoría o código',
     todos: 'Todos',
-    personalizables: 'Personalizables',
-    entregaInmediata: 'Entrega inmediata',
     categorias: 'Categorías',
     todas: 'Todas',
     vacioTitulo: 'No encontramos nada con esos filtros',
@@ -308,8 +242,6 @@ const ES: Textos = {
     fotoPendiente: 'foto pendiente',
     verProducto: 'Ver producto',
     solicitar: 'Solicitar',
-    disponibleAhora: 'Disponible ahora',
-    personalizable: 'Personalizable',
     tecnicas: 'Lo hacemos en',
   },
   producto: {
@@ -318,9 +250,7 @@ const ES: Textos = {
       'Precio referencial. NYX confirma el valor final según cantidad, material y acabado.',
     categoria: 'Categoría',
     disponibilidad: 'Disponibilidad',
-    tipo: 'Tipo',
     tiempoEstimado: 'Tiempo estimado',
-    mismoDia: 'Retiro el mismo día',
     diasHabiles: '3 a 7 días hábiles',
     cotizar: 'Solicitar cotización',
     preguntarWhatsapp: 'Preguntar por WhatsApp',
@@ -328,59 +258,6 @@ const ES: Textos = {
     avisoArchivo:
       'Podrás adjuntar tu logotipo o diseño en el formulario. Aceptamos PNG, JPG, PDF, AI o SVG. Revisamos el arte antes de producir.',
     masDe: (categoria) => `Más de ${categoria}`,
-  },
-  carrito: {
-    titulo: 'Tu pedido',
-    intro:
-      'Productos de entrega inmediata: ya están hechos, así que no hay tiempo de producción. Confirmamos la disponibilidad y coordinamos el retiro o el envío.',
-    migas: 'Carrito',
-    verCarrito: 'Carrito',
-    anadir: 'Añadir al carrito',
-    anadido: 'Añadido ✓',
-    agotado: 'Agotado',
-    yaTienesTodo: (n) => `Ya tienes las ${n} disponibles`,
-    vacioTitulo: 'Tu carrito está vacío',
-    vacioTexto:
-      'Aquí se reúnen los productos de entrega inmediata: los que ya están hechos y se retiran el mismo día. Lo personalizado va por cotización.',
-    verDisponible: 'Ver lo disponible hoy',
-    porUnidad: 'por unidad',
-    quedaEnStock: (n) => `Es todo lo que queda en stock (${n}).`,
-    quitar: 'Quitar',
-    quitarUnidad: (nombre) => `Quitar una unidad de ${nombre}`,
-    anadirUnidad: (nombre) => `Añadir una unidad de ${nombre}`,
-    total: 'Total',
-    articulo: 'artículo',
-    articulos: 'artículos',
-    aConfirmar: 'A confirmar',
-    notaSinPagos:
-      'Sin pagos en línea: envías el pedido, NYX confirma la disponibilidad y coordináis la entrega o el retiro. Añadir algo al carrito no lo aparta del stock.',
-    tusDatos: 'Tus datos',
-    nombre: 'Nombre completo',
-    telefono: 'Teléfono / WhatsApp',
-    correo: 'Correo electrónico',
-    cuandoRetiras: '¿Cuándo pasas a retirarlo? ¿Prefieres envío?',
-    cuandoRetirasPlaceholder: 'Paso mañana por la tarde',
-    enviar: 'Enviar pedido',
-    enviando: 'Enviando…',
-    preguntarWhatsapp: 'Preguntar por WhatsApp',
-    mensajeWhatsapp: 'Hola NYX, quiero pedir productos de entrega inmediata.',
-    recibidoTitulo: 'Pedido recibido',
-    recibidoTexto: (referencia) =>
-      `Guarda esta referencia: ${referencia}. Te escribimos para confirmarte la disponibilidad y coordinar la entrega.`,
-    seguirViendo: 'Seguir viendo',
-    cajonTitulo: 'Tu carrito',
-    cerrar: 'Cerrar',
-    subtotal: 'Subtotal',
-    verPedido: 'Continuar con el pedido',
-    seguirComprando: 'Seguir comprando',
-    sinPagoAviso: 'No se paga aquí. NYX confirma y coordina la entrega.',
-    errorVacio: 'El carrito está vacío.',
-    errorNombre: 'Escribe tu nombre para poder avisarte.',
-    errorCorreo: 'Revisa el correo electrónico: no parece válido.',
-    errorSinBase:
-      'El pedido todavía no se puede registrar. Escríbenos por WhatsApp y lo gestionamos igual.',
-    errorGenerico:
-      'No pudimos registrar el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.',
   },
   cotizar: {
     titulo: 'Solicitar cotización',
@@ -462,8 +339,6 @@ const EN: Textos = {
     inicio: 'Home',
     catalogo: 'Catalog',
     estudio: 'Design Studio',
-    personalizables: 'Custom made',
-    entregaInmediata: 'Ready to ship',
     nosotros: 'About us',
     preguntas: 'FAQ',
     contacto: 'Contact',
@@ -503,9 +378,6 @@ const EN: Textos = {
     aqui: 'here',
     avisoVistaPrevia:
       'The preview is for reference only. NYX reviews the artwork before producing.',
-    inmediataEtiqueta: 'Ready to ship',
-    inmediataTitulo: 'Take it home today',
-    inmediataNota: 'In stock, no production time. Limited quantities.',
     empresasAntetitulo: 'Companies',
     procesoNyx: 'NYX PROCESS',
     cotizarEmpresarial: 'Request a corporate quote',
@@ -518,7 +390,7 @@ const EN: Textos = {
     hablarWhatsapp: 'Chat on WhatsApp',
     mensajeWhatsapp: 'Hi NYX, I would like to personalize a product.',
     pedidosEntregados: '+850 orders delivered',
-    entrega48: 'Ready to ship in 48 h',
+    respuesta24: 'Reply within 24 business hours',
     arteRevisado: 'Artwork reviewed before producing',
   },
   catalogo: {
@@ -532,8 +404,6 @@ const EN: Textos = {
     buscar: 'Search',
     buscarPlaceholder: 'Search product, category or code',
     todos: 'All',
-    personalizables: 'Custom made',
-    entregaInmediata: 'Ready to ship',
     categorias: 'Categories',
     todas: 'All',
     vacioTitulo: 'We found nothing with those filters',
@@ -541,8 +411,6 @@ const EN: Textos = {
     fotoPendiente: 'photo pending',
     verProducto: 'View product',
     solicitar: 'Request',
-    disponibleAhora: 'Available now',
-    personalizable: 'Custom made',
     tecnicas: 'We make it with',
   },
   producto: {
@@ -550,9 +418,7 @@ const EN: Textos = {
     precioNota: 'Reference price. NYX confirms the final amount by quantity, material and finish.',
     categoria: 'Category',
     disponibilidad: 'Availability',
-    tipo: 'Type',
     tiempoEstimado: 'Estimated time',
-    mismoDia: 'Same-day pickup',
     diasHabiles: '3 to 7 business days',
     cotizar: 'Request a quote',
     preguntarWhatsapp: 'Ask on WhatsApp',
@@ -560,58 +426,6 @@ const EN: Textos = {
     avisoArchivo:
       'You can attach your logo or design in the form. We accept PNG, JPG, PDF, AI or SVG. We review the artwork before producing.',
     masDe: (categoria) => `More from ${categoria}`,
-  },
-  carrito: {
-    titulo: 'Your order',
-    intro:
-      'Ready-to-ship products: they are already made, so there is no production time. We confirm availability and arrange pickup or delivery.',
-    migas: 'Cart',
-    verCarrito: 'Cart',
-    anadir: 'Add to cart',
-    anadido: 'Added ✓',
-    agotado: 'Sold out',
-    yaTienesTodo: (n) => `You already have all ${n} available`,
-    vacioTitulo: 'Your cart is empty',
-    vacioTexto:
-      'This is where ready-to-ship products go: the ones already made that you pick up the same day. Custom work goes through a quote.',
-    verDisponible: 'See what is available today',
-    porUnidad: 'per unit',
-    quedaEnStock: (n) => `That is all we have left in stock (${n}).`,
-    quitar: 'Remove',
-    quitarUnidad: (nombre) => `Remove one unit of ${nombre}`,
-    anadirUnidad: (nombre) => `Add one unit of ${nombre}`,
-    total: 'Total',
-    articulo: 'item',
-    articulos: 'items',
-    aConfirmar: 'To be confirmed',
-    notaSinPagos:
-      'No online payments: you send the order, NYX confirms availability and you arrange pickup or delivery. Adding something to the cart does not reserve it.',
-    tusDatos: 'Your details',
-    nombre: 'Full name',
-    telefono: 'Phone / WhatsApp',
-    correo: 'Email address',
-    cuandoRetiras: 'When are you picking it up? Do you prefer delivery?',
-    cuandoRetirasPlaceholder: 'Tomorrow afternoon',
-    enviar: 'Send order',
-    enviando: 'Sending…',
-    preguntarWhatsapp: 'Ask on WhatsApp',
-    mensajeWhatsapp: 'Hi NYX, I would like to order ready-to-ship products.',
-    recibidoTitulo: 'Order received',
-    recibidoTexto: (referencia) =>
-      `Keep this reference: ${referencia}. We will write to confirm availability and arrange delivery.`,
-    seguirViendo: 'Keep browsing',
-    cajonTitulo: 'Your cart',
-    cerrar: 'Close',
-    subtotal: 'Subtotal',
-    verPedido: 'Continue with the order',
-    seguirComprando: 'Keep shopping',
-    sinPagoAviso: 'No payment here. NYX confirms and arranges delivery.',
-    errorVacio: 'Your cart is empty.',
-    errorNombre: 'Write your name so we can reply.',
-    errorCorreo: 'Check the email address: it does not look valid.',
-    errorSinBase:
-      'Orders cannot be registered yet. Write to us on WhatsApp and we will handle it.',
-    errorGenerico: 'We could not register the order. Try again or write to us on WhatsApp.',
   },
   cotizar: {
     titulo: 'Request a quote',

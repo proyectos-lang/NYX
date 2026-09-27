@@ -277,39 +277,10 @@ export async function obtenerDestacados(
   }
 }
 
-export async function obtenerDisponiblesHoy(
-  limite = 6,
-  idioma: Idioma = IDIOMA_POR_DEFECTO
-): Promise<ProductoVista[]> {
-  const deDemo = PRODUCTOS_DEMO.filter((p) => p.tipo === 'entrega_inmediata').slice(0, limite)
-
-  if (!hayBaseDeDatos()) return deDemo
-
-  try {
-    const supabase = await crearClienteServidor()
-    const { data, error } = await supabase
-      .from('productos')
-      .select(SELECT_PRODUCTO)
-      .eq('visible', true)
-      .eq('tipo', 'entrega_inmediata')
-      .gt('stock', 0)
-      .order('orden')
-      .limit(limite)
-
-    if (error) throw error
-
-    return ((data ?? []) as unknown as FilaProducto[]).map((f) => aProductoVista(f, idioma))
-  } catch (error) {
-    avisar('Error al leer productos de entrega inmediata', error)
-    return deDemo
-  }
-}
-
 export interface FiltrosCatalogo {
   categoria?: string
   /** La subcategoría: DTF, Sublimación, Bordado… */
   tecnica?: string
-  tipo?: TipoProducto | 'todos'
   busqueda?: string
   pagina?: number
   porPagina?: number
@@ -336,9 +307,6 @@ export async function obtenerCatalogo(
       const t = filtros.tecnica.toLowerCase()
       salida = salida.filter((p) => (p.tecnica ?? '').toLowerCase() === t)
     }
-    if (filtros.tipo && filtros.tipo !== 'todos') {
-      salida = salida.filter((p) => p.tipo === filtros.tipo)
-    }
     if (filtros.busqueda) {
       const q = filtros.busqueda.toLowerCase()
       salida = salida.filter(
@@ -363,7 +331,6 @@ export async function obtenerCatalogo(
       .select(SELECT_PRODUCTO, { count: 'exact' })
       .eq('visible', true)
 
-    if (filtros.tipo && filtros.tipo !== 'todos') consulta = consulta.eq('tipo', filtros.tipo)
     // ilike y no eq: la tecnica se escribe a mano en el panel y "DTF" tiene
     // que encontrar tambien "dtf".
     if (filtros.tecnica) consulta = consulta.ilike('tecnica', filtros.tecnica)

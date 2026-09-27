@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { obtenerCategoriasPanel, obtenerProductosPanel, type ProductoPanel } from '@/lib/panel'
-import { ETIQUETA_TIPO } from '@/lib/database.types'
 import { precio, stock as textoStock } from '@/lib/formato'
 import {
   alternarVisibilidad,
@@ -55,7 +54,6 @@ function FormularioProducto({
     nombre: string
     categoriaId: string | null
     precio: number | null
-    tipo: string
     stock: number | null
     bajoPedido: boolean
     descripcion: string | null
@@ -118,21 +116,6 @@ function FormularioProducto({
                 {cat.nombreEs}
               </option>
             ))}
-          </select>
-        </div>
-
-        <div>
-          <label className={e.etiqueta} htmlFor={`tipo-${prefijo}`}>
-            Tipo
-          </label>
-          <select
-            className={e.select}
-            id={`tipo-${prefijo}`}
-            name="tipo"
-            defaultValue={producto?.tipo ?? 'personalizable'}
-          >
-            <option value="personalizable">Personalizable</option>
-            <option value="entrega_inmediata">Entrega inmediata</option>
           </select>
         </div>
 
@@ -346,7 +329,7 @@ export default async function CatalogoPanel({
           <span className={e.antetituloPantalla}>Catálogo</span>
           <h1 className={e.tituloPantalla}>Productos y precios</h1>
           <p className={e.pistaPantalla}>
-            Edita nombre, categoría, precio, tipo y stock. El interruptor controla si el
+            Edita nombre, categoría, precio, técnica y stock. El interruptor controla si el
             producto se ve en la web.
           </p>
         </div>
@@ -390,7 +373,7 @@ export default async function CatalogoPanel({
 
                 <span className={c.celda}>{prod.categoria}</span>
                 <span className={c.precio}>{precio(prod.precio)}</span>
-                <span className={c.celda}>{ETIQUETA_TIPO[prod.tipo]}</span>
+                <span className={c.celda}>{prod.tecnica ?? '—'}</span>
                 <span className={c.celda}>{textoStock(prod.stock, prod.bajoPedido)}</span>
 
                 <div className={c.acciones}>

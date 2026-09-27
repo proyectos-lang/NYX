@@ -11,7 +11,6 @@ import {
 import { ETIQUETA_TIPO } from '@/lib/database.types'
 import { precio as formatearPrecio, stock as textoStock } from '@/lib/formato'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
-import BotonAnadir from '@/componentes/sitio/carrito/BotonAnadir'
 import { IDIOMAS, ruta, esIdioma, type Idioma } from '@/lib/i18n'
 import { textos } from '@/lib/textos'
 import Galeria from './Galeria'
@@ -67,7 +66,6 @@ export default async function FichaProducto({
     obtenerCatalogo({ categoria: producto.categoriaSlug, porPagina: 5 }, idioma),
   ])
 
-  const inmediato = producto.tipo === 'entrega_inmediata'
   const otros = relacionados.productos.filter((p) => p.slug !== producto.slug).slice(0, 4)
 
   const mensajeWhatsapp = txt.producto.mensajeWhatsapp(producto.nombre, producto.sku)
@@ -88,17 +86,6 @@ export default async function FichaProducto({
           <Galeria fotos={producto.fotos} nombre={producto.nombre} />
 
           <div>
-            <span
-              className={e.insignia}
-              style={
-                inmediato
-                  ? { background: '#dff3e4', color: '#0a5c2b' }
-                  : { background: 'rgba(201,154,46,.92)', color: '#080808' }
-              }
-            >
-              {inmediato ? txt.catalogo.entregaInmediata : txt.catalogo.personalizable}
-            </span>
-
             <h1 className={e.nombre}>{producto.nombre}</h1>
             <div className={e.sku}>{txt.producto.referencia} {producto.sku}</div>
 
@@ -122,36 +109,21 @@ export default async function FichaProducto({
                   {textoStock(producto.stock, producto.bajoPedido, idioma)}
                 </div>
               </div>
-              <div className={e.dato}>
-                <div className={e.datoEtiqueta}>{txt.producto.tipo}</div>
-                <div className={e.datoValor}>{inmediato ? txt.catalogo.entregaInmediata : txt.catalogo.personalizable}</div>
-              </div>
+              {/* La técnica ocupa el sitio donde antes iba el tipo de
+                  producto. El tipo distinguía personalizable de entrega
+                  inmediata, y esa diferencia ya no existe: todo va por
+                  encargo. La técnica sí cambia de un producto a otro. */}
+              {producto.tecnica && (
+                <div className={e.dato}>
+                  <div className={e.datoEtiqueta}>{txt.catalogo.tecnicas}</div>
+                  <div className={e.datoValor}>{producto.tecnica}</div>
+                </div>
+              )}
               <div className={e.dato}>
                 <div className={e.datoEtiqueta}>{txt.producto.tiempoEstimado}</div>
-                <div className={e.datoValor}>
-                  {inmediato ? txt.producto.mismoDia : txt.producto.diasHabiles}
-                </div>
+                <div className={e.datoValor}>{txt.producto.diasHabiles}</div>
               </div>
             </div>
-
-            {/* Entrega inmediata: hay stock y precio cerrado, así que se puede
-                pedir directamente. Los personalizables no tienen precio hasta
-                que NYX sabe cantidad, material y acabado. */}
-            {inmediato && (
-              <div style={{ marginBottom: 14 }}>
-                <BotonAnadir
-                  idioma={idioma}
-                  producto={{
-                    productoId: producto.id,
-                    slug: producto.slug,
-                    nombre: producto.nombre,
-                    precio: producto.precio,
-                    imagen: producto.imagen,
-                    stock: producto.stock,
-                  }}
-                />
-              </div>
-            )}
 
             <div className={e.acciones}>
               <Link
