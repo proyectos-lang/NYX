@@ -95,9 +95,17 @@
   flex: 1;
 }
 
+/* Categoria y tecnica, uno al lado del otro.
+   Es una fila flexible y no texto seguido porque "Impresión DTF" y "Grabado
+   láser" son largos: con el interlineado a 1 que habia aqui, al partirse en
+   dos lineas quedaban pegadas una encima de otra. */
 .categoria {
-  font: 400 10px/1 var(--fuente-sans), sans-serif;
-  letter-spacing: 0.16em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px 10px;
+  font: 400 10px/1.5 var(--fuente-sans), sans-serif;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -222,13 +230,12 @@
 /* La técnica, junto a la categoría. Va en oro y separada por un punto para
    que se lea como un dato más de la ficha y no como parte del nombre de la
    categoría. */
+/* Sin separador escrito: el hueco de la fila y el color ya distinguen una
+   cosa de la otra, y un punto suelto al principio de la segunda linea parece
+   una vineta de lista cuando el texto se parte. */
 .tecnica {
   color: var(--oro-claro);
-}
-
-.tecnica::before {
-  content: ' · ';
-  color: var(--gris-suave);
+  white-space: nowrap;
 }
 
 .clara .tecnica {
