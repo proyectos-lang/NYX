@@ -142,8 +142,11 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     categoria: 'Libretas y kits', categoriaSlug: 'libretas-y-kits',
     descripcion: 'Libreta A5 de tapa dura, personalizable en portada. Se combina en kits con termo y bolígrafo.',
     precio: 9.20, tipo: 'personalizable', stock: 26, bajoPedido: false,
-    imagen: '/assets/prod/p010.jpg',
-    fotos: ['/assets/prod/p010.jpg', '/assets/kit-blue.jpeg', '/assets/kit-indcom.jpeg'],
+    // Sin foto a proposito: este es el hueco de DTF en los destacados y
+    // espera una foto de un producto hecho en DTF. Una libreta ahi, con la
+    // etiqueta "Impresion DTF" al lado, contaria lo que no es.
+    imagen: null,
+    fotos: [],
     tecnica: 'Impresión DTF',
   },
   {

@@ -338,9 +338,9 @@ from (values
   ('NYX-006', '/assets/prod/p008.jpg',     1),
   ('NYX-006', '/assets/cap-blue.jpeg',     2),
   ('NYX-006', '/assets/cap-pastel.jpeg',   3),
-  ('NYX-007', '/assets/prod/p010.jpg',     1),
-  ('NYX-007', '/assets/kit-blue.jpeg',     2),
-  ('NYX-007', '/assets/kit-indcom.jpeg',   3),
+  -- NYX-007 va sin fotos a proposito: es el hueco de DTF en los destacados
+  -- y espera una foto de un producto hecho en DTF. Si se repusieran aqui,
+  -- repetir este script devolveria la libreta a la portada.
   ('NYX-008', '/assets/prod/p012.jpg',     1),
   ('NYX-008', '/assets/band-kura.jpeg',    2),
   ('NYX-008', '/assets/band-chetko.jpeg',  3)

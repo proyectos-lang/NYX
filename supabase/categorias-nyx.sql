@@ -212,3 +212,27 @@ select sku, nombre_es as "producto"
 from nyx.productos
 where coalesce(btrim(tecnica), '') = ''
 order by orden;
+
+-- ---------------------------------------------------------------------------
+-- 6. El hueco de DTF en los destacados
+--
+-- Se le quitan las fotos a la libreta ejecutiva. Es el producto que ocupa el
+-- puesto de DTF en la portada, y una libreta con la etiqueta "Impresión DTF"
+-- al lado cuenta lo que no es.
+--
+-- Mientras no tenga foto, la tarjeta enseña un recuadro que dice "foto
+-- pendiente". La definitiva se sube desde /panel/catalogo, en la ficha del
+-- producto.
+--
+-- Ojo: si vuelves a ejecutar contenido-inicial.sql, ese script ya NO repone
+-- estas fotos. Se quitaron de su lista por esto mismo.
+-- ---------------------------------------------------------------------------
+
+delete from nyx.producto_fotos f
+using nyx.productos p
+where f.producto_id = p.id and p.sku = 'NYX-007';
+
+select sku, nombre_es as "producto", tecnica,
+       (select count(*) from nyx.producto_fotos f where f.producto_id = p.id) as fotos
+from nyx.productos p
+where sku = 'NYX-007';
