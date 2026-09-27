@@ -228,7 +228,7 @@ const ES: Textos = {
   nav: {
     inicio: 'Inicio',
     catalogo: 'Catálogo',
-    estudio: 'Estudio 3D',
+    estudio: 'Design Studio',
     personalizables: 'Personalizables',
     entregaInmediata: 'Entrega inmediata',
     nosotros: 'Nosotros',
@@ -461,7 +461,7 @@ const EN: Textos = {
   nav: {
     inicio: 'Home',
     catalogo: 'Catalog',
-    estudio: '3D Studio',
+    estudio: 'Design Studio',
     personalizables: 'Custom made',
     entregaInmediata: 'Ready to ship',
     nosotros: 'About us',

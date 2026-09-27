@@ -11,12 +11,12 @@ export const dynamic = 'force-dynamic'
 /** La textura desaparecio del estudio, asi que el texto tampoco la menciona. */
 const META: Record<Idioma, { title: string; description: string }> = {
   es: {
-    title: 'Estudio de diseño',
+    title: 'Design Studio',
     description:
       'Elige el color, coloca tu logotipo y mira tu prenda personalizada en 3D antes de pedirla.',
   },
   en: {
-    title: 'Design studio',
+    title: 'Design Studio',
     description:
       'Pick the color, place your logo and see your personalized garment in 3D before ordering.',
   },

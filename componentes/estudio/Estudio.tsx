@@ -329,7 +329,7 @@ export default function Estudio({ modelos, disenoInicial, tokenInicial }: Props)
       <div className={e.cabecera}>
         <div>
           <span className="antetitulo" style={{ color: 'var(--oro)' }}>
-            Estudio
+            Design Studio
           </span>
           <h1 className={e.titulo}>Diseña tu prenda</h1>
           <p className={e.pista}>
