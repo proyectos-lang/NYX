@@ -191,27 +191,89 @@ function aProductoVista(fila: FilaProducto, idioma: Idioma): ProductoVista {
   }
 }
 
+/**
+ * Las tecnicas que la portada tiene que ensenar, en orden de preferencia.
+ *
+ * Se comparan con productos.tecnica, que se escribe en espanol desde el panel
+ * y no cambia con el idioma de quien navega: es una sola columna.
+ */
+const TECNICAS_DESTACADAS = [
+  'Sublimación',
+  'Impresión DTF',
+  'Grabado láser',
+  'Bordado',
+  'Impresión 3D',
+]
+
+/**
+ * Elige los destacados para que cubran las tecnicas, no para que sean los
+ * primeros por orden.
+ *
+ * Los seis primeros del catalogo podian ser seis camisetas, y entonces la
+ * portada contaba que NYX hace camisetas en vez de contar todo lo que hace.
+ * Aqui se toma primero un producto de cada tecnica -- sublimacion, DTF,
+ * grabado laser, bordado, impresion 3D -- y solo despues se rellena con el
+ * resto.
+ *
+ * Una tecnica sin ningun producto se salta en silencio. No se deja un hueco
+ * ni se ensena un cartel: la portada tiene que verse bien tambien mientras el
+ * catalogo se esta llenando.
+ */
+function repartirPorTecnica(lista: ProductoVista[], limite: number): ProductoVista[] {
+  const elegidos: ProductoVista[] = []
+  const usados = new Set<string>()
+
+  for (const tecnica of TECNICAS_DESTACADAS) {
+    if (elegidos.length >= limite) break
+
+    const encontrado = lista.find(
+      (p) => !usados.has(p.id) && (p.tecnica ?? '').toLowerCase() === tecnica.toLowerCase()
+    )
+
+    if (encontrado) {
+      elegidos.push(encontrado)
+      usados.add(encontrado.id)
+    }
+  }
+
+  // Lo que quede libre se rellena por el orden del catalogo.
+  for (const producto of lista) {
+    if (elegidos.length >= limite) break
+    if (usados.has(producto.id)) continue
+    elegidos.push(producto)
+    usados.add(producto.id)
+  }
+
+  return elegidos
+}
+
 export async function obtenerDestacados(
   limite = 6,
   idioma: Idioma = IDIOMA_POR_DEFECTO
 ): Promise<ProductoVista[]> {
-  if (!hayBaseDeDatos()) return PRODUCTOS_DEMO.slice(0, limite)
+  if (!hayBaseDeDatos()) return repartirPorTecnica(PRODUCTOS_DEMO, limite)
 
   try {
     const supabase = await crearClienteServidor()
+    // Se piden mas de los que caben: para repartir por tecnica hay que poder
+    // mirar mas alla de los primeros seis.
     const { data, error } = await supabase
       .from('productos')
       .select(SELECT_PRODUCTO)
       .eq('visible', true)
       .order('orden')
-      .limit(limite)
+      .limit(60)
 
     if (error) throw error
 
-    return ((data ?? []) as unknown as FilaProducto[]).map((f) => aProductoVista(f, idioma))
+    const todos = ((data ?? []) as unknown as FilaProducto[]).map((f) =>
+      aProductoVista(f, idioma)
+    )
+
+    return repartirPorTecnica(todos, limite)
   } catch (error) {
     avisar('Error al leer productos destacados', error)
-    return PRODUCTOS_DEMO.slice(0, limite)
+    return repartirPorTecnica(PRODUCTOS_DEMO, limite)
   }
 }
 

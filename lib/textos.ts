@@ -47,6 +47,7 @@ interface Textos {
     productos: string
     seleccionAntetitulo: string
     destacadosTitulo: string
+    destacadosNota: string
     precioNota: string
     trabajosAntetitulo: string
     trabajosTitulo: string
@@ -255,6 +256,8 @@ const ES: Textos = {
     productos: 'productos',
     seleccionAntetitulo: 'Selección',
     destacadosTitulo: 'Productos destacados',
+    destacadosNota:
+      'Uno de cada técnica: sublimación, impresión DTF, grabado láser, bordado e impresión 3D.',
     precioNota: 'Precios referenciales. El valor final se confirma según cantidad y acabado.',
     trabajosAntetitulo: 'Trabajos reales',
     trabajosTitulo: 'Lo que hemos producido',
@@ -486,6 +489,8 @@ const EN: Textos = {
     productos: 'products',
     seleccionAntetitulo: 'Selection',
     destacadosTitulo: 'Featured products',
+    destacadosNota:
+      'One of each technique: sublimation, DTF printing, laser engraving, embroidery and 3D printing.',
     precioNota: 'Reference prices. The final amount is confirmed by quantity and finish.',
     trabajosAntetitulo: 'Real work',
     trabajosTitulo: 'What we have produced',

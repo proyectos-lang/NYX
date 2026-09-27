@@ -687,3 +687,13 @@
   font: 400 13px/1.35 var(--fuente-serif), Georgia, serif;
   color: rgba(255, 255, 255, 0.55);
 }
+
+/* Aclaración bajo el título de una sección. La usa "Productos destacados" para
+   decir que la selección cubre las técnicas: sin eso parecen seis productos
+   cualesquiera y se pierde lo que la fila está contando. */
+.notaSeccion {
+  margin: 10px 0 0;
+  max-width: 62ch;
+  font: 300 12px/1.65 var(--fuente-sans), sans-serif;
+  color: var(--gris-suave);
+}

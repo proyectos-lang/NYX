@@ -218,3 +218,19 @@
     animation-delay: 0s;
   }
 }
+
+/* La técnica, junto a la categoría. Va en oro y separada por un punto para
+   que se lea como un dato más de la ficha y no como parte del nombre de la
+   categoría. */
+.tecnica {
+  color: var(--oro-claro);
+}
+
+.tecnica::before {
+  content: ' · ';
+  color: var(--gris-suave);
+}
+
+.clara .tecnica {
+  color: var(--oro-oscuro);
+}

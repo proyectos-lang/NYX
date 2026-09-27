@@ -58,7 +58,14 @@ export default function TarjetaProducto({
       </Link>
 
       <div className={estilos.cuerpo}>
-        <div className={estilos.categoria}>{producto.categoria}</div>
+        <div className={estilos.categoria}>
+          {producto.categoria}
+          {/* La tecnica, al lado de la categoria. Es lo que convierte la fila
+              de destacados en una muestra de lo que sabe hacer NYX: sin esto
+              se ven seis productos y no se sabe que cada uno esta hecho de
+              una forma distinta. */}
+          {producto.tecnica && <span className={estilos.tecnica}>{producto.tecnica}</span>}
+        </div>
         <Link href={href} className={estilos.nombre}>
           {producto.nombre}
         </Link>

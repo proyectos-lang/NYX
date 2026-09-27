@@ -224,6 +224,7 @@ export default async function Portada({
                 {t.portada.seleccionAntetitulo}
               </span>
               <h2 className="titulo-seccion">{t.portada.destacadosTitulo}</h2>
+              <p className={s.notaSeccion}>{t.portada.destacadosNota}</p>
             </div>
             <span className={s.nota} style={{ color: 'var(--gris-suave)' }}>
               {t.portada.precioNota}
