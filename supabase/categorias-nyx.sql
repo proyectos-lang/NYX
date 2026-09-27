@@ -112,7 +112,7 @@ values
   -- Antes era "Libretas y kits". Mismo slug para no romper los enlaces que ya
   -- puedan estar compartidos, y mismos productos.
   ('libretas-y-kits',    'Regalos corporativos', 'Corporate gifts',
-   null,                              null,
+   'Impresión DTF',                   'DTF printing',
    '/assets/kit-indcom.jpeg',   16, true)
 
 on conflict (slug) do update
@@ -196,6 +196,7 @@ from (values
   ('NYX-004', 'Grabado láser'),
   ('NYX-005', 'Sublimación'),
   ('NYX-006', 'Bordado'),
+  ('NYX-007', 'Impresión DTF'),
   ('NYX-008', 'Impresión 3D')
 ) as d(sku, tecnica)
 where p.sku = d.sku

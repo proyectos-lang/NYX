@@ -79,7 +79,7 @@ export const CATEGORIAS_DEMO: CategoriaVista[] = [
   { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0, tecnicas: ['Grabado láser'] },
   { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0, tecnicas: [] },
   { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'libretas-y-kits', nombre: 'Regalos corporativos', imagen: '/assets/kit-indcom.jpeg', cuenta: 0, tecnicas: [] },
+  { slug: 'libretas-y-kits', nombre: 'Regalos corporativos', imagen: '/assets/kit-indcom.jpeg', cuenta: 0, tecnicas: ['Impresión DTF'] },
 ]
 
 export const PRODUCTOS_DEMO: ProductoVista[] = [
@@ -144,7 +144,7 @@ export const PRODUCTOS_DEMO: ProductoVista[] = [
     precio: 9.20, tipo: 'personalizable', stock: 26, bajoPedido: false,
     imagen: '/assets/prod/p010.jpg',
     fotos: ['/assets/prod/p010.jpg', '/assets/kit-blue.jpeg', '/assets/kit-indcom.jpeg'],
-    tecnica: null,
+    tecnica: 'Impresión DTF',
   },
   {
     id: 'demo-8', sku: 'NYX-008', slug: 'pulsera-de-silicona', nombre: 'Pulsera de silicona',
