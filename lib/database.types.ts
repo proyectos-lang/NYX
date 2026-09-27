@@ -80,6 +80,27 @@ export interface Categoria {
   actualizado_en: string
 }
 
+/**
+ * Una técnica dentro de una categoría: bordado en gorras, láser en termos.
+ *
+ * Tiene foto y texto propios porque en la web se enseña como una tarjeta, no
+ * como una etiqueta. El enlace con los productos es el NOMBRE: coincide con
+ * productos.tecnica, que es lo que hace legible la dirección ?tecnica=Bordado.
+ */
+export interface Subcategoria {
+  id: string
+  categoria_id: string
+  nombre_es: string
+  nombre_en: Marca
+  descripcion_es: Marca
+  descripcion_en: Marca
+  imagen: Marca
+  orden: number
+  visible: boolean
+  creado_en: string
+  actualizado_en: string
+}
+
 export interface Producto {
   id: string
   sku: string
@@ -240,6 +261,7 @@ export interface Database {
     Tables: {
       perfiles: Tabla<Perfil, 'id'>
       categorias: Tabla<Categoria, 'slug' | 'nombre_es'>
+      subcategorias: Tabla<Subcategoria, 'categoria_id' | 'nombre_es'>
       productos: Tabla<Producto, 'sku' | 'slug' | 'nombre_es'>
       producto_fotos: Tabla<ProductoFoto, 'producto_id' | 'url'>
       clientes: Tabla<Cliente, 'nombre'>

@@ -11,6 +11,19 @@
 
 import type { TipoProducto } from '@/lib/database.types'
 
+/**
+ * Una subcategoría: la técnica con la que se hace lo de esa categoría.
+ *
+ * Tiene foto y descripción propias porque se enseña como una tarjeta al abrir
+ * la categoría, no solo como una etiqueta. El `nombre` es además la clave con
+ * la que se filtra: coincide con productos.tecnica.
+ */
+export interface SubcategoriaVista {
+  nombre: string
+  descripcion: string | null
+  imagen: string | null
+}
+
 export interface CategoriaVista {
   slug: string
   nombre: string
@@ -24,7 +37,7 @@ export interface CategoriaVista {
    * sublimada, y eso conviene decirlo aunque el catálogo de camisetas esté
    * todavía vacío.
    */
-  tecnicas: string[]
+  subcategorias: SubcategoriaVista[]
 }
 
 export interface ProductoVista {
@@ -64,22 +77,22 @@ export interface FaqVista {
  * del producto no avisa de nada.
  */
 export const CATEGORIAS_DEMO: CategoriaVista[] = [
-  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0, tecnicas: ['Impresión DTF'] },
-  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0, tecnicas: ['Impresión DTF', 'Vinil'] },
-  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'Grabado láser'] },
-  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0, tecnicas: ['Sublimación'] },
-  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0, tecnicas: ['Sublimación', 'Impresión DTF', 'Bordado'] },
-  { slug: 'cobijas', nombre: 'Cobijas', imagen: null, cuenta: 0, tecnicas: ['Sublimación'] },
-  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0, tecnicas: ['Impresión 3D'] },
-  { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 0, tecnicas: ['Impresión 3D'] },
-  { slug: 'bolsos', nombre: 'Bolsos', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'invitaciones', nombre: 'Invitaciones', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'grabado-laser', nombre: 'Grabado láser', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0, tecnicas: ['Grabado láser'] },
-  { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0, tecnicas: [] },
-  { slug: 'libretas-y-kits', nombre: 'Regalos corporativos', imagen: '/assets/kit-indcom.jpeg', cuenta: 0, tecnicas: ['Impresión DTF'] },
+  { slug: 'camisas', nombre: 'Camisetas', imagen: '/assets/tee-oasis.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Impresión DTF', descripcion: null, imagen: null }] },
+  { slug: 'buzos', nombre: 'Buzos', imagen: '/assets/hoodie-gray.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Impresión DTF', descripcion: null, imagen: null }, { nombre: 'Vinil', descripcion: null, imagen: null }] },
+  { slug: 'termos-y-botellas', nombre: 'Termos y botellas', imagen: '/assets/bottle-create.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Sublimación', descripcion: null, imagen: null }, { nombre: 'Grabado láser', descripcion: null, imagen: null }] },
+  { slug: 'tazas', nombre: 'Tazas', imagen: '/assets/mug-photos.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Sublimación', descripcion: null, imagen: null }] },
+  { slug: 'gorras', nombre: 'Gorras', imagen: '/assets/cap-pastel.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Sublimación', descripcion: null, imagen: null }, { nombre: 'Impresión DTF', descripcion: null, imagen: null }, { nombre: 'Bordado', descripcion: null, imagen: null }] },
+  { slug: 'cobijas', nombre: 'Cobijas', imagen: null, cuenta: 0, subcategorias: [{ nombre: 'Sublimación', descripcion: null, imagen: null }] },
+  { slug: 'llaveros', nombre: 'Llaveros', imagen: '/assets/key-charms.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Impresión 3D', descripcion: null, imagen: null }] },
+  { slug: 'llaveros-qr', nombre: 'Llaveros QR', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'pulseras', nombre: 'Pulseras', imagen: '/assets/band-kura.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Impresión 3D', descripcion: null, imagen: null }] },
+  { slug: 'bolsos', nombre: 'Bolsos', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'invitaciones', nombre: 'Invitaciones', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'grabado-laser', nombre: 'Grabado láser', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'letreros-acrilicos', nombre: 'Letreros acrílicos', imagen: null, cuenta: 0, subcategorias: [{ nombre: 'Grabado láser', descripcion: null, imagen: null }] },
+  { slug: 'productos-nfc', nombre: 'Productos NFC', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'impresion-3d', nombre: 'Impresión 3D', imagen: null, cuenta: 0, subcategorias: [] },
+  { slug: 'libretas-y-kits', nombre: 'Regalos corporativos', imagen: '/assets/kit-indcom.jpeg', cuenta: 0, subcategorias: [{ nombre: 'Impresión DTF', descripcion: null, imagen: null }] },
 ]
 
 export const PRODUCTOS_DEMO: ProductoVista[] = [

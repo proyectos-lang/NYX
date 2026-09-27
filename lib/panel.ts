@@ -275,18 +275,34 @@ export async function obtenerProductosPanel(): Promise<ProductoPanel[]> {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
+/**
+ * Una subcategoría tal como se edita en el panel.
+ *
+ * Los textos van en español e inglés por separado, sin fusionar uno con otro:
+ * aquí se está escribiendo la traducción, así que hace falta ver cuál falta.
+ * En la web sí se fusionan (lib/consultas.ts).
+ */
+export interface SubcategoriaPanel {
+  id: string
+  nombreEs: string
+  nombreEn: string | null
+  descripcionEs: string | null
+  descripcionEn: string | null
+  imagen: string | null
+  orden: number
+  visible: boolean
+}
+
 export interface CategoriaPanel {
   id: string
   slug: string
   nombreEs: string
   nombreEn: string | null
-  /** Separadas por comas, tal como se escriben en el formulario. */
-  tecnicasEs: string | null
-  tecnicasEn: string | null
   imagen: string | null
   orden: number
   visible: boolean
   productos: number
+  subcategorias: SubcategoriaPanel[]
 }
 
 export async function obtenerCategoriasPanel(): Promise<CategoriaPanel[]> {
@@ -296,28 +312,41 @@ export async function obtenerCategoriasPanel(): Promise<CategoriaPanel[]> {
   const { data, error } = await supabase
     .from('categorias')
     .select(
-      'id, slug, nombre_es, nombre_en, tecnicas_es, tecnicas_en, imagen_portada, orden, visible, productos(count)'
+      `id, slug, nombre_es, nombre_en, imagen_portada, orden, visible, productos(count),
+       subcategorias ( id, nombre_es, nombre_en, descripcion_es, descripcion_en, imagen, orden, visible )`
     )
     .order('orden')
 
   if (error) throw new SinConexion(error)
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
+  const conBarra = (url: string | null) =>
+    url ? (url.startsWith('/') || url.startsWith('http') ? url : `/${url}`) : null
+
   return (data ?? []).map((c: any) => ({
     id: c.id,
     slug: c.slug,
     nombreEs: c.nombre_es,
     nombreEn: c.nombre_en,
-    tecnicasEs: c.tecnicas_es,
-    tecnicasEn: c.tecnicas_en,
-    imagen: c.imagen_portada
-      ? c.imagen_portada.startsWith('/') || c.imagen_portada.startsWith('http')
-        ? c.imagen_portada
-        : `/${c.imagen_portada}`
-      : null,
+    imagen: conBarra(c.imagen_portada),
     orden: c.orden,
     visible: c.visible,
     productos: c.productos?.[0]?.count ?? 0,
+    // Aquí salen también las ocultas, al contrario que en la web: el panel es
+    // donde se vuelven a encender, y una fila que no aparece no se puede
+    // encender.
+    subcategorias: [...(c.subcategorias ?? [])]
+      .sort((a: any, b: any) => a.orden - b.orden)
+      .map((s: any) => ({
+        id: s.id,
+        nombreEs: s.nombre_es,
+        nombreEn: s.nombre_en,
+        descripcionEs: s.descripcion_es,
+        descripcionEn: s.descripcion_en,
+        imagen: conBarra(s.imagen),
+        orden: s.orden,
+        visible: s.visible,
+      })),
   }))
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }

@@ -258,8 +258,6 @@ export async function guardarCategoria(datos: FormData): Promise<void> {
   const campos = {
     nombre_es: nombreEs,
     nombre_en: texto(datos, 'nombre_en') || null,
-    tecnicas_es: texto(datos, 'tecnicas_es') || null,
-    tecnicas_en: texto(datos, 'tecnicas_en') || null,
     imagen_portada: texto(datos, 'imagen') || null,
     orden: entero(datos, 'orden') ?? 0,
     visible: texto(datos, 'visible') !== 'false',
@@ -307,6 +305,148 @@ export async function eliminarCategoria(datos: FormData): Promise<void> {
     destino = conAviso(base, 'Categoría eliminada')
   } catch (error) {
     destino = conError(base, error, 'no se pudo eliminar la categoría')
+  }
+
+  redirect(destino)
+}
+
+// ---------------------------------------------------------------------------
+// Subcategorías
+//
+// Con qué se hace lo de cada categoría: sublimación, DTF, bordado, láser. Van
+// en su propia tabla y no como una lista con comas dentro de la categoría
+// porque cada una lleva su foto y su descripción, y una lista separada por
+// comas no puede tener una imagen por elemento.
+// ---------------------------------------------------------------------------
+
+export async function guardarSubcategoria(datos: FormData): Promise<void> {
+  const base = '/panel/categorias'
+  const id = texto(datos, 'id')
+  const categoriaId = texto(datos, 'categoria_id')
+  const nombreEs = texto(datos, 'nombre_es')
+
+  if (!nombreEs) {
+    redirect(
+      conError(base, new Error('El nombre en español es obligatorio.'), 'subcategoría sin nombre')
+    )
+  }
+
+  if (!id && !categoriaId) {
+    redirect(conError(base, new Error('Falta la categoría.'), 'subcategoría sin categoría'))
+  }
+
+  const campos = {
+    nombre_es: nombreEs,
+    nombre_en: texto(datos, 'nombre_en') || null,
+    descripcion_es: texto(datos, 'descripcion_es') || null,
+    descripcion_en: texto(datos, 'descripcion_en') || null,
+    imagen: texto(datos, 'imagen') || null,
+    orden: entero(datos, 'orden') ?? 0,
+    visible: texto(datos, 'visible') !== 'false',
+  }
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+
+    if (id) {
+      const { error } = await supabase.from('subcategorias').update(campos).eq('id', id)
+      if (error) throw error
+    } else {
+      const { error } = await supabase
+        .from('subcategorias')
+        .insert({ ...campos, categoria_id: categoriaId })
+      if (error) throw error
+    }
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, id ? 'Subcategoría actualizada' : 'Subcategoría creada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo guardar la subcategoría')
+  }
+
+  redirect(destino)
+}
+
+/**
+ * Borra una subcategoría.
+ *
+ * Los productos que tuvieran esa técnica NO se tocan: siguen con su texto en
+ * productos.tecnica, solo que ya no hay un filtro que los agrupe. Es preferible
+ * a vaciarles el campo, porque borrar una subcategoría por error no debería
+ * hacer olvidar de qué está hecho cada producto.
+ */
+export async function eliminarSubcategoria(datos: FormData): Promise<void> {
+  const base = '/panel/categorias'
+  const id = texto(datos, 'id')
+
+  if (!id) redirect(conError(base, new Error('Falta la subcategoría.'), 'subcategoría sin id'))
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('subcategorias').delete().eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Subcategoría eliminada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo eliminar la subcategoría')
+  }
+
+  redirect(destino)
+}
+
+/**
+ * Cambia la foto de una subcategoría.
+ *
+ * Va aparte de guardarSubcategoria por lo mismo que en las categorías: la
+ * subida ocurre en el navegador y necesita su propio formulario, y un
+ * formulario no se puede anidar dentro de otro.
+ */
+export async function guardarFotoSubcategoria(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/categorias')
+
+  const id = texto(datos, 'id')
+  const url = texto(datos, 'url')
+
+  if (!id || !url) redirect(conAviso(base, 'No se recibió ninguna imagen'))
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('subcategorias').update({ imagen: url }).eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto de la subcategoría actualizada')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo guardar la foto de la subcategoría')
+  }
+
+  redirect(destino)
+}
+
+export async function quitarFotoSubcategoria(datos: FormData): Promise<void> {
+  const base = volverA(datos, '/panel/categorias')
+
+  const id = texto(datos, 'id')
+  if (!id) redirect(base)
+
+  let destino: string
+  try {
+    const supabase = await crearClienteServidor()
+    const { error } = await supabase.from('subcategorias').update({ imagen: null }).eq('id', id)
+    if (error) throw error
+
+    revalidatePath(base)
+    refrescarPublico()
+    destino = conAviso(base, 'Foto quitada. En la web queda solo el nombre.')
+  } catch (error) {
+    destino = conError(base, error, 'no se pudo quitar la foto de la subcategoría')
   }
 
   redirect(destino)

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { obtenerCatalogo, obtenerCategorias } from '@/lib/consultas'
 import TarjetaProducto from '@/componentes/sitio/TarjetaProducto'
 import { ruta, esIdioma, type Idioma } from '@/lib/i18n'
@@ -73,6 +74,17 @@ export default async function Catalogo({
   ])
 
   const categoriaActiva = categorias.find((c) => c.slug === parametros.categoria)
+
+  // Aparte de categoriaActiva porque se usa en dos bloques, y repetir el
+  // encadenamiento opcional en cada uno se lee peor.
+  const subcategorias = categoriaActiva?.subcategorias ?? []
+
+  // La subcategoría abierta, si la hay. Se busca sin distinguir mayúsculas
+  // porque el nombre viaja en la dirección y ahí puede llegar escrito de otra
+  // forma; lo que se pinta es el nombre tal como está guardado.
+  const subcategoriaActiva = subcategorias.find(
+    (s) => s.nombre.toLowerCase() === (parametros.tecnica ?? '').toLowerCase()
+  )
   const desde = resultado.total === 0 ? 0 : (resultado.pagina - 1) * 24 + 1
   const hasta = Math.min(resultado.total, resultado.pagina * 24)
 
@@ -87,39 +99,86 @@ export default async function Catalogo({
         <h1 className={e.titulo}>
           {categoriaActiva?.nombre ?? txt.catalogo.titulo}
           {parametros.tecnica && (
-            <span className={e.tituloTecnica}> · {parametros.tecnica}</span>
+            <span className={e.tituloTecnica}>
+              {' '}
+              · {subcategoriaActiva?.nombre ?? parametros.tecnica}
+            </span>
           )}
         </h1>
 
-        {/* Con que se fabrica lo de esta categoria. Es lo que hay que saber
-            ANTES de que haya productos: una camiseta de NYX se hace en DTF y
-            no sublimada, y conviene decirlo aunque el catalogo de camisetas
-            este todavia vacio. */}
-        {categoriaActiva && categoriaActiva.tecnicas.length > 0 && (
+        {/* Dentro de una subcategoría, su descripción. Es el mismo texto que se
+            lee en la tarjeta de la categoría: si desapareciera al entrar, lo
+            que se escribe en el panel solo se vería de pasada. */}
+        {subcategoriaActiva?.descripcion && (
+          <p className={e.resumen}>{subcategoriaActiva.descripcion}</p>
+        )}
+
+        {/* Las subcategorías de esta categoría: con qué se fabrica lo que hay
+            dentro. Es lo que hay que saber ANTES de que haya productos —una
+            camiseta de NYX se hace en DTF y no sublimada— y conviene decirlo
+            aunque el catálogo de camisetas esté todavía vacío.
+
+            Se enseñan de dos formas según dónde estés:
+
+            · Al entrar en la categoría, como TARJETAS con foto y descripción.
+              Ahí son el contenido principal: lo que explica qué hace NYX con
+              ese producto.
+            · Ya dentro de una subcategoría, como una fila de CHIPS. Ahí ya no
+              hay que explicarlas, solo poder cambiar de una a otra sin que
+              ocupen media pantalla. */}
+        {subcategorias.length > 0 && !parametros.tecnica && (
+          <div className={e.rejillaSubcategorias}>
+            {subcategorias.map((sub) => (
+              <Link
+                key={sub.nombre}
+                href={construirEnlace(parametros, { tecnica: sub.nombre, pagina: '1' }, idioma)}
+                className={e.subcategoria}
+              >
+                <div className={e.subcategoriaFoto}>
+                  {sub.imagen ? (
+                    <Image
+                      src={sub.imagen}
+                      alt={sub.nombre}
+                      fill
+                      sizes="(max-width: 720px) 50vw, 25vw"
+                    />
+                  ) : (
+                    <span className={e.subcategoriaSinFoto}>{sub.nombre}</span>
+                  )}
+                </div>
+                <div className={e.subcategoriaCuerpo}>
+                  <div className={e.subcategoriaNombre}>{sub.nombre}</div>
+                  {sub.descripcion && (
+                    <p className={e.subcategoriaTexto}>{sub.descripcion}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {subcategorias.length > 0 && parametros.tecnica && (
           <div className={e.tecnicas}>
             <span className={e.tecnicasEtiqueta}>{txt.catalogo.tecnicas}</span>
 
-            {/* Son ENLACES, no etiquetas: al pulsarlas se filtra el catálogo
-                por esa técnica. Es lo que las convierte en subcategoría — sin
-                esto serían un cartel que se puede pulsar y no hace nada. */}
             <Link
               href={construirEnlace(parametros, { tecnica: undefined, pagina: '1' }, idioma)}
               className={e.tecnica}
-              data-activa={!parametros.tecnica}
+              data-activa={false}
             >
               {txt.catalogo.todas}
             </Link>
 
-            {categoriaActiva.tecnicas.map((tecnica) => (
+            {subcategorias.map((sub) => (
               <Link
-                key={tecnica}
-                href={construirEnlace(parametros, { tecnica, pagina: '1' }, idioma)}
+                key={sub.nombre}
+                href={construirEnlace(parametros, { tecnica: sub.nombre, pagina: '1' }, idioma)}
                 className={e.tecnica}
                 data-activa={
-                  (parametros.tecnica ?? '').toLowerCase() === tecnica.toLowerCase()
+                  (parametros.tecnica ?? '').toLowerCase() === sub.nombre.toLowerCase()
                 }
               >
-                {tecnica}
+                {sub.nombre}
               </Link>
             ))}
           </div>

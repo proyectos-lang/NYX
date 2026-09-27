@@ -1,5 +1,10 @@
 import Image from 'next/image'
-import { obtenerCategoriasPanel, obtenerProductosPanel, type ProductoPanel } from '@/lib/panel'
+import {
+  obtenerCategoriasPanel,
+  obtenerProductosPanel,
+  type CategoriaPanel,
+  type ProductoPanel,
+} from '@/lib/panel'
 import { precio, stock as textoStock } from '@/lib/formato'
 import {
   alternarVisibilidad,
@@ -24,14 +29,13 @@ interface CategoriaOpcion {
 }
 
 /**
- * Las técnicas que usa NYX, para sugerirlas al escribir.
+ * Técnicas de reserva, para cuando todavía no hay subcategorías escritas.
  *
- * Es una lista de sugerencias y no un desplegable cerrado: si mañana aparece
- * una técnica nueva se escribe y ya está, sin tocar el código. Lo que evita
- * es que convivan "DTF" y "dtf" como si fueran dos cosas distintas, porque el
- * filtro de la web las agrupa por nombre.
+ * Las de verdad salen de las subcategorías que haya creadas en
+ * /panel/categorias (ver `tecnicasSugeridas`). Esta lista solo evita que el
+ * campo quede sin ninguna sugerencia en una base recién montada.
  */
-const TECNICAS = [
+const TECNICAS_RESERVA = [
   'Impresión DTF',
   'Sublimación',
   'Vinil',
@@ -42,12 +46,33 @@ const TECNICAS = [
   'Acrílico',
 ]
 
+/**
+ * Lo que se sugiere al escribir la técnica de un producto.
+ *
+ * Sale de las subcategorías reales y no de una lista fija por una razón
+ * concreta: el enlace entre un producto y su subcategoría es el NOMBRE. Si en
+ * /panel/categorias se crea «Grabado láser» y aquí se sugiriera otra cosa, se
+ * escribiría una variante —«Laser», «grabado laser»— y el filtro de la web no
+ * encontraría el producto, sin dar ningún error. Sugerir lo que existe es lo
+ * que mantiene los dos lados escribiendo igual.
+ *
+ * Sigue siendo un datalist y no un desplegable cerrado: se puede escribir algo
+ * que aún no sea subcategoría.
+ */
+function tecnicasSugeridas(categorias: CategoriaPanel[]): string[] {
+  const nombres = categorias.flatMap((cat) => cat.subcategorias.map((s) => s.nombreEs))
+  return nombres.length > 0 ? [...new Set(nombres)].sort() : TECNICAS_RESERVA
+}
+
 /** Mismo formulario para crear y para editar: cambia solo si lleva id. */
 function FormularioProducto({
   categorias,
+  tecnicas,
   producto,
 }: {
   categorias: CategoriaOpcion[]
+  /** Nombres de las subcategorías existentes, para sugerirlos. */
+  tecnicas: string[]
   producto?: {
     id: string
     sku: string
@@ -189,7 +214,7 @@ function FormularioProducto({
             placeholder="Impresión DTF"
           />
           <datalist id="tecnicas-nyx">
-            {TECNICAS.map((t) => (
+            {tecnicas.map((t) => (
               <option key={t} value={t} />
             ))}
           </datalist>
@@ -319,6 +344,7 @@ export default async function CatalogoPanel({
   }
 
   const opciones = categorias.map((cat) => ({ id: cat.id, nombreEs: cat.nombreEs }))
+  const tecnicas = tecnicasSugeridas(categorias)
 
   return (
     <>
@@ -338,7 +364,7 @@ export default async function CatalogoPanel({
       <details className={c.nuevo}>
         <summary className={c.nuevoResumen}>+ Nuevo producto</summary>
         <div className={c.editorCuerpo} style={{ marginTop: 12, borderTop: '1px solid rgba(0,0,0,.08)' }}>
-          <FormularioProducto categorias={opciones} />
+          <FormularioProducto categorias={opciones} tecnicas={tecnicas} />
         </div>
       </details>
 
@@ -407,7 +433,7 @@ export default async function CatalogoPanel({
                       ya creado, y lo que decide si se ve bien en la web. */}
                   <FotosProducto producto={prod} />
 
-                  <FormularioProducto categorias={opciones} producto={prod} />
+                  <FormularioProducto categorias={opciones} tecnicas={tecnicas} producto={prod} />
 
                   <form action={eliminarProducto} style={{ marginTop: 20 }}>
                     <input type="hidden" name="id" value={prod.id} />

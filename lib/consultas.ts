@@ -8,6 +8,7 @@ import {
   FAQ_DEMO,
   PRODUCTOS_DEMO,
   type CategoriaVista,
+  type SubcategoriaVista,
   type FaqVista,
   type ProductoVista,
 } from '@/lib/demo'
@@ -64,21 +65,6 @@ function enIdioma(es: string | null, en: string | null, idioma: Idioma): string 
   return es ?? ''
 }
 
-/**
- * Una lista escrita con comas, tal como se teclea en el panel.
- *
- * Se guarda como texto y no como lista porque el panel lo edita con un solo
- * campo: escribir "DTF, Vinil" es mas rapido que anadir filas de una en una, y
- * quien administra el sitio no deberia aprender una interfaz nueva para decir
- * dos palabras.
- */
-function separarPorComas(valor: string): string[] {
-  return valor
-    .split(',')
-    .map((x) => x.trim())
-    .filter(Boolean)
-}
-
 /** Las rutas del seed vienen sin barra inicial; en Next viven bajo /assets. */
 function rutaImagen(url: string | null | undefined): string | null {
   if (!url) return null
@@ -104,21 +90,33 @@ export async function obtenerCategorias(
     const supabase = await crearClienteServidor()
     const { data, error } = await supabase
       .from('categorias')
-      .select('slug, nombre_es, nombre_en, tecnicas_es, tecnicas_en, imagen_portada, productos(count)')
+      .select(
+        `slug, nombre_es, nombre_en, imagen_portada, productos(count),
+         subcategorias ( nombre_es, nombre_en, descripcion_es, descripcion_en, imagen, orden, visible )`
+      )
       .eq('visible', true)
       .order('orden')
 
     if (error) throw error
 
+    type FilaSubcategoria = {
+      nombre_es: string
+      nombre_en: string | null
+      descripcion_es: string | null
+      descripcion_en: string | null
+      imagen: string | null
+      orden: number
+      visible: boolean
+    }
+
     type FilaCategoria = {
       slug: string
       nombre_es: string
       nombre_en: string | null
-      tecnicas_es: string | null
-      tecnicas_en: string | null
       imagen_portada: string | null
       // El embed de conteo llega como [{ count: n }].
       productos: { count: number }[] | null
+      subcategorias: FilaSubcategoria[] | null
     }
 
     return ((data ?? []) as unknown as FilaCategoria[]).map((c) => ({
@@ -126,7 +124,14 @@ export async function obtenerCategorias(
       nombre: enIdioma(c.nombre_es, c.nombre_en, idioma),
       imagen: rutaImagen(c.imagen_portada),
       cuenta: c.productos?.[0]?.count ?? 0,
-      tecnicas: separarPorComas(enIdioma(c.tecnicas_es, c.tecnicas_en, idioma)),
+      subcategorias: [...(c.subcategorias ?? [])]
+        .filter((s) => s.visible)
+        .sort((a, b) => a.orden - b.orden)
+        .map((s) => ({
+          nombre: enIdioma(s.nombre_es, s.nombre_en, idioma),
+          descripcion: enIdioma(s.descripcion_es, s.descripcion_en, idioma) || null,
+          imagen: rutaImagen(s.imagen),
+        })),
     }))
   } catch (error) {
     avisar('Error al leer categorías', error)
