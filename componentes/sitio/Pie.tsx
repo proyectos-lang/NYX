@@ -17,7 +17,6 @@ export default async function Pie({ idioma }: { idioma: Idioma }) {
     { texto: t.nav.inicio, href: '/' },
     { texto: t.nav.catalogo, href: '/catalogo' },
     { texto: t.nav.personalizables, href: '/catalogo?tipo=personalizable' },
-    { texto: t.nav.entregaInmediata, href: '/catalogo?tipo=entrega_inmediata' },
     { texto: t.nav.nosotros, href: '/#nosotros' },
   ]
 

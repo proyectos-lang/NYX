@@ -240,7 +240,7 @@ const ES: Textos = {
     irAlInicio: 'NYX, ir al inicio',
   },
   pie: {
-    lema: 'Sublimación y productos personalizados. Camisas, tazas, termos, gorras y kits corporativos.',
+    lema: 'Productos personalizados. Camisetas, tazas, termos, gorras y regalos corporativos.',
     navegacion: 'Navegación',
     categorias: 'Categorías',
     contacto: 'Contacto',
@@ -473,7 +473,7 @@ const EN: Textos = {
     irAlInicio: 'NYX, go to home',
   },
   pie: {
-    lema: 'Sublimation and personalized products. Shirts, mugs, tumblers, caps and corporate kits.',
+    lema: 'Personalized products. T-shirts, mugs, tumblers, caps and corporate gifts.',
     navegacion: 'Navigation',
     categorias: 'Categories',
     contacto: 'Contact',
